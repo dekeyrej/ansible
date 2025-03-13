@@ -1,0 +1,10 @@
+- name: Python
+  hosts: nodes
+  become: yes
+  tasks:
+  - name: Install pip, venv
+    ansible.builtin.apt:
+      pkg: 
+      - python3-pip 
+      - python3-venv
+      update_cache: yes

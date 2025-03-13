@@ -1,0 +1,45 @@
+---
+- name: test return value
+  hosts: allnodes
+  become: no
+  tasks:
+  # - name: hostname
+  #   ansible.builtin.shell: hostname
+  #   register: hn
+
+  # - name: export hostname
+  #   register: hn.stdout
+
+  - name: cpu temperature
+    ansible.builtin.shell:
+      cmd: sensors | grep -C 1 "Virtual device" | grep temp1 | awk -F ':' '{print $2}' | sed 's/ //g'
+    register: temp
+
+  - name: cpu temperature
+    ansible.builtin.shell:
+      cmd: sensors | grep fan1 | awk -F ':' '{print $2}' | awk -F ' ' '{print $1, $2}'
+    register: rpm
+
+  # - name: print cpu temp
+  #   ansible.builtin.debug:
+  #     var: temp.stdout
+
+  # - name: print fan rpm
+  #   ansible.builtin.debug:
+  #     var: rpm.stdout
+
+  - name: one line output
+    ansible.builtin.debug:
+      msg: "{{ inventory_hostname }} - cpu temp: {{ temp.stdout }}, fan speed: {{ rpm.stdout }}"
+
+  # - name: echo stdout
+  #   ansible.builtin.shell: echo {{ result.stdout }}
+
+  # - name: dump hostvars
+  #   ansible.builtin.debug:
+  #     var: groups.prime[0]
+
+  # - name: dump hostvars
+  #   ansible.builtin.debug:
+  #     var: inventory_hostname
+  

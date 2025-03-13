@@ -1,0 +1,15 @@
+---
+- name: update hosts.ini with ansible_host entries
+  hosts: localhost
+  connection: local
+  become: no
+
+  tasks:
+    - name: Create instance list
+      ansible.builtin.set_fact:
+        instances: "{{ groups['all'] }}"
+
+    - name: loop through instances
+      include_tasks: 1di_multipass_inventory_tasks.yaml
+      loop: "{{ instances }}"
+    

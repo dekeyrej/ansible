@@ -1,0 +1,9 @@
+- name: Microceph Base
+  hosts: allnodes
+  become: yes
+  tasks:
+  - name: Install microceph
+    community.general.snap:
+      name: microceph
+  - name: hold snap updates
+    ansible.builtin.shell: sudo snap refresh --hold microceph

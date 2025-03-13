@@ -1,0 +1,19 @@
+#cloud-config
+resize_rootfs: false
+
+disk_setup: 
+  /dev/sda: {table_type: 'gpt', layout: [ 25, 75 ], overwrite: true}
+
+fs_setup:
+  - {device: /dev/sda1, filesystem: ext4, label: fs1}
+  - {device: /dev/sda2, filesystem: ext4, label: fs2}
+
+mounts:
+  - ["/dev/sda1", "/"]
+  - ["/dev/sda2", "/ceph"]
+
+users:
+  - default
+  - name: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:

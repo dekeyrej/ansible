@@ -1,0 +1,7 @@
+---
+# top-level playbook to create a multi-node microceph cluster
+
+- import_playbook: 3a_microceph_base.yaml         # allnodes
+- import_playbook: 3b_microceph_bootstrap.yaml    # prime
+# - import_playbook: 3c_microceph_add_nodes.yaml    # subnodes
+- import_playbook: 3d_microceph_add_disks.yaml    # allnodes

@@ -1,0 +1,19 @@
+- name: Install microk8s and kubectl snaps 
+  hosts: allnodes
+  become: yes
+  tasks:
+  - name: Install microk8s and kubectl
+    community.general.snap:
+      name: 
+        - microk8s
+        - kubectl
+      classic: true
+
+  - name: Add ubuntu to group microk8s
+    ansible.builtin.user:
+      name: ubuntu
+      groups: microk8s
+      append: yes
+
+  - name: reboot so groups changes take effect
+    ansible.builtin.reboot:

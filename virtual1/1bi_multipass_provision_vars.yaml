@@ -1,0 +1,5 @@
+---
+cpus: 4
+memory: 8GB
+disk: 100GB
+cloud_init: 1bii_cloud-init.yaml

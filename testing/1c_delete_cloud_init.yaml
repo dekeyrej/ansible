@@ -1,0 +1,11 @@
+---
+- name: delete cloud-init.yaml
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  become: no
+  tasks:
+  - name: delete ./1bii_cloud-init.yaml
+    ansible.builtin.file:
+      path: ./1bii_cloud-init.yaml
+      state: absent
