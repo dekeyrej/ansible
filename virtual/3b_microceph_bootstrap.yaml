@@ -1,0 +1,12 @@
+---
+
+- name: Microceph Boostrap
+  hosts: prime
+  become: yes
+  vars:
+    prime: "{{ ansible_eth0.ipv4.address }}"
+
+  tasks:
+  - name: Bootstrap
+    ansible.builtin.shell: microceph cluster bootstrap
+  

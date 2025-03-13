@@ -1,0 +1,7 @@
+---
+# top-level playbook to create a multi-node microceph cluster
+
+- import_playbook: 1a_generate_cloud_init.yaml        # localhost
+- import_playbook: 1b_multipass_provision.yaml        # allnodes
+- import_playbook: 1c_delete_cloud_init.yaml          # localhost
+- import_playbook: 1d_multipass_inventory.yaml        # localhost

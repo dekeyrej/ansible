@@ -1,0 +1,28 @@
+#cloud-config
+disk_setup:
+  /dev/sda: {layout: [25,[25,191],[25,191],[25,191]], overwrite: true, table_type: 'gpt'}
+fs_setup:
+- {device: /dev/sda1, filesystem: ext4, label: fs1}
+mounts:
+- [/dev/sda1, /]
+users:
+  - default
+  - name: ubuntu
+    sudo: ALL=(ALL:ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDQxLlV9aMavpxLyd++1M7el4iFY3p/g8Qg4GN/0HrHkpaFgXWkl+My0x+hjaPF4lXBAAgZrHkxREn5qVtzEM7EcrYDFhQNfd1NA+Jz+gUOW8W7nP3G9kV7WSriMrspeQfx7VNENAGRkWxXe4Bm8yGlOmk4MYaycD8osZfTPWwkhFyZLY3AFbE6J0AcuntZxJPm0j+JVDOmsUVJhc7/Q5Zp2t2FFla3UzRIlSwaqAF2yayjEl6IbS4K30Zmjo8UOQHO9FOIKuXPFx8Wrlc9kqps0t72kGcj5Y9mgduMjJTA+E0cRsti9TTO3bSmVjdJ85FgKSFw+a4iKwmlonDfNxJ1 ubuntu@Rocket3
+#packages:
+#  python3-kubernetes
+#  python3-psycopg2
+#  postgresql-client-common
+snap:
+  commands:
+  - snap install microceph
+  - snap refresh --hold microceph
+#  - snap install microk8s --classic
+#  - snap install kubectl --classic
+runcmd:
+- microceph cluster bootstrap
+#- /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+# apt-get install -y postgresql-client-17
+#- usermod -aG microk8s ubuntu

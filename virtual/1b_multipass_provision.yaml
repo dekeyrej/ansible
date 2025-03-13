@@ -1,0 +1,10 @@
+---
+- name: provision multipass hosts
+  hosts: allnodes
+  gather_facts: no
+  become: no
+  vars_files:
+    - 1bi_multipass_provision_vars.yaml
+  tasks:
+  - name: provision a host
+    local_action: ansible.builtin.shell multipass launch -n {{ inventory_hostname }} -c{{ cpus }} -m{{ memory }} -d{{ disk }} --cloud-init {{ cloud_init }}

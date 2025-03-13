@@ -1,0 +1,32 @@
+- name: Microk8s Configure
+  hosts: prime
+  become: no
+  tasks:
+  - name: enable rook-ceph
+    ansible.builtin.shell: microk8s enable rook-ceph
+
+  - name: connect microk8s to microceph
+    ansible.builtin.shell: sudo -E microk8s connect-external-ceph
+
+  - name: make ceph-rbd the default storage class
+    ansible.builtin.command: 
+      argv:
+        - kubectl 
+        - patch 
+        - storageClass 
+        - ceph-rbd 
+        - -p
+        - '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
+  - name: enable minio
+    ansible.builtin.shell: sudo -E microk8s enable minio -s ceph-rbd
+  
+  - name: undefault microk8s-hostpath storageClass
+    ansible.builtin.command: 
+      argv:
+        - kubectl 
+        - patch 
+        - storageclass 
+        - microk8s-hostpath 
+        - -p 
+        - '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
