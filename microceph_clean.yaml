@@ -1,0 +1,13 @@
+- name: Microceph Cleanup
+  hosts: allnodes
+  become: yes
+  tasks:
+  - name: remove/purge microceph
+    ansible.builtin.shell: snap remove microceph --purge
+ 
+  # - name: Remove microceph
+  #   community.general.snap:
+  #     name: microceph
+  #     options:
+  #       - par1="--purge"
+  #     state: absent

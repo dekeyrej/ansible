@@ -1,0 +1,9 @@
+---
+# top-level playbook to create a multi-node microceph cluster
+
+- import_playbook: microk8s_base.yaml              # allnodes
+- import_playbook: microk8s_add_nodes.yaml         # subnodes
+- import_playbook: microk8s_configure.yaml         # prime
+- import_playbook: microk8s_postgres_redis.yaml    # prime
+- import_playbook: microk8s_create_database.yaml   # prime
+- import_playbook: microk8s_applications.yaml      # prime

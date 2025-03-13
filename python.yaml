@@ -1,0 +1,12 @@
+- name: Python
+  hosts: nodes
+  become: yes
+  tasks:
+  - name: Install pip, venv, psycopg2
+    ansible.builtin.apt:
+      pkg: 
+      - python3-pip
+      - python3-venv
+      - python3-kubernetes
+      - python3-psycopg2
+      update_cache: yes
