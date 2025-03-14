@@ -33,8 +33,8 @@
   - name: Install pip, venv, kubernetes, psycopg2
     ansible.builtin.apt:
       pkg: 
-      - python3-pip
-      - python3-venv
+      # - python3-pip
+      # - python3-venv
       - python3-kubernetes
       - python3-psycopg2
-      update_cache: yes
+      # update_cache: yes

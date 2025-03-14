@@ -5,7 +5,6 @@
   vars_files:
     - 4ei_database_password_vars.yaml
   tasks:
-  ### wait until connection available ###
     - name: create database
       community.postgresql.postgresql_db:
         login_host: "{{ inventory_hostname }}"

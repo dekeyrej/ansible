@@ -1,3 +1,0 @@
-ANSIBLE_INVENTORY="$PWD"/hosts.ini
-export ANSIBLE_INVENTORY
-hash -r 2> /dev/null

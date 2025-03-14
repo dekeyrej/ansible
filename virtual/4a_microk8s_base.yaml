@@ -6,6 +6,11 @@
     community.general.snap:
       name: 
         - microk8s
+      classic: true
+
+  - name: Install kubectl
+    community.general.snap:
+      name: 
         - kubectl
       classic: true
 
@@ -14,3 +19,6 @@
       name: ubuntu
       groups: microk8s
       append: yes
+  
+  - name: reboot for group changes to take effect
+    ansible.builtin.reboot:

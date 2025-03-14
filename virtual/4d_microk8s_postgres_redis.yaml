@@ -53,3 +53,9 @@
     #     - op: add
     #       path: /spec/template/spec/containers/0/ports/-
     #       value: {"name": "redis", "hostPort": 6379, "containerPort": 6379, "protocol": "TCP"}
+
+  - name: pause for ingress changes to take effect
+    ansible.builtin.wait_for:
+      port: 5432
+      delay: 10
+      sleep: 10

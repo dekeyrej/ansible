@@ -7,8 +7,11 @@
   vars_files:
     - 1ai_cloud_init_vars.yaml
   tasks:
-  - name: copy 1aii_cloud-init-disks.yaml
-    ansible.builtin.shell: cp 1aii_cloud-init-disks.yaml 1bii_cloud-init.yaml
+  # - name: set the subnode count
+  #   ansible.builtin.set_fact:
+  #     subcount: "{{ groups['subnodes'] | length }}"
+  - name: copy 1aii_cloud-init.yaml
+    ansible.builtin.shell: cp 1aii_cloud_init.yaml 1bii_cloud-init.yaml
   - name: append authorized keys to cloud-init.yaml
     ansible.builtin.lineinfile:
       path: 1bii_cloud-init.yaml

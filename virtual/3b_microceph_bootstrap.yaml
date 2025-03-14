@@ -1,5 +1,4 @@
 ---
-
 - name: Microceph Boostrap
   hosts: prime
   become: yes

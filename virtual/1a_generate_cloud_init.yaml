@@ -7,11 +7,11 @@
   vars_files:
     - 1ai_cloud_init_vars.yaml
   tasks:
-  - name: create cloud-init.yaml from template
-    ansible.builtin.template:
-      src: ./1aii_cloud_init.yaml.j2
-      dest: ./1bii_cloud-init.yaml
-      owner: ubuntu
-      group: ubuntu
-      mode: '0600'
-
+  - name: copy 1aii_cloud-init.yaml
+    ansible.builtin.shell: cp 1aii_cloud_init.yaml 1bii_cloud-init.yaml
+  - name: append authorized keys to cloud-init.yaml
+    ansible.builtin.lineinfile:
+      path: 1bii_cloud-init.yaml
+      insertafter: "^    ssh_authorized_keys:"
+      line: "    - {{ item }}"
+    loop: "{{ sha }}"

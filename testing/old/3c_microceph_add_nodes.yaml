@@ -1,5 +1,7 @@
 - name: Microceph add nodes to cluster
   hosts: subnodes
+  # vars:
+  #   subcount: "{{ groups['subnodes'] | length }}"
   become: yes
   tasks:
 
@@ -7,6 +9,8 @@
     ansible.builtin.shell: "microceph cluster add {{ inventory_hostname }}"
     delegate_to: "{{ groups.prime[0] }}"
     register: result
+    # when:  subcount != "0"
 
   - name: join subnodes to the cluster using the returned token
     ansible.builtin.shell: "microceph cluster join {{ result.stdout }}"
+    # when:  subcount != "0"

@@ -1,5 +1,7 @@
 - name: Microk8s add nodes to cluster
   hosts: subnodes
+  # vars:
+  #   subcount: "{{ groups['subnodes'] | length }}"
   become: no
   tasks:
   
@@ -8,6 +10,8 @@
     delegate_to: "{{ groups.prime[0] }}"
     become: yes
     register: result
+    # when:  subcount != "0"
 
   - name: add the node to the cluster
     ansible.builtin.shell: "{{ result.stdout }}"
+    # when:  subcount != "0"

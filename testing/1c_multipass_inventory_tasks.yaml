@@ -1,0 +1,33 @@
+---
+- name: get ip of new host
+  ansible.builtin.shell: multipass info {{ item }} | grep IPv4 | awk -F' ' '{print $2}'
+  register: ipa
+
+- name: update host line in /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    search_string: "{{ item }}"
+    line: "{{ ipa.stdout }} {{ item }}"
+  become: yes
+
+- name: clear known_hosts
+  ansible.builtin.shell: ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R '{{ item }}'
+
+# - name: append ipaddress host line to /etc/hosts
+#   ansible.builtin.lineinfile:
+#     path: /etc/hosts
+#     insertafter: EOF
+#     line: "{{ ipa.stdout }} {{ item }}"
+#   become: yes
+
+# - name: append ansible_host entry in hosts.ini
+#   ansible.builtin.lineinfile:
+#     path: hosts.ini
+#     search_string: "{{ item }}"
+#     line: "{{ item }} ansible_host={{ ipa.stdout }}"
+
+# - name: append ansible_host entry in inventory.yaml
+#   ansible.builtin.lineinfile:
+#     path: inventory.yaml
+#     insertafter: "^    {{ item }}:"
+#     line: "      ansible_host: {{ ipa.stdout }}"

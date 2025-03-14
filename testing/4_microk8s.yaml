@@ -1,8 +1,27 @@
 ---
-# top-level playbook to create a multi-node microceph cluster
+- name: Microk8s
+  hosts: allnodes
+  vars_files:
+    - 4ei_database_password_vars.yaml
+  become: yes
+  tasks:
+  - name: Install microk8s & kubectl
+    include_tasks: 4a_microk8s_base.yaml  
 
-- import_playbook: 4a_microk8s_base.yaml              # allnodes
-# - import_playbook: 4b_microk8s_add_nodes.yaml         # subnodes
-- import_playbook: 4c_microk8s_configure.yaml         # prime
-- import_playbook: 4d_microk8s_postgres_redis.yaml    # prime
-- import_playbook: 4e_microk8s_create_database.yaml   # prime
+  - block:
+    - name: Generate command to add a new microk8s node
+      include_tasks: 4b_microk8s_add_nodes.yaml
+    when: inventory_hostname in groups['subnodes']
+
+  - name: make kubectl work after cluster is formed
+    ansible.builtin.shell: |
+      mkdir /home/ubuntu/.kube
+      microk8s kubectl config view --raw=true > /home/ubuntu/.kube/config
+    become: no
+
+  - block:
+    - name: enable microk8s addons
+      include_tasks: 4c_microk8s_configure.yaml
+    - name: provision postgres and redis
+      include_tasks: 4d_microk8s_postgres_redis.yaml
+    when: inventory_hostname in groups['prime']

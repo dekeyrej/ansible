@@ -1,13 +1,8 @@
 ---
-- name: provision multipass hosts
+- name: stop/delete/purge multipass hosts
   hosts: allnodes
   gather_facts: no
   become: no
-  vars:
-    cpus: 4
-    memory: 8GB
-    disk: 30GB
-    cloud_init: cloud-init.yaml
   tasks:
   - name: stop host
     local_action: ansible.builtin.shell multipass stop {{ inventory_hostname }} --force

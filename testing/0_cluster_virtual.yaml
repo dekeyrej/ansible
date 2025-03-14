@@ -9,4 +9,4 @@
 # install, assemble, configure, and deploy postgres and redis
 - import_playbook: 4_microk8s.yaml
 # deploy containers for microservices, apiserver and webdisplay
-# - import_playbook: 5_application_containers.yamlyes
+#- import_playbook: 5_application_containers.yaml

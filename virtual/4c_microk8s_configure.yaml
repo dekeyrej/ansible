@@ -15,6 +15,11 @@
 
   - name: enable ingress
     ansible.builtin.shell: microk8s enable ingress
+  
+  # if I can figure out a reasonable to 'wait_for' that would be better
+  - name: wait 10 seconds
+    ansible.builtin.pause:
+      seconds: 10
 
   - name: enable rook-ceph
     ansible.builtin.shell: microk8s enable rook-ceph
