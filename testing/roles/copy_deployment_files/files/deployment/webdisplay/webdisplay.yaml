@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webdisplay
+  namespace: default
+  labels:
+    k8s-app: webdisplay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: webdisplay
+  template:
+    metadata:
+      name: webdisplay
+      labels:
+        k8s-app: webdisplay
+    spec:
+      containers:
+      - name: webdisplay
+        image: ghcr.io/dekeyrej/nodewebdisplay:latest
+        imagePullPolicy: Always
+        resources:
+            requests:
+              cpu: 10m
+              memory: 512Mi
+        volumeMounts:
+        - name: secret-volume
+          mountPath: /home/node/app/config
+          readOnly: true
+        securityContext:
+          privileged: false
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: matrix-secrets

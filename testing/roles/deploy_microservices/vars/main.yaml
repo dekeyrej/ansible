@@ -1,0 +1,21 @@
+---
+microservices:
+  - aqi
+  - weather
+  - moon
+  - nfl
+  - mlb
+  - events
+  - github
+  - garmin
+  - mycal
+
+webdisplay:
+  - webdisplay
+  - webdisplayservice
+  # - webdisplay-ingress
+
+nodeapi:
+  - nodeapiserver
+  - nodeapiserverservice
+  # - nodeapi-ingress

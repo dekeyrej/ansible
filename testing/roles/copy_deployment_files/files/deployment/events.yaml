@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: events
+  namespace: default
+  labels:
+    k8s-app: events
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: events
+  template:
+    metadata:
+      name: events
+      labels:
+        k8s-app: events
+    spec:
+      containers:
+        - name: events
+          image: ghcr.io/dekeyrej/events:latest
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 10255
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+          livenessProbe:
+            tcpSocket:
+              port: 10255
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          securityContext:
+            privileged: false
+      imagePullSecrets:
+        - name: ghcr-login-secret

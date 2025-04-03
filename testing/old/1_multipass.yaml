@@ -1,0 +1,13 @@
+---
+# top-level playbook to provision multipass hosts
+# expects 'main host' in group prime (only 1, please), and
+# other hosts in group subnodes (0..n)
+- name: Provision Multipass hosts in inventory
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  become: no
+  vars_files:
+    - sha_keys.yaml          # list of SHA-KEYs for authorized hosts [Encrypted]
+  roles:
+    - role: multipass

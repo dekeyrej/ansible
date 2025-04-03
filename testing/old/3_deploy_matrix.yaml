@@ -1,0 +1,9 @@
+- name: Prepare nodes, setup microceph and microk8s, deploy kubegres and redis
+  hosts: prime
+  become: no
+  roles:
+    - role: create_matrix_database
+    - role: github_secret
+    - role: copy_deployment_files
+    - role: update_secrets
+    - role: deploy_microservices

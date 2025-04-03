@@ -1,0 +1,78 @@
+# microk8s addons
+- block:
+  - name: enable metrics-server
+    ansible.builtin.shell: microk8s enable metrics-server
+  - ansible.builtin.pause: seconds=5
+
+  - name: enable dashboard
+    ansible.builtin.shell: microk8s enable dashboard
+  - ansible.builtin.pause: seconds=5
+
+  - name: save dashboard token
+    ansible.builtin.shell: kubectl describe secret -n kube-system microk8s-dashboard-token | grep token > /home/ubuntu/dashboard.token
+
+  - name: enable rook-ceph
+    ansible.builtin.shell: microk8s enable rook-ceph
+  - ansible.builtin.pause: seconds=5
+
+  - name: connect microk8s to microceph
+    ansible.builtin.shell: sudo -E microk8s connect-external-ceph
+  - ansible.builtin.pause: seconds=10
+
+  - name: make ceph-rbd the default storage class
+    ansible.builtin.command: 
+      argv:
+        - kubectl 
+        - patch 
+        - storageClass 
+        - ceph-rbd 
+        - -p
+        - '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+  - ansible.builtin.pause: seconds=5
+  
+  - name: enable minio  # this enables the microk8s-hostpath storageclass as default!?!
+    ansible.builtin.shell: sudo -E microk8s enable minio -s ceph-rbd
+  - ansible.builtin.pause: seconds=5
+
+  - name: undefault microk8s-hostpath storageClass
+    ansible.builtin.command: 
+      argv:
+        - kubectl 
+        - patch 
+        - storageclass 
+        - microk8s-hostpath 
+        - -p 
+        - '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+
+  - name: enable ingress
+    ansible.builtin.shell: microk8s enable ingress
+  - ansible.builtin.pause: seconds=10
+
+  - name: create dashboard ingress
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          annotations:
+            nginx.ingress.kubernetes.io/rewrite-target: /$2
+            nginx.ingress.kubernetes.io/configuration-snippet: |
+              rewrite ^(/dashboard)$ $1/ redirect;
+            nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+            kubernetes.io/ingress.class: public
+          name: dashboard
+          namespace: kube-system
+        spec:
+          rules:
+          - http:
+              paths:
+              - path: /dashboard(/|$)(.*)
+                pathType: Prefix
+                backend:
+                  service:
+                    name: kubernetes-dashboard
+                    port:
+                      number: 443
+  - ansible.builtin.pause: seconds=30
+  become: no

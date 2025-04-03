@@ -1,0 +1,5 @@
+---
+cpus: 4      # can't run microceph with less than 4 cpus
+memory: 8GB
+disk: 100GB
+cloud_init: cloud-init.yaml

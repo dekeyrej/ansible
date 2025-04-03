@@ -1,0 +1,21 @@
+---
+- name: deploy microservices
+  ansible.builtin.shell:
+    cmd: kubectl apply -f {{ item }}.yaml
+  args:
+    chdir: /home/ubuntu/deployment
+  with_items: "{{ microservices }}"
+
+- name: deploy webdisplay
+  ansible.builtin.shell:
+    cmd: kubectl apply -f {{ item }}.yaml
+  args:
+    chdir: /home/ubuntu/deployment/webdisplay
+  with_items: "{{ webdisplay }}"
+
+- name: deploy nodeapi
+  ansible.builtin.shell:
+    cmd: kubectl apply -f {{ item }}.yaml
+  args:
+    chdir: /home/ubuntu/deployment/nodeapi
+  with_items: "{{ nodeapi }}"

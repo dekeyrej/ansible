@@ -1,0 +1,115 @@
+---
+- block:
+  # - name: wait for kubernetes api server to be ready
+  # #   ansible.builtin.pause:
+  # #     seconds: 30
+  #   ansible.builtin.wait_for:
+  #     # host: "{{ inventory_hostname }}"
+  #     host: localhost
+  #     port: 6443
+  #     state: started
+  #     delay: 10
+  #     timeout: 60
+
+  - name: create kubegres-system namespace
+    ansible.builtin.shell: kubectl create namespace kubegres-system
+    # kubernetes.core.k8s:
+    #   state: present
+    #   definition:
+    #     apiVersion: v1
+    #     kind: Namespace
+    #     metadata:
+    #       name: kubegres-system
+
+  - name: retrieve and apply kubegres.yaml as a ConfigMap
+    ansible.builtin.shell: 
+      cmd: kubectl apply -f https://raw.githubusercontent.com/reactive-tech/kubegres/v1.19/kubegres.yaml
+
+  - name: create kubegres namespace
+    ansible.builtin.shell: kubectl create namespace kubegres
+    # kubernetes.core.k8s:
+    #   state: present
+    #   definition:
+    #     apiVersion: v1
+    #     kind: Namespace
+    #     metadata:
+    #       name: kubegres
+  
+  - name: kubegres secrets
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: mypostgres-secret
+          namespace: kubegres
+        type: Opaque
+        stringData:
+          superUserPassword: "{{ supasswd }}"
+          replicationUserPassword: "{{ rupasswd }}"
+
+  - name: kubegres deployment
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion: kubegres.reactive-tech.io/v1
+        kind: Kubegres
+        metadata:
+          name: mypostgres
+          namespace: kubegres
+        spec:
+          replicas: 1
+          image: postgres:latest
+          database:
+              size: 200Mi
+          env:
+              - name: POSTGRES_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                      name: mypostgres-secret
+                      key: superUserPassword
+              - name: POSTGRES_REPLICATION_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                      name: mypostgres-secret
+                      key: replicationUserPassword
+
+  - name: kubegres primary service
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: mypostgres
+          namespace: kubegres
+        spec:
+          clusterIP: None
+          ports:
+          - port: 5432
+            targetPort: 5432
+            name: mypostgres
+          selector:
+            app: mypostgres
+            replicationRole: primary
+
+  - name: kubegres replica service
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: mypostgres-replica
+          namespace: kubegres
+        spec:
+          clusterIP: None
+          ports:
+          - port: 5432
+            targetPort: 5432
+            name: mypostgres
+          selector:
+            app: mypostgres
+            replicationRole: replica
+  when: inventory_hostname in groups['prime']

@@ -1,0 +1,24 @@
+---
+- name: install postgresql prequisites 
+  ansible.builtin.apt:
+      pkg:
+      - curl
+      - ca-certificates
+      state: present
+      update_cache: yes
+
+- name: make directory tree for key
+  ansible.builtin.shell: |
+    install -d /usr/share/postgresql-common/pgdg
+    curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+
+- name: install postgres client stuff
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main
+    state: present
+
+- name: Update cache
+  ansible.builtin.apt:
+    pkg: postgresql-client-17
+    state: present
+    update_cache: yes

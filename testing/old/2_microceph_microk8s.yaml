@@ -1,0 +1,37 @@
+- name: Prepare nodes, setup microceph and microk8s, deploy kubegres and redis
+  hosts: allnodes
+  become: yes
+  #### vars required for rpi5 with nvme disks
+  # vars:
+  #   disk_list: /dev/nvme0n1p3
+  tasks:
+
+  - block:
+    - name: Update all packages
+      include_role:
+        name: update_all
+    - name: Install postgresql client
+      include_role:
+        name: postgresql_client
+    - name: Install python3 packages
+      include_role:
+        name: python3_packages
+    - name: Setup microceph
+      include_role:
+        name: microceph
+    - name: Setup microk8s
+      include_role:
+        name: microk8s
+    
+  - block:
+    - name: Deploy kubegres
+      include_role:
+        name: kubegres
+    - name: Deploy redis
+      include_role:
+        name: redis
+    - name: Create tcp ingresses
+      include_role:
+        name: tcp_ingresses
+    when: inventory_hostname in groups['prime']
+    become: no

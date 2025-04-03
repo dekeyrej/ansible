@@ -1,0 +1,31 @@
+# build/apply daemonSet patch for tcp services
+- name: Create a temporary yaml file
+  ansible.builtin.tempfile:
+    state: file
+    suffix: yaml
+    prefix: ds_
+  register: tempfile_ds
+
+- name: add block to patchfile
+  ansible.builtin.blockinfile:
+    path: "{{ tempfile_ds.path }}"
+    marker: ""
+    insertafter: EOF
+    block: |
+      - op: add
+        path: "/spec/template/spec/containers/0/ports/-"
+        value:
+          name: {{ item.name }}
+          hostPort: {{ item.port }}
+          containerPort: {{ item.port }}
+          protocol: TCP
+  with_items: "{{ tcp_services }}"
+
+- name: Patching the daemonSet
+  ansible.builtin.shell: 
+    cmd: "kubectl patch daemonset nginx-ingress-microk8s-controller -n ingress --type='json' --patch-file {{ tempfile_ds.path }}"
+
+- name: delete daemonsetpatch.yaml
+  ansible.builtin.file:
+    path: "{{ tempfile_ds.path }}"
+    state: absent

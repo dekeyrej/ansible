@@ -1,4 +1,5 @@
 ---
+# Tears down a multipass-based cluster
 - name: stop/delete/purge multipass hosts
   hosts: allnodes
   gather_facts: no

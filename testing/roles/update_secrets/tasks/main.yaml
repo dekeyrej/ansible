@@ -1,0 +1,26 @@
+---
+- name: events data
+  kubernetes.core.k8s:
+    state: present
+    definition: 
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: matrix-events
+        namespace: default
+      type: Opaque
+      stringData:
+        events: "{{ event_data | from_json | to_nice_json }}"
+
+- name: matrix secrets
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: matrix-secrets
+        namespace: default
+      type: Opaque
+      stringData:
+        'secrets.json': "{{ secrets_data  | from_json | to_nice_json }}"

@@ -1,0 +1,40 @@
+---
+- block:
+  - name: create redis namespace
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: redis
+  
+  - name: Copy redis-config.yaml
+    ansible.builtin.copy:
+      src: "{{ role_path }}/files/redis-config.yaml"
+      dest: /tmp/redis-config.yaml
+  - name: Copy redis-statefulset.yaml
+    ansible.builtin.copy:
+      src: "{{ role_path }}/files/redis-statefulset.yaml"
+      dest: /tmp/redis-statefulset.yaml
+  - name: Copy redis-service.yaml
+    ansible.builtin.copy:
+      src: "{{ role_path }}/files/redis-service.yaml"
+      dest: /tmp/redis-service.yaml
+
+  - name: apply redis configuration
+    kubernetes.core.k8s:
+      state: present
+      src: /tmp/redis-config.yaml
+
+  - name: apply redis configuration
+    kubernetes.core.k8s:
+      state: present
+      src: /tmp/redis-statefulset.yaml
+
+  - name: create redis service
+    kubernetes.core.k8s:
+      state: present
+      src: /tmp/redis-service.yaml
+      
+  when: inventory_hostname in groups['prime']

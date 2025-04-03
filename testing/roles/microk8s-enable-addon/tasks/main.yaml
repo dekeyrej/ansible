@@ -1,0 +1,12 @@
+- name: enable addon
+  ansible.builtin.shell: microk8s enable {{ addon }}
+  become: no
+  when: inventory_hostname in groups['prime']
+  
+- name: check addon enabled
+  ansible.builtin.shell: microk8s status | awk '/enabled:/ {flag=1; next} /disabled:/ {flag=0} flag {print $1}' | grep {{ addon }}  
+  register: result
+  become: no
+  when: inventory_hostname in groups['prime']
+  until: result.rc == 0
+  

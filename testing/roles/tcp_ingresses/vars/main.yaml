@@ -1,0 +1,19 @@
+tcp_services:
+  - port: 6379
+    service: redis/redis
+    name: redis
+  - port: 5432
+    service: kubegres/mypostgres
+    name: postgres
+  - port: 3002
+    service: default/nodeapiserver
+    name: nodeapi
+  - port: 3001
+    service: default/webdisplay
+    name: webdisplay
+  - port: 3000
+    service: iot/grafana
+    name: grafana
+  - port: 1883
+    service: iot/mosquitto
+    name: mosquitto

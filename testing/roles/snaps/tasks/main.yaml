@@ -1,0 +1,24 @@
+- name: Install microceph
+  community.general.snap:
+    name: microceph
+
+- name: Install microk8s
+  community.general.snap:
+    name: 
+      - microk8s
+    classic: true
+
+- name: Install kubectl
+  community.general.snap:
+    name: 
+      - kubectl
+    classic: true
+
+- name: Add ubuntu to group microk8s
+  ansible.builtin.user:
+    name: ubuntu
+    groups: microk8s
+    append: yes
+
+- name: reboot for group changes to take effect
+  ansible.builtin.reboot:

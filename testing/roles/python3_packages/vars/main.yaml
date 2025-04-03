@@ -1,0 +1,4 @@
+---
+packages:
+  - python3-kubernetes
+  - python3-psycopg2

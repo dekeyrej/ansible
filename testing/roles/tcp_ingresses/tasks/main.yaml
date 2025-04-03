@@ -1,0 +1,9 @@
+---
+- block:
+  - name: build/apply configMap patch for tcp services
+    include_tasks: configmap.yaml
+
+  - name: build/apply daemonSet patch for tcp services
+    include_tasks: daemonset.yaml
+  
+  when: inventory_hostname in groups['prime']

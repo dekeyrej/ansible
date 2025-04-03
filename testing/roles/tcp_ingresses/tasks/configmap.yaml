@@ -1,0 +1,34 @@
+# build/apply configMap patch for tcp services
+- name: Create a temporary yaml file
+  ansible.builtin.tempfile:
+    state: file
+    suffix: yaml
+    prefix: cm_
+  register: tempfile_cm
+
+- name: add block to patchfile
+  ansible.builtin.blockinfile:
+    path: "{{ tempfile_cm.path }}"
+    marker: ""    
+    insertafter: EOF
+    block: |
+      ---
+      - op: add
+        path: "/data"
+        value:
+
+- name: build config patch
+  ansible.builtin.lineinfile:
+    path: "{{ tempfile_cm.path }}"
+    insertafter: EOF
+    line: "    '{{ item.port }}': {{ item.service }}:{{ item.port }}"
+  with_items: "{{ tcp_services }}"
+
+- name: Patching the configmap
+  ansible.builtin.shell: 
+    cmd: "kubectl patch configmap nginx-ingress-tcp-microk8s-conf -n ingress --type='json' --patch-file {{ tempfile_cm.path }}"
+
+- name: delete configpatch.yaml
+  ansible.builtin.file:
+    path: "{{ tempfile_cm.path }}"
+    state: absent
