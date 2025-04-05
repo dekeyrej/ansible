@@ -1,0 +1,7 @@
+disk_list: loop,500G,1
+# disk_list: /dev/nvme0n1p3   # appropriate disk to use for ceph on a Pi 5 with a PCIe NVME SSD
+
+# disk_list:
+#   - /dev/sda3
+#   - /dev/sdb3
+#   - /dev/sdc

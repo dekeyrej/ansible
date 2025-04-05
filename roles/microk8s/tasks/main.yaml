@@ -1,0 +1,43 @@
+---
+# - name: Install microk8s & kubectl
+#   hosts: allnodes
+#   tasks:
+#     - name: Install microk8s & kubectl
+#       include_tasks: install.yaml
+- name: Install microk8s & kubectl
+  include_tasks: install.yaml  
+  when: inventory_hostname in groups['allnodes']
+
+# - name: add nodes
+#   hosts: subnodes
+#   serial: 1
+#   tasks:
+#     - name: Generate command to add a new microk8s node
+#       include_tasks: add_nodes.yaml
+#       when: inventory_hostname in groups['subnodes']
+- name: Generate command to add a new microk8s node
+  include_tasks: add_nodes.yaml
+  # throttle: 1
+  when: inventory_hostname in groups['subnodes']
+
+# - name: make kubectl work after cluster is formed
+#   hosts: allnodes
+#   become: no
+#   tasks:
+#     - name: make kubectl work after cluster is formed
+#       include_tasks: make_kubectl_work.yaml
+- name: make kubectl work after cluster is formed
+  ansible.builtin.shell: |
+    mkdir /home/ubuntu/.kube
+    microk8s kubectl config view --raw=true > /home/ubuntu/.kube/config
+  become: no
+  when: inventory_hostname in groups['allnodes']
+
+# - name: enable microk8s addons
+#   hosts: prime
+#   become: no
+#   tasks: 
+- name: enable microk8s addons
+  include_tasks: configure.yaml
+  when: inventory_hostname in groups['prime']
+      

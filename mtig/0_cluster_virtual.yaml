@@ -1,9 +1,0 @@
----
-## run: ansible-playbook 0_cluster_virtual.yaml -i hosts.ini --ask-vault-pass  [1ai_cloud_init_vars.yaml is encrypted]
-# provision cluster hosts with multipass
-- import_playbook: 1_multipass.yaml
-# apt install non-microceph & non-microk8s packages
-- import_playbook: 2_postgresql_client_kubernetes.yaml
-# install, assemble, configure, and deploy postgres and redis
-- import_playbook: 4_microk8s.yaml
-
