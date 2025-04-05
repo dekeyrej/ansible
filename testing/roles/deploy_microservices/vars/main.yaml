@@ -12,10 +12,10 @@ microservices:
 
 webdisplay:
   - webdisplay
-  - webdisplayservice
-  # - webdisplay-ingress
+  - webdisplay-service
+  - webdisplay-ingress
 
 nodeapi:
   - nodeapiserver
-  - nodeapiserverservice
-  # - nodeapi-ingress
+  - nodeapiserver-service
+  - nodeapi-ingress
