@@ -10,12 +10,12 @@ microservices:
   - garmin
   - mycal
 
-webdisplay:
-  - webdisplay
-  - webdisplay-service
-  - webdisplay-ingress
-
 nodeapi:
-  - nodeapiserver
+  - nodeapiserver-deployment
   - nodeapiserver-service
   - nodeapi-ingress
+
+webdisplay:
+  - webdisplay-deployment
+  - webdisplay-service
+  - webdisplay-ingress

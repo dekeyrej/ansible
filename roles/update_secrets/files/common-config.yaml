@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: common-config
+  namespace: default
+data:
+  db_host: mypostgres.kubegres
+  db_port: '5432'
+  dbname: matrix
+  dbpass: AtfnDddx2
+  dbtable: feed
+  dbuser: roach
+  rhost: redis.redis
+  rpass: ''
+  timezone: America/New_York

@@ -19,6 +19,7 @@
     ansible.builtin.shell: sudo -E microk8s connect-external-ceph
   - ansible.builtin.pause: seconds=10
 
+# kubectl patch storageClass ceph-rbd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
   - name: make ceph-rbd the default storage class
     ansible.builtin.command: 
       argv:

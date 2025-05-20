@@ -1,4 +1,0 @@
-- name: copy cluster recipe
-  ansible.builtin.copy:
-    src: files/deployment
-    dest: /home/ubuntu

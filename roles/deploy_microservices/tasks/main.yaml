@@ -1,21 +1,23 @@
 ---
-- name: deploy microservices
-  ansible.builtin.shell:
-    cmd: kubectl apply -f {{ item }}.yaml
-  args:
-    chdir: /home/ubuntu/deployment
-  with_items: "{{ microservices }}"
+- name: copy app deployment files
+  ansible.builtin.copy:
+    src: files/deployment
+    dest: /home/ubuntu
 
-- name: deploy webdisplay
-  ansible.builtin.shell:
-    cmd: kubectl apply -f {{ item }}.yaml
-  args:
-    chdir: /home/ubuntu/deployment/webdisplay
-  with_items: "{{ webdisplay }}"
+- name: create microservices apps 
+  kubernetes.core.k8s:
+    state: present
+    src: /home/ubuntu/deployment/{{ item }}.yaml
+  loop: "{{ microservices }}"
 
-- name: deploy nodeapi
-  ansible.builtin.shell:
-    cmd: kubectl apply -f {{ item }}.yaml
-  args:
-    chdir: /home/ubuntu/deployment/nodeapi
-  with_items: "{{ nodeapi }}"
+- name: create nodeapi 
+  kubernetes.core.k8s:
+    state: present
+    src: /home/ubuntu/deployment/nodeapi/{{ item }}.yaml
+  loop: "{{ nodeapi }}"
+
+- name: create webdisplay 
+  kubernetes.core.k8s:
+    state: present
+    src: /home/ubuntu/deployment/webdisplay/{{ item }}.yaml
+  loop: "{{ webdisplay }}"

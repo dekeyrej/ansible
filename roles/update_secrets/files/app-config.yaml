@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: default
+data:
+  garmin_url: https://inreach.garmin.com/Feed/Share/RyanTrollip
+  github_owner: dekeyrej
+  github_repo: microservicematrix
+  google_calendar_id: dhq22oo0eev8cll8j0ln8uc60g@group.calendar.google.com
+  latitude: '39.23580'
+  longitude: '-77.66307'

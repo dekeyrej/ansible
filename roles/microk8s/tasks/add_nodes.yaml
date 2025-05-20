@@ -7,12 +7,12 @@
   ansible.builtin.shell: "{{ result.stdout }}" # --skip-verify"
 
 - name: check node has been added
-  ansible.builtin.shell: kubectl get nodes | grep {{ inventory_hostname }}
+  ansible.builtin.shell: microk8s kubectl get nodes | grep {{ inventory_hostname }}
   delegate_to: "{{ groups.prime[0] }}"
   register: result
   until: result.rc == 0
-  retries: 3
-  delay: 5
+  retries: 5
+  delay: 10
 
 
 # - ansible.builtin.pause: seconds=10

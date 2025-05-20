@@ -1,26 +1,9 @@
 ---
-- name: role testing book
-  hosts: allnodes
-  # connection: local
-  # gather_facts: no
-  # vars_files:
-  #   - sha_keys.yaml
-  tasks:
-    - block:
-      - name: Setup microk8s
-        include_role:
-          name: microk8s
-      
-      
-    - block:
-      - name: Deploy kubegres
-        include_role:
-          name: kubegres
-      - name: Deploy redis
-        include_role:
-          name: redis
-      - name: Create tcp ingresses
-        include_role:
-          name: tcp_ingresses
-      when: inventory_hostname in groups['prime']
-      become: no
+- name: Prepare nodes, setup microceph and microk8s, deploy kubegres and redis
+  hosts: prime
+  become: no
+  roles:
+  # - role: create_matrix_database
+  # - role: github_secret
+  # - role: update_secrets
+  - role: deploy_microservices

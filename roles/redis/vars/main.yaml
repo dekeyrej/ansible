@@ -1,0 +1,4 @@
+files:
+  - redis-config.yaml
+  - redis-statefulset.yaml
+  - redis-service.yaml

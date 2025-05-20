@@ -59,7 +59,7 @@
           name: mypostgres
           namespace: kubegres
         spec:
-          replicas: 1
+          replicas: 3
           image: postgres:latest
           database:
               size: 200Mi
