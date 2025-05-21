@@ -1,0 +1,6 @@
+---
+- name: make kubectl work after cluster is formed
+  ansible.builtin.shell: |
+    mkdir /home/ubuntu/.kube
+    microk8s kubectl config view --raw=true > /home/ubuntu/.kube/config
+  become: no

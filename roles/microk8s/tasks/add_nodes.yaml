@@ -1,3 +1,4 @@
+---
 - name: Generate command to add a new microk8s node
   ansible.builtin.shell: microk8s add-node | grep -m 1 microk8s
   delegate_to: "{{ groups.prime[0] }}"
@@ -11,8 +12,5 @@
   delegate_to: "{{ groups.prime[0] }}"
   register: result
   until: result.rc == 0
-  retries: 5
+  retries: 6
   delay: 10
-
-
-# - ansible.builtin.pause: seconds=10

@@ -1,4 +1,12 @@
 ---
+- name: Provision Multipass hosts in inventory
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  become: no
+  roles:
+    - {role: multipass, vars_files: [01_sha_keys.yaml]}
+
 - name: Prepare all nodes (update, install packages, setup microceph and microk8s)
   hosts: allnodes
   become: yes
