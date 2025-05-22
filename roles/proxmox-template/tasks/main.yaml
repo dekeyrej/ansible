@@ -1,0 +1,45 @@
+---
+
+- name: Create base VM
+  community.general.proxmox_kvm:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ node }}"
+    name: temp
+    node: "{{ node }}"
+    vmid: "{{ vmid }}"
+    balloon: "{{ balloon }}"
+    memory: "{{ memory }}"
+    cores: "{{ cores }}"
+    cpulimit: "{{ cpulimit }}"
+    cpu: "cputype={{ cputype }}"
+    net:
+      net0: "{{ netinf }}"
+    scsihw: "{{ scsinf }}"
+    ide:
+      ide2: "{{ diskpool }}:cloudinit"
+    ostype: "{{ ostype }}"
+    boot: "order={{ bootdiskname }}"
+    agent: "{{ agent }}"
+    cicustom: "user=local:snippets/userconfig-common.yaml"
+    pool: Sierra
+    state: present
+
+- name: Add boot disk from image
+  community.general.proxmox_disk:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ node }}"
+    vmid: "{{ vmid }}"
+    disk: "{{ bootdiskname }}"
+    storage: "{{ diskpool }}"
+    import_from: "{{ diskimg }}"
+
+- name: Make base VM template
+  community.general.proxmox_kvm:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ node }}"
+    node: "{{ node }}"
+    vmid: "{{ vmid }}"
+    state: template

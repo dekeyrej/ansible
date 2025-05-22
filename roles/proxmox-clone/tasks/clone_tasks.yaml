@@ -1,0 +1,51 @@
+---
+- name: clone template to new VM
+  community.general.proxmox_kvm:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ node }}"
+    node: "{{ node }}"
+    clone: temp
+    vmid: "{{ templatevmid }}"  # source (template) VMid
+    newid: "{{ item.vmid }}"
+    name: "{{ item.hostname }}"
+    storage: "{{ diskpool }}"
+    pool: Sierra
+    state: present
+
+- name: Resize boot disk
+  community.general.proxmox_disk:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ node }}"
+    vmid: "{{ item.vmid }}"
+    disk: "{{ bootdiskname }}"
+    size: +47G
+    state: resized
+
+# - name: Create cloud-init file
+
+- name: Update cloned VM
+  community.general.proxmox_kvm:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ node }}"
+    node: "{{ node }}"
+    vmid: "{{ item.vmid }}"
+    name: "{{ item.hostname }}"
+    ipconfig: 
+      ipconfig0: "{{ item.ipaddress }}"
+    update: true
+
+- name: Start cloned VM
+  community.general.proxmox_kvm:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ node }}"
+    node: "{{ node }}"
+    vmid: "{{ item.vmid }}"
+    state: started
+
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ item.hostname }}"

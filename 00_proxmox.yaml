@@ -1,12 +1,23 @@
 ---
+- name: Provision Proxmox VM hosts
+  hosts: pvenode
+  become: no
+  vars_files:
+    - 03_host_list.yaml
+  roles:
+    # - proxmox-template
+    - proxmox-clone
+
 - name: Prepare all nodes (update, install packages, setup microceph and microk8s)
   hosts: allnodes
   become: yes
+  vars_files:
+    - 02_disk_list.yaml
   roles:
     - update_all
     - postgresql_client
     - python3_packages
-    - { role: microceph, vars_files: [02_disk_list.yaml] }
+    - microceph
     - microk8s
 
 - name: Deploy cluster services (kubegres, redis, tcp_ingresses)

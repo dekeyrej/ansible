@@ -1,0 +1,7 @@
+---
+bootdiskname: scsi0
+diskpool: nvme_pool
+gateway: 192.168.86.1
+node: bluep
+templatevmid: 9000
+vmlist: 

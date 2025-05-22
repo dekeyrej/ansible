@@ -1,0 +1,18 @@
+---
+node: bluep
+vmid: 9000
+balloon: 2048
+memory: 8192
+cores: 2
+cpulimit: 2
+cputype: host
+netinf: virtio,bridge=vmbr0
+scsinf: virtio-scsi-pci
+diskpool: nvme_pool
+diskimg: /root/noble-server-cloudimg-amd64.img
+bootdiskname: scsi0
+# bootdisk: "--{{ bootdiskname }} {{ diskpool }}:0,import-from={{ diskimg }}"
+ostype: l26
+cdrom: "{{ diskpool }}:cloudinit"
+bootorder: "{{ bootdiskname }}"
+agent: enabled=1
