@@ -35,6 +35,7 @@
     name: "{{ item.hostname }}"
     ipconfig: 
       ipconfig0: "{{ item.ipaddress }}"
+    cicustom: "user=local:snippets/userconfig-common.yaml"
     update: true
 
 - name: Start cloned VM
@@ -45,7 +46,3 @@
     node: "{{ node }}"
     vmid: "{{ item.vmid }}"
     state: started
-
-- name: Set hostname
-  ansible.builtin.hostname:
-    name: "{{ item.hostname }}"

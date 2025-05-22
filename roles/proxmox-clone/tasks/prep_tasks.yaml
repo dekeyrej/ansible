@@ -1,0 +1,7 @@
+- name: clean known hosts
+  ansible.builtin.shell:
+    cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item.hostname }}"
+
+- name: ssh to host to add host key to known hosts
+  ansible.builtin.shell:
+    cmd: "ssh {{ item.hostname }} exit"
