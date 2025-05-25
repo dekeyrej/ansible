@@ -1,4 +1,8 @@
 ---
+- name: clean known hosts
+  ansible.builtin.shell:
+    cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item.hostname }}"
+
 - name: clone template to new VM
   community.general.proxmox_kvm:
     api_user: "{{ api_user }}"
@@ -13,6 +17,18 @@
     pool: Sierra
     state: present
 
+- name: pause for clone to complete
+  ansible.builtin.pause:
+    seconds: 3
+
+- name: check vm disk size
+  community.general.proxmox_vm_info:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ node }}"
+    vmid: "{{ item.vmid }}"
+  register: vm_info
+
 - name: Resize boot disk
   community.general.proxmox_disk:
     api_user: "{{ api_user }}"
@@ -20,10 +36,9 @@
     api_host: "{{ node }}"
     vmid: "{{ item.vmid }}"
     disk: "{{ bootdiskname }}"
-    size: +47G
+    size: +26.5G
     state: resized
-
-# - name: Create cloud-init file
+  when: vm_info.proxmox_vms[0].maxdisk | int < 5000000000  # 5GB - base image  is about 3.5G
 
 - name: Update cloned VM
   community.general.proxmox_kvm:
@@ -32,10 +47,10 @@
     api_host: "{{ node }}"
     node: "{{ node }}"
     vmid: "{{ item.vmid }}"
+    cicustom: "user=local:snippets/userconfig-{{ item.vmid }}.yaml"
     name: "{{ item.hostname }}"
     ipconfig: 
       ipconfig0: "{{ item.ipaddress }}"
-    cicustom: "user=local:snippets/userconfig-common.yaml"
     update: true
 
 - name: Start cloned VM

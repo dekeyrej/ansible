@@ -1,19 +1,18 @@
-- name: Provision Proxmox hosts in inventory
+# Sample ansible playbook demonstrating some functionality in Proxmox-VE
+# using the community.general.proxmox_kvm and proxmox_disk modules as
+# encpsulated in the two roles included below.
+
+# the first role creates a VM to be the template for the actual hosts to be provisioned
+# -- note -- "import image to disk" requires root@pam credentials to import from an absolute path
+# the second role makes a series of clones based on the info in 03_host_list.yaml
+# -- note -- user@pve PVEAdmin level credentials are sufficient for this role
+
+- name: Provision Proxmox hosts from host_list
   hosts: localhost
   connection: local
   become: no
   vars_files:
     - 03_host_list.yaml
   roles:
-    # - proxmox-template
+    - proxmox-template
     - proxmox-clone
-
-- name: Set hostnames on VMs
-  hosts: allnodes
-  become: yes
-  tasks:
-    - name: Set hostname
-      ansible.builtin.hostname:
-        name: inventory_hostname
-        use: debian
-

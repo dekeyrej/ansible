@@ -4,7 +4,7 @@
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
     api_host: "{{ node }}"
-    name: temp
+    name: kubetemp
     node: "{{ node }}"
     vmid: "{{ vmid }}"
     balloon: "{{ balloon }}"

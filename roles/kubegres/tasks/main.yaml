@@ -1,5 +1,9 @@
 ---
 - block:
+  - name: python3-psycopg2 
+    ansible.builtin.apt:
+      pkg: python3-kubernetes
+
   # - name: wait for kubernetes api server to be ready
   # #   ansible.builtin.pause:
   # #     seconds: 30

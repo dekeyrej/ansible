@@ -1,4 +1,8 @@
 ---
+- name: python3-psycopg2 
+  ansible.builtin.apt:
+    pkg: python3-kubernetes
+
 - name: copy app deployment files
   ansible.builtin.copy:
     src: files/deployment

@@ -1,4 +1,8 @@
 ---
+- name: python3-psycopg2 
+  ansible.builtin.apt:
+    pkg: python3-kubernetes
+
 - name: copy config files to tmp
   ansible.builtin.copy:
     src: files/{{ item }}

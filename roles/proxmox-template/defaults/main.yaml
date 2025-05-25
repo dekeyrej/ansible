@@ -11,7 +11,6 @@ scsinf: virtio-scsi-pci
 diskpool: nvme_pool
 diskimg: /root/noble-server-cloudimg-amd64.img
 bootdiskname: scsi0
-# bootdisk: "--{{ bootdiskname }} {{ diskpool }}:0,import-from={{ diskimg }}"
 ostype: l26
 cdrom: "{{ diskpool }}:cloudinit"
 bootorder: "{{ bootdiskname }}"

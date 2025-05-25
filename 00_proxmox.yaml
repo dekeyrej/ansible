@@ -1,12 +1,17 @@
 ---
 - name: Provision Proxmox VM hosts
-  hosts: pvenode
+  hosts: localhost
+  connection: local
   become: no
   vars_files:
     - 03_host_list.yaml
   roles:
-    # - proxmox-template
+    - proxmox-template
     - proxmox-clone
+  tasks:
+    - name: Take a pause for cloud-init to complete
+      ansible.builtin.pause:
+        seconds: 90
 
 - name: Prepare all nodes (update, install packages, setup microceph and microk8s)
   hosts: allnodes
@@ -16,7 +21,7 @@
   roles:
     - update_all
     - postgresql_client
-    - python3_packages
+    # - python3_packages  # python3_kubernetes required throughout, python2_psycopg2 required for create_matrix_database
     - microceph
     - microk8s
 

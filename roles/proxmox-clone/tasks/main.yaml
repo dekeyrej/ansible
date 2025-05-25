@@ -2,7 +2,3 @@
 - name: Loop through hostlist, creating clones for each
   include_tasks: clone_tasks.yaml
   loop: "{{ vmlist }}"
-
-- name: clean knownhosts
-  include_tasks: prep_tasks.yaml
-  loop: "{{ vmlist }}"
