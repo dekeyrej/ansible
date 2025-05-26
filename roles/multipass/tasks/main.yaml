@@ -1,26 +1,8 @@
 ---
-# create a cloud-init file with authorized keys
-- ansible.builtin.file: path={{ cloud_init }} state=touch
-
-- name: create base cloud-init
-  ansible.builtin.blockinfile:
-    path: "{{ cloud_init }}"
-    marker: ""    
-    insertafter: EOF
-    block: |
-      #cloud-config
-      users:
-        - default
-        - name: ubuntu
-          sudo: ALL=(ALL:ALL) NOPASSWD:ALL
-          ssh_authorized_keys:
-
-- name: append authorized keys to cloud-init
-  ansible.builtin.lineinfile:
-    path: "{{ cloud_init }}"
-    insertafter: "^    ssh_authorized_keys:"
-    line: "    - {{ item }}"
-  loop: "{{ sha }}"
+- name: build cloud-init from template
+  ansible.builtin.template:
+    src: multipass-cloud-init.yaml.j2
+    dest: "{{ cloud_init }}"
 
 - name: provision hosts
   ansible.builtin.shell: 

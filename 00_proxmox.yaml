@@ -1,43 +1,28 @@
+# Sample ansible playbook demonstrating some functionality in Proxmox-VE
+# using the community.general.proxmox_kvm and proxmox_disk modules as
+# encpsulated in the two roles included below.
+
+# the first role creates a VM to be the template for the actual hosts to be provisioned
+# -- note -- "import image to disk" requires root@pam credentials to import from an absolute path
+# the second role makes a series of clones based on the info in 03_host_list.yaml
+# -- note -- user@pve PVEAdmin level credentials are sufficient for this role
+
 ---
-- name: Provision Proxmox VM hosts
+- name: Clear known_hosts
   hosts: localhost
   connection: local
+  tasks:
+    - name: Loop through hosts removing previous entries from /home/ubuntu/.ssh/known_hosts
+      ansible.builtin.shell:
+        cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item }}"
+      loop: "{{ groups['allnodes'] }}"
+
+- name: Provision Proxmox VM hosts
+  hosts: pvenode
   become: no
   vars_files:
-    - 03_host_list.yaml
+    - 01_sha_keys.yaml
+    - 02_host_list.yaml
   roles:
     - proxmox-template
     - proxmox-clone
-  tasks:
-    - name: Take a pause for cloud-init to complete
-      ansible.builtin.pause:
-        seconds: 90
-
-- name: Prepare all nodes (update, install packages, setup microceph and microk8s)
-  hosts: allnodes
-  become: yes
-  vars_files:
-    - 02_disk_list.yaml
-  roles:
-    - update_all
-    - postgresql_client
-    # - python3_packages  # python3_kubernetes required throughout, python2_psycopg2 required for create_matrix_database
-    - microceph
-    - microk8s
-
-- name: Deploy cluster services (kubegres, redis, tcp_ingresses)
-  hosts: prime
-  become: no
-  roles:
-    - kubegres
-    - redis
-    - tcp_ingresses
-
-- name: Deploy application microservices
-  hosts: prime
-  become: no
-  roles:
-    - create_matrix_database
-    - github_secret
-    - update_secrets
-    - deploy_microservices

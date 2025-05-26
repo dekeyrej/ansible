@@ -1,6 +1,6 @@
 ---
-- name: Install microk8s and kubectl
-  include_tasks: install.yaml
+# - name: Install microk8s and kubectl
+#   include_tasks: install.yaml
 
 - name: Add subnodes to the cluster
   include_tasks: add_nodes.yaml

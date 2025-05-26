@@ -4,32 +4,7 @@
   connection: local
   gather_facts: no
   become: no
+  vars_files: 
+    - 01_sha_keys.yaml
   roles:
-    - {role: multipass, vars_files: [01_sha_keys.yaml]}
-
-- name: Prepare all nodes (update, install packages, setup microceph and microk8s)
-  hosts: allnodes
-  become: yes
-  roles:
-    - update_all
-    - postgresql_client
-    - python3_packages
-    - { role: microceph, vars_files: [02_disk_list.yaml] }
-    - microk8s
-
-- name: Deploy cluster services (kubegres, redis, tcp_ingresses)
-  hosts: prime
-  become: no
-  roles:
-    - kubegres
-    - redis
-    - tcp_ingresses
-
-- name: Deploy application microservices
-  hosts: prime
-  become: no
-  roles:
-    - create_matrix_database
-    - github_secret
-    - update_secrets
-    - deploy_microservices
+    - multipass

@@ -1,0 +1,12 @@
+- name: Create cloud-init
+  hosts: localhost
+  connection: local
+  vars_files:
+    - 01_sha_keys.yaml
+    - 03_host_list.yaml
+  tasks:
+    - name: build cloud-init from template
+      ansible.builtin.template:
+        src: roles/proxmox-clone/templates/cloud-init.yaml.j2
+        dest: userconfig.yaml
+      loop: "{{ vmlist }}"

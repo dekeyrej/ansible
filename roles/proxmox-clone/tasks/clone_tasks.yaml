@@ -1,9 +1,5 @@
 ---
-- name: clean known hosts
-  ansible.builtin.shell:
-    cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item.hostname }}"
-
-- name: clone template to new VM
+- name: "Clone template {{ templatevmid }} to VM {{ item.vmid }}"
   community.general.proxmox_kvm:
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
@@ -17,19 +13,22 @@
     pool: Sierra
     state: present
 
-- name: pause for clone to complete
-  ansible.builtin.pause:
-    seconds: 3
-
-- name: check vm disk size
+- name: "Check vm disk size for VM {{ item.vmid }}"
   community.general.proxmox_vm_info:
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
     api_host: "{{ node }}"
     vmid: "{{ item.vmid }}"
   register: vm_info
+  until: vm_info.proxmox_vms is defined and vm_info.proxmox_vms[0].maxdisk | int > 0
+  retries: 5
+  delay: 2
 
-- name: Resize boot disk
+# - name: dump vm_info
+#   ansible.builtin.debug:
+#     var: vm_info
+  
+- name: "Resize boot disk for VM {{ item.vmid }}"
   community.general.proxmox_disk:
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
@@ -40,7 +39,12 @@
     state: resized
   when: vm_info.proxmox_vms[0].maxdisk | int < 5000000000  # 5GB - base image  is about 3.5G
 
-- name: Update cloned VM
+- name: "Create userconfig-vmid for VM {{ item.vmid }}"
+  ansible.builtin.template:
+    src: cloud-init.yaml.j2
+    dest: "/var/lib/vz/snippets/userconfig-{{ item.vmid }}.yaml"
+
+- name: "Update for VM {{ item.vmid }}"
   community.general.proxmox_kvm:
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
@@ -53,7 +57,7 @@
       ipconfig0: "{{ item.ipaddress }}"
     update: true
 
-- name: Start cloned VM
+- name: "Start for VM {{ item.vmid }}"
   community.general.proxmox_kvm:
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
@@ -61,3 +65,12 @@
     node: "{{ node }}"
     vmid: "{{ item.vmid }}"
     state: started
+  register: retval
+  until: retval.status is defined and retval.status == "running"
+  retries: 5
+  delay: 2 
+
+# - name: remove userconfig-vmid file
+#   ansible.builtin.file:
+#    path: "/var/lib/vz/snippets/userconfig-{{ item.vmid }}.yaml"
+#    state: absent

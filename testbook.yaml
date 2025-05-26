@@ -7,9 +7,17 @@
 # the second role makes a series of clones based on the info in 03_host_list.yaml
 # -- note -- user@pve PVEAdmin level credentials are sufficient for this role
 
-- name: Provision Proxmox hosts from host_list
+- name: Clear known_hosts
   hosts: localhost
   connection: local
+  tasks:
+    - name: Loop through hosts removing previous entries from /home/ubuntu/.ssh/known_hosts
+      ansible.builtin.shell:
+        cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item }}"
+      loop: "{{ groups['allnodes'] }}"
+
+- name: Provision Proxmox hosts from host_list
+  hosts: pvenode
   become: no
   vars_files:
     - 03_host_list.yaml

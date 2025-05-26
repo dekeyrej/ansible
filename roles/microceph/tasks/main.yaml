@@ -1,8 +1,8 @@
 ---
-- name: Install microceph
-  community.general.snap:
-    name: microceph
-  when: inventory_hostname in groups['allnodes']
+# - name: Install microceph
+#   community.general.snap:
+#     name: microceph
+#   when: inventory_hostname in groups['allnodes']
 
 - name: Bootstrap microceph cluster
   ansible.builtin.shell: microceph cluster bootstrap

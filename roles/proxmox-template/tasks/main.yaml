@@ -1,4 +1,13 @@
 ---
+- name: update diskimage if required
+  ansible.builtin.shell:
+    cmd: /root/update_diskimage.sh
+  register: output
+
+- name: debug output
+  ansible.builtin.debug:
+    var: output.stdout
+
 - name: Create base VM
   community.general.proxmox_kvm:
     api_user: "{{ api_user }}"

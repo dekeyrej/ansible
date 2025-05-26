@@ -1,0 +1,26 @@
+---
+- name: Prepare nodes (create microceph and microk8s clusters)
+  hosts: allnodes
+  become: yes
+  vars_files:
+    - 03_disk_list.yaml
+  roles:
+    - microceph
+    - microk8s
+
+- name: Deploy cluster services (kubegres, redis, tcp_ingresses)
+  hosts: prime
+  become: no
+  roles:
+    - kubegres
+    - redis
+    - tcp_ingresses
+
+- name: Deploy application microservices
+  hosts: prime
+  become: no
+  roles:
+    - create_matrix_database
+    - github_secret
+    - update_secrets
+    - deploy_microservices
