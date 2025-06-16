@@ -1,0 +1,19 @@
+node: bluep
+ctid: 102
+diskpool: hdd_pool
+rootsize: 10
+rootfs: "{{ diskpool }}:{{rootsize}}"
+resource_pool: Sierra
+hostname: vault
+cores: 2
+cpuunits: 100
+cpulimit: 2
+memory: 2048
+swap: 0
+bridge: vmbr0
+ip4: 192.168.86.9/24
+gateway: 192.168.86.1
+unprivileged: 1
+onboot: 1
+template: local:vztmpl/ubuntu-24.04-standard_24.04-2_amd64.tar.zst
+ostype: ubuntu

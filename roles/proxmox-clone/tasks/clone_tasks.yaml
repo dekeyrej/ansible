@@ -35,7 +35,7 @@
     api_host: "{{ node }}"
     vmid: "{{ item.vmid }}"
     disk: "{{ bootdiskname }}"
-    size: +26.5G
+    size: "{{ diskincrement }}"
     state: resized
   when: vm_info.proxmox_vms[0].maxdisk | int < 5000000000  # 5GB - base image  is about 3.5G
 
@@ -70,7 +70,7 @@
   retries: 5
   delay: 2 
 
-# - name: remove userconfig-vmid file
-#   ansible.builtin.file:
-#    path: "/var/lib/vz/snippets/userconfig-{{ item.vmid }}.yaml"
-#    state: absent
+- name: remove userconfig-vmid file
+  ansible.builtin.file:
+   path: "/var/lib/vz/snippets/userconfig-{{ item.vmid }}.yaml"
+   state: absent

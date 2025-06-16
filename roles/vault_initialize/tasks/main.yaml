@@ -1,0 +1,20 @@
+---
+- name: initialize the vault (capturing the root token and unseal keys)
+  shell: vault operator init
+  register: result
+
+- name: save the output into a file
+  copy:
+    content: "{{ result.stdout }}"
+    dest: /root/vault_init_output.txt
+
+- name: fetch output from vault
+  fetch:
+    src: /root/vault_init_output.txt
+    dest: /home/ubuntu/
+    flat: true
+
+- name: delete output file from vault host
+  file:
+    path: /root/vault_init_output.txt
+    state: absent

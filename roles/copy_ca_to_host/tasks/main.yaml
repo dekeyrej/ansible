@@ -1,0 +1,11 @@
+---
+# copies ca.crt from Certificate_Authority host to server
+# and updates host certificate store
+
+- name: Copy ca.crt to /usr/local/share/ca-certificates
+  copy:
+    src: /home/ubuntu/certificate_authority/ca.crt
+    dest: /usr/local/share/ca-certificates/ca.crt
+
+- name: Update the server 'trust store'
+  shell: update-ca-certificates

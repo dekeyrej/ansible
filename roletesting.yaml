@@ -1,0 +1,28 @@
+- name: create Proxmox Container for Vault
+  hosts: pvenode
+  roles:
+    - role: proxmox-container
+
+- name: TLS keys for server
+  hosts: localhost
+  connection: local
+  roles:
+    - role: generate_keys
+      vars:
+        common_name: vault
+        ip_1: 192.168.86.9
+      
+- name: Setup Vault
+  hosts: vault_host
+  roles:
+    - role: copy_ca_to_host
+    - role: vault_install
+    - role: vault_configure
+    - role: vault_initialize
+
+# this is still a raw BOC
+# - name: prepare vault for KUBEVAULT
+#   hosts: localhost
+#   connection: local
+#   roles:
+#     - role: vault_configure_for_kubevault

@@ -1,0 +1,12 @@
+[ req ]
+default_bits       = {{ bits }}
+distinguished_name = req_distinguished_name
+prompt            = no
+
+[ req_distinguished_name ]
+C  = {{ country }}
+ST = {{ state }}
+L  = {{ locality }}
+O  = {{ organization }}
+OU = {{ organizational_unit }}
+CN = {{ common_name }}

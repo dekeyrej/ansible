@@ -1,18 +1,16 @@
-# these tasks have been moved to cloud-init
-
 ---
-# - name: Install snaps in classic mode
-#   community.general.snap:
-#     name: 
-#       - microk8s
-#       - kubectl
-#     classic: true
+- name: Install snaps in classic mode
+  community.general.snap:
+    name: 
+      - microk8s
+      - kubectl
+    classic: true
 
-# - name: Add ubuntu to group microk8s
-#   ansible.builtin.user:
-#     name: ubuntu
-#     groups: microk8s
-#     append: yes
+- name: Add ubuntu to group microk8s
+  ansible.builtin.user:
+    name: ubuntu
+    groups: microk8s
+    append: yes
 
-# - name: reboot for group changes to take effect
-#   ansible.builtin.reboot:
+- name: reboot for group changes to take effect
+  ansible.builtin.reboot:

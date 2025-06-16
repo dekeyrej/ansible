@@ -1,0 +1,14 @@
+[ req ]
+default_bits = {{ bits }}
+distinguished_name = req_distinguished_name
+prompt = no
+
+[ v3_ext ]
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = {{ common_name }}.local
+IP.1 = {{ ip_1 }}
+IP.2 = 127.0.0.1

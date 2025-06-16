@@ -1,0 +1,8 @@
+bits: 2048
+country: US
+state: Virginia
+locality:  Lovettsville
+organization: Sierra Lane
+organizational_unit: Infrastructure Services
+common_name: server
+ip_1: 192.168.86.251

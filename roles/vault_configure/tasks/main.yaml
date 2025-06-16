@@ -1,0 +1,46 @@
+---
+- name: "Copy {{ inventory_hostname }}.key to ~"
+  copy:
+    src: "/home/ubuntu/certificate_authority/{{ inventory_hostname }}.key"
+    dest: /opt/vault/tls/vault.key
+    owner: vault
+    group: vault
+    mode: '0600'
+
+- name: "Copy {{ inventory_hostname }}.crt to ~"
+  copy:
+    src: "/home/ubuntu/certificate_authority/{{ inventory_hostname }}.crt"
+    dest: /opt/vault/tls/vault.crt
+    owner: vault
+    group: vault
+    mode: '0600'
+
+- name: Copy vault configuration file "vault.hcl"
+  copy:
+    src: files/vault.hcl
+    dest: /etc/vault.d/vault.hcl
+    owner: vault
+    group: vault
+    mode: '0644'
+
+- name: Copy vault environment file "vault.env"
+  copy:
+    src: files/vault.env
+    dest: /etc/vault.d/vault.env
+    owner: vault
+    group: vault
+    mode: '0644'
+
+- name: Copy gcloud credentials file "application_default_credentials.json"
+  copy:
+    src: files/application_default_credentials.json
+    dest: /etc/vault.d/application_default_credentials.json
+    owner: vault
+    group: vault
+    mode: '0644'
+
+- name: start vault service
+  service:
+    name: vault
+    enabled: yes
+    state: started

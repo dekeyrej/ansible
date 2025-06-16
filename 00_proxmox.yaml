@@ -1,13 +1,14 @@
-# Sample ansible playbook demonstrating some functionality in Proxmox-VE
-# using the community.general.proxmox_kvm and proxmox_disk modules as
-# encpsulated in the two roles included below.
-
-# the first role creates a VM to be the template for the actual hosts to be provisioned
-# -- note -- "import image to disk" requires root@pam credentials to import from an absolute path
-# the second role makes a series of clones based on the info in 03_host_list.yaml
-# -- note -- user@pve PVEAdmin level credentials are sufficient for this role
-
 ---
+# Creates an RFC 5280 compliant Certificate Authority (which makes Python 3.13 happy)
+- name: Establish Certificate Authority
+  hosts: localhost
+  connection: local
+  roles:
+    - role: certificate_authority
+      vars_files:
+        - ca_vars.yaml
+
+# handy routine to clean up the known_hosts file to avoid nasty warnings
 - name: Clear known_hosts
   hosts: localhost
   connection: local
@@ -17,12 +18,60 @@
         cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item }}"
       loop: "{{ groups['allnodes'] }}"
 
-- name: Provision Proxmox VM hosts
+# Sample ansible playbook demonstrating some functionality in Proxmox-VE
+# using the community.general.proxmox_kvm and proxmox_disk modules as
+# encpsulated in the two roles included below.
+
+# the first role creates a VM to be the template for the actual hosts to be provisioned
+# -- note -- "import image to disk" requires root@pam credentials to import from an absolute path
+# the second role makes a series of clones based on the info in 03_host_list.yaml
+# -- note -- user@pve PVEAdmin level credentials are sufficient for this role
+
+- name: Create VM Template and Provision Proxmox VM hosts
   hosts: pvenode
-  become: no
-  vars_files:
-    - 01_sha_keys.yaml
-    - 02_host_list.yaml
+  become: no  # root user onll on PVE Node
   roles:
-    - proxmox-template
-    - proxmox-clone
+    - role: proxmox-template
+      vars_files:
+        - 01_template_overrides.yaml
+    - role: proxmox-clone
+      vars_files:
+        - 02_host_list.yaml
+        - 03_sha_keys.yaml
+
+# Additional role to create an LXC Container on proxmox using the community.general.proxmox module
+- name: create Proxmox Container for Vault
+  hosts: pvenode
+  roles:
+    - role: proxmox-container
+
+# Creates RFC 2818 compliant TLS certificates with IP SANs (which makes Vault happy)
+#   works with Certificate Authority above
+- name: TLS keys for server
+  hosts: localhost
+  connection: local
+  roles:
+    - role: generate_keys
+      vars:
+        common_name: vault
+        ip_1: 192.168.86.9
+      
+# Adds CA to cert store, installs vault package, 
+#   configures vault (TLS Keys and configuration including gcpckms auto-unseal),
+#   enables/starts the vault service, and initializes the vault - writing the root token and 
+#   unseal keys back to the ansible host
+- name: Setup Vault
+  hosts: vault_host
+  roles:
+    - role: copy_ca_to_host
+    - role: vault_install
+    - role: vault_configure
+    - role: vault_initialize
+        
+# different take on installing the PostgreSQL client
+#   rather than shoehorning it in to cloud-init        
+- name: install PostgreSQL client
+  hosts: prime
+  become: yes
+  roles:
+    - postgresql_client

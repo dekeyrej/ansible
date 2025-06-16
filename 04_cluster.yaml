@@ -3,7 +3,7 @@
   hosts: allnodes
   become: yes
   vars_files:
-    - 03_disk_list.yaml
+    - 05_disk_list.yaml
   roles:
     - microceph
     - microk8s
