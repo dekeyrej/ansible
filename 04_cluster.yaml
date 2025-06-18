@@ -12,6 +12,7 @@
   hosts: prime
   become: no
   roles:
+    - fetch_kube_config
     - kubegres
     - redis
     - tcp_ingresses

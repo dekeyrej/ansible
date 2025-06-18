@@ -7,7 +7,7 @@
       update_cache: yes
 
 - name: Check if Vault apt keyring exists
-  stat:
+  ansible.builtin.stat:
     path: /usr/share/keyrings/hashicorp-archive-keyring.gpg
   register: file_check # Register the output in file_check variable
 

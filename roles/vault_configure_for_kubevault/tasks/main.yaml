@@ -1,19 +1,115 @@
 ---
-# kubectl stuff
-# - shell: kubectl create serviceaccount vault-auth -n default
-# - shell: kubectl apply -f files/default-va-token.yaml
-# - shell: kubectl patch serviceaccount vault-auth -p '{"secrets": [{"name": "vault-auth-token"}]}'
-# - shell: kubectl get secret $(kubectl get serviceaccount vault-auth -o jsonpath='{.secrets[0].name}') -o jsonpath='{.data.token}' | base64 --decode  > rsat.tk
-# - shell: kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}' | base64 --decode > ca.crt
-# vault stuff
-# - shell: "vault login {{ vault_root_token }}"
-# - shell: vault auth enable kubernetes
-- shell: vault write auth/kubernetes/config token_reviewer_jwt=@rsat.tk kubernetes_host="{{ kubeapiaddress }}" kubernetes_ca_cert=@ca.crt
-- shell: vault policy write my-app-policy my-app-policy.hcl
-- shell: vault write auth/kubernetes/role/demo  bound_service_account_namespaces=default  bound_service_account_names=default policies=my-app-policy ttl=10s
-# test kubernetes login
-- shell: vault write auth/kubernetes/login role=demo jwt=$(kubectl create token default)
-# setup transit keys/encryption
-- shell: vault secrets enable transit
-- shell: vault write -f transit/keys/aes256-key
+- name: Load Kubernetes CA cert from file
+  set_fact:
+    kube_ca: "{{ lookup('file', '/usr/local/share/ca-certificates/ca.crt') }}"
 
+- name: Check if vault init output file exists
+  stat:
+    path: /path/to/vault_output_file.txt
+  register: vault_file_check
+
+- name: Extract Vault root token if file exists
+  when: vault_file_check.stat.exists
+  block:
+    - name: Load root token from vault output
+      set_fact:
+        vault_root_token: >-
+          {{ lookup('file', '/root/vault_init_output.txt')
+             | regex_search('Initial Root Token:\\s*(\\S+)', '\\1') }}
+
+- name: Create Vault service account
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: vault-auth
+        namespace: default
+
+- name: Apply default Vault token manifest
+  kubernetes.core.k8s:
+    state: present
+    src: files/default-va-token.yaml
+
+- name: Patch service account using JSON patch
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: ServiceAccount
+    name: vault-auth
+    namespace: default
+    merge_type: json
+    definition:
+      - op: add
+        path: /secrets
+        value:
+          - name: vault-auth-token
+
+- name: Get vault-auth service account
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: ServiceAccount
+    name: vault-auth
+    namespace: default
+  register: sa_info
+
+- name: Get associated secret
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: "{{ sa_info.resources[0].secrets[0].name }}"
+    namespace: default
+  register: secret_info
+
+- name: Decode JWT token
+  set_fact:
+    jwt_token: "{{ secret_info.resources[0].data.token | b64decode }}"
+
+- name: Enable Kubernetes auth in Vault
+  community.hashi_vault.vault_auth_method:
+    name: kubernetes
+    state: enabled
+    mount_point: kubernetes
+    token: "{{ vault_root_token }}"
+
+- name: Configure Kubernetes auth
+  community.hashi_vault.vault_write:
+    path: auth/kubernetes/config
+    token: "{{ vault_root_token }}"
+    data:
+      kubernetes_host: "{{ kubeapiaddress }}"
+      kubernetes_ca_cert: "{{ kube_ca_cert }}"
+      token_reviewer_jwt: "{{ jwt_token }}"
+
+- name: Upload policy to Vault
+  community.hashi_vault.vault_policy:
+    name: my-app-policy
+    policy: "{{ lookup('file', role_path ~ '/files/my-app-policy.hcl') }}"
+    token: "{{ vault_root_token }}"
+
+- name: Create Vault role
+  community.hashi_vault.vault_write:
+    path: auth/kubernetes/role/demo
+    token: "{{ vault_root_token }}"
+    data:
+      bound_service_account_namespaces: default
+      bound_service_account_names: vault-auth
+      policies: my-app-policy
+      ttl: 10s
+
+- name: Enable transit engine
+  community.hashi_vault.vault_secret_engine:
+    name: transit
+    state: enabled
+    token: "{{ vault_root_token }}"
+
+- name: Create AES key
+  community.hashi_vault.vault_write:
+    path: transit/keys/aes256-key
+    token: "{{ vault_root_token }}"
+    method: POST
+
+# - name: delete output file from vault host
+#   ansible.builtin.file:
+#     path: /root/vault_init_output.txt
+#     state: absent

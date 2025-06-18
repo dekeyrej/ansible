@@ -16,9 +16,10 @@
     - role: vault_configure
     - role: vault_initialize
 
-# this is still a raw BOC
-# - name: prepare vault for KUBEVAULT
-#   hosts: localhost
-#   connection: local
-#   roles:
-#     - role: vault_configure_for_kubevault
+- name: prepare vault for KUBEVAULT
+  hosts: localhost
+  connection: local
+  vars:
+    host_group: other_container
+  roles:
+    - role: vault_configure_for_kubevault

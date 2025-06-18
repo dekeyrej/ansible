@@ -1,37 +1,37 @@
 ---
 - name: create CSR template
   local_action:
-    module: template
+    module: ansible.builtin.template
     src: server-req.conf.j2
     dest: /tmp/server-req.conf
 
 - name: create CRT with IP SANs template
   local_action:
-    module: template
+    module: ansible.builtin.template
     src: server-ext.conf.j2
     dest: /tmp/server-ext.conf
 
 - name: create server KEY
-  shell:
+  ansible.builtin.shell:
     cmd: "openssl genrsa -out {{ item }}.key {{ bits }}"
     chdir: /home/ubuntu/certificate_authority/
 
 - name: create server CSR
-  shell:
+  ansible.builtin.shell:
     cmd: "openssl req -new -nodes -keyout {{ item }}.key -out {{ item }}.csr -config /tmp/server-req.conf"
     chdir: /home/ubuntu/certificate_authority/
 
 - name: create server CRT
-  shell:
+  ansible.builtin.shell:
     cmd: "openssl x509 -req -in {{ item }}.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out {{ item }}.crt -days 365 -sha256 -extfile /tmp/server-ext.conf -extensions v3_ext"
     chdir: /home/ubuntu/certificate_authority/
 
 - name: remove tmp server-req.conf
-  file:
+  ansible.builtin.file:
     path: /tmp/server-req.conf
     state: absent  
 
 - name: remove tmp server-ext.conf
-  file:
+  ansible.builtin.file:
     path: /tmp/server-ext.conf
     state: absent 

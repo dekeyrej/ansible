@@ -3,9 +3,9 @@
 # and updates host certificate store
 
 - name: Copy ca.crt to /usr/local/share/ca-certificates
-  copy:
+  ansible.builtin.copy:
     src: /home/ubuntu/certificate_authority/ca.crt
     dest: /usr/local/share/ca-certificates/ca.crt
 
 - name: Update the server 'trust store'
-  shell: update-ca-certificates
+  ansible.builtin.shell: update-ca-certificates

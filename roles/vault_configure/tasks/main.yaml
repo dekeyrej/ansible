@@ -1,6 +1,6 @@
 ---
 - name: "Copy {{ inventory_hostname }}.key to ~"
-  copy:
+  ansible.builtin.copy:
     src: "/home/ubuntu/certificate_authority/{{ inventory_hostname }}.key"
     dest: /opt/vault/tls/vault.key
     owner: vault
@@ -8,7 +8,7 @@
     mode: '0600'
 
 - name: "Copy {{ inventory_hostname }}.crt to ~"
-  copy:
+  ansible.builtin.copy:
     src: "/home/ubuntu/certificate_authority/{{ inventory_hostname }}.crt"
     dest: /opt/vault/tls/vault.crt
     owner: vault
@@ -16,7 +16,7 @@
     mode: '0600'
 
 - name: Copy vault configuration file "vault.hcl"
-  template:
+  ansible.builtin.template:
     src: vault.hcl.j2
     dest: /etc/vault.d/vault.hcl
     owner: vault
@@ -24,7 +24,7 @@
     mode: '0644'
 
 - name: Copy vault environment file "vault.env"
-  copy:
+  ansible.builtin.copy:
     src: vault.env
     dest: /etc/vault.d/vault.env
     owner: vault
@@ -32,7 +32,7 @@
     mode: '0644'
 
 - name: Copy gcloud credentials file "application_default_credentials.json"
-  copy:
+  ansible.builtin.copy:
     src: application_default_credentials.json
     dest: /etc/vault.d/application_default_credentials.json
     owner: vault
@@ -40,7 +40,7 @@
     mode: '0644'
 
 - name: start vault service
-  service:
+  ansible.builtin.service:
     name: vault
     enabled: yes
     state: started
