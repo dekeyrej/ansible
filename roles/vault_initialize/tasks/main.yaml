@@ -11,7 +11,7 @@
 - name: fetch output from vault
   fetch:
     src: /root/vault_init_output.txt
-    dest: /home/ubuntu/
+    dest: "/home/ubuntu/vault_init_output-{{ ansible_date_time.iso8601_basic_short }}.txt"
     flat: true
 
 - name: delete output file from vault host

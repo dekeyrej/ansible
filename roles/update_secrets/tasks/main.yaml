@@ -32,3 +32,4 @@
         namespace: default
       data:
         events.json: "{{ event_data | from_json | to_nice_json }}"
+        

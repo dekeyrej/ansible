@@ -1,12 +1,35 @@
-- name: Create cloud-init
-  hosts: localhost
-  connection: local
-  vars_files:
-    - 01_sha_keys.yaml
-    - 03_host_list.yaml
-  tasks:
-    - name: build cloud-init from template
-      ansible.builtin.template:
-        src: roles/proxmox-clone/templates/cloud-init.yaml.j2
-        dest: userconfig.yaml
-      loop: "{{ vmlist }}"
+# - name: Create cloud-init
+#   hosts: localhost
+#   connection: local
+#   tasks:
+#     - name: spew out necessary stuff from inventory
+#       debug:
+#         msg: "{{ item }} has VMID: {{ hostvars[item]['vmid'] }}, and ipconfig of: ip={{ hostvars[item]['ansible_host'] }}/24,gw=192.168.86.1"
+#       loop: "{{ groups['allnodes'] }}"
+
+# - name: test of dumping encrypted vars_files
+#   hosts: vault_host
+#   # connection: local
+#   vars_files:
+#     - gcpckms.yaml
+#   tasks:
+#   - name: Copy vault configuration file "vault.hcl"
+#     template:
+#       src: vault.hcl.j2
+#       dest: vault.hcl
+#     # delegate_to: localhost
+
+
+# - name: print date time
+#   hosts: vault_host
+#   # connection: local
+#   tasks:
+#     - name: dump current date/time
+#       debug:
+#         msg: "Date time: {{ ansible_date_time.iso8601_basic_short }}"
+    
+#     - name: append dtg to file
+#       fetch:
+#         src: /root/vault_init_output.txt
+#         dest: "/home/ubuntu/vault_init_output-{{ ansible_date_time.iso8601_basic_short }}.txt"
+#         flat: true

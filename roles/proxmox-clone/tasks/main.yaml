@@ -1,4 +1,4 @@
 ---
 - name: Loop through hostlist, creating clones for each
   include_tasks: clone_tasks.yaml
-  loop: "{{ vmlist }}"
+  loop: "{{ groups['allnodes'] }}"

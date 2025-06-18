@@ -1,5 +1,5 @@
 ---
-- name: "Clone template {{ templatevmid }} to VM {{ item.vmid }}"
+- name: "Clone template {{ templatevmid }} to VM {{ hostvars[item]['vmid'] }}"
   community.general.proxmox_kvm:
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
@@ -7,70 +7,69 @@
     node: "{{ node }}"
     clone: temp
     vmid: "{{ templatevmid }}"  # source (template) VMid
-    newid: "{{ item.vmid }}"
-    name: "{{ item.hostname }}"
+    newid: "{{ hostvars[item]['vmid'] }}"
+    name: "{{ item }}"
     storage: "{{ diskpool }}"
     pool: Sierra
     state: present
 
-- name: "Check vm disk size for VM {{ item.vmid }}"
+- name: "Check vm disk size for VM {{ hostvars[item]['vmid'] }}"
   community.general.proxmox_vm_info:
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
     api_host: "{{ node }}"
-    vmid: "{{ item.vmid }}"
+    vmid: "{{ hostvars[item]['vmid'] }}"
   register: vm_info
   until: vm_info.proxmox_vms is defined and vm_info.proxmox_vms[0].maxdisk | int > 0
   retries: 5
   delay: 2
-
-# - name: dump vm_info
-#   ansible.builtin.debug:
-#     var: vm_info
   
-- name: "Resize boot disk for VM {{ item.vmid }}"
+- name: "Resize boot disk for VM {{ hostvars[item]['vmid'] }}"
   community.general.proxmox_disk:
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
     api_host: "{{ node }}"
-    vmid: "{{ item.vmid }}"
+    vmid: "{{ hostvars[item]['vmid'] }}"
     disk: "{{ bootdiskname }}"
     size: "{{ diskincrement }}"
     state: resized
   when: vm_info.proxmox_vms[0].maxdisk | int < 5000000000  # 5GB - base image  is about 3.5G
 
-- name: "Create userconfig-vmid for VM {{ item.vmid }}"
+- name: "Create userconfig-vmid for VM {{ hostvars[item]['vmid'] }}"
   ansible.builtin.template:
     src: cloud-init.yaml.j2
-    dest: "/var/lib/vz/snippets/userconfig-{{ item.vmid }}.yaml"
+    dest: "/var/lib/vz/snippets/userconfig-{{ hostvars[item]['vmid'] }}.yaml"
 
-- name: "Update for VM {{ item.vmid }}"
+- name: "Update for VM {{ hostvars[item]['vmid'] }}"
   community.general.proxmox_kvm:
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
     api_host: "{{ node }}"
     node: "{{ node }}"
-    vmid: "{{ item.vmid }}"
-    cicustom: "user=local:snippets/userconfig-{{ item.vmid }}.yaml"
-    name: "{{ item.hostname }}"
+    vmid: "{{ hostvars[item]['vmid'] }}"
+    cicustom: "user=local:snippets/userconfig-{{ hostvars[item]['vmid'] }}.yaml"
+    name: "{{ item }}"
     ipconfig: 
-      ipconfig0: "{{ item.ipaddress }}"
+      ipconfig0: "ip={{ hostvars[item]['ansible_host'] }}/24,gw=192.168.86.1"
     update: true
 
-- name: "Start for VM {{ item.vmid }}"
+# - pause:
+#     seconds: 5
+
+- name: "Start VM {{ hostvars[item]['vmid'] }}"
   community.general.proxmox_kvm:
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
     api_host: "{{ node }}"
     node: "{{ node }}"
-    vmid: "{{ item.vmid }}"
+    vmid: "{{ hostvars[item]['vmid'] }}"
     state: started
-  register: retval
-  until: retval.status is defined and retval.status == "running"
-  retries: 5
-  delay: 2 
+  # register: retval
+  # until: retval.status is defined and retval.status == "running"
+  # retries: 5
+  # delay: 2
 
 - name: remove userconfig-vmid file
   ansible.builtin.file:
-   path: "/var/lib/vz/snippets/userconfig-{{ item.vmid }}.yaml"
+   path: "/var/lib/vz/snippets/userconfig-{{ hostvars[item]['vmid'] }}.yaml"
    state: absent

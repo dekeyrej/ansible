@@ -1,21 +1,17 @@
-- name: create Proxmox Container for Vault
-  hosts: pvenode
-  roles:
-    - role: proxmox-container
-
-- name: TLS keys for server
+- name: create Proxmox Container and generate TLS keys if desired
   hosts: localhost
   connection: local
+  vars:
+    host_group: other_container
   roles:
+    - role: proxmox-container
     - role: generate_keys
-      vars:
-        common_name: vault
-        ip_1: 192.168.86.9
       
 - name: Setup Vault
-  hosts: vault_host
+  hosts: other_container
   roles:
     - role: copy_ca_to_host
+    - role: update_all
     - role: vault_install
     - role: vault_configure
     - role: vault_initialize

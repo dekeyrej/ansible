@@ -16,8 +16,8 @@
     mode: '0600'
 
 - name: Copy vault configuration file "vault.hcl"
-  copy:
-    src: files/vault.hcl
+  template:
+    src: vault.hcl.j2
     dest: /etc/vault.d/vault.hcl
     owner: vault
     group: vault
@@ -25,7 +25,7 @@
 
 - name: Copy vault environment file "vault.env"
   copy:
-    src: files/vault.env
+    src: vault.env
     dest: /etc/vault.d/vault.env
     owner: vault
     group: vault
@@ -33,7 +33,7 @@
 
 - name: Copy gcloud credentials file "application_default_credentials.json"
   copy:
-    src: files/application_default_credentials.json
+    src: application_default_credentials.json
     dest: /etc/vault.d/application_default_credentials.json
     owner: vault
     group: vault

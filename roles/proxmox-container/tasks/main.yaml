@@ -1,33 +1,4 @@
 ---
-- name: Create Proxmox-VE Container
-  community.general.proxmox:
-    api_host: "{{ node }}"
-    api_user: "{{ api_user }}"
-    api_password: "{{ api_password }}"
-    node: "{{ node }}"
-    vmid: "{{ ctid }}"
-    hostname: "{{ hostname }}"
-    ostemplate: "{{ template }}"
-    disk: "{{ rootfs }}"
-    # disk_volume:    # requires community.general 9.2.0 or greater
-    #   storage: "{{ diskpool }}"
-    #   size: "{{ rootsize }}"
-    netif:
-      net0: "name=eth0,bridge={{ bridge }},ip={{ ip4 }},gw={{ gateway }}"
-    unprivileged: "{{ unprivileged }}" 
-    onboot: "{{ onboot }}"
-    pool: "{{ resource_pool }}"
-    cores: "{{ cores }}"
-    memory: "{{ memory }}"
-    swap: "{{ swap }}"
-    pubkey: "{{ sshkey }}"
-    state: present
-
-- name: Start Container
-  community.general.proxmox:
-    api_host: "{{ node }}"
-    api_user: "{{ api_user }}"
-    api_password: "{{ api_password }}"
-    # node: "{{ node }}"
-    vmid: "{{ ctid }}"
-    state: started
+- name: Loop through containers
+  include_tasks: container_tasks.yaml
+  loop: "{{ groups[host_group] }}"

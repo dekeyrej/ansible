@@ -1,5 +1,5 @@
 #cloud-config
-hostname: {{ item.hostname }}
+hostname: {{ item }}
 manage_etc_hosts: true
 users:
   - default
@@ -11,5 +11,5 @@ users:
     ssh_authorized_keys: {{ sha }}
 package_update: true
 package_upgrade: true
-packages:
-- qemu-guest-agent
+# packages:
+# - qemu-guest-agent

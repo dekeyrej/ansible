@@ -9,6 +9,6 @@ extendedKeyUsage = serverAuth
 subjectAltName = @alt_names
 
 [ alt_names ]
-DNS.1 = {{ common_name }}.local
-IP.1 = {{ ip_1 }}
+DNS.1 = {{ item }}.local
+IP.1 = {{ hostvars[item]['ansible_host'] }}
 IP.2 = 127.0.0.1
