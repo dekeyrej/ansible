@@ -1,0 +1,46 @@
+- name: Install curl
+  ansible.builtin.shell: apt-get install -y curl git
+
+- name: get nodesource script
+  ansible.builtin.shell: curl -fsSL https://deb.nodesource.com/setup_lts.x -o nodesource_setup.sh
+
+- name: add node repository to apt
+  ansible.builtin.shell: bash nodesource_setup.sh
+
+- name: install nodejs
+  ansible.builtin.shell: apt-get install -y nodejs
+
+- name: install pm2
+  ansible.builtin.shell: npm install -g pm2
+
+- name: git clone MagicMirror
+  ansible.builtin.shell: git clone https://github.com/MagicMirrorOrg/MagicMirror.git
+
+- name: npm install MagicMirror2
+  ansible.builtin.shell: 
+    cmd: npm run install-mm 
+    chdir: MagicMirror/
+
+- name: Install modules
+  include_tasks: add_modules.yaml
+  loop: "{{ mmmodules }}"
+
+- name: copy config.js
+  ansible.builtin.copy:
+    src: config.js
+    dest: /root/MagicMirror/config/config.js
+
+- name: copy startup script
+  ansible.builtin.copy:
+    src: mmso.sh
+    dest: /root
+    mode: 0755
+
+- name: do pm2 startup
+  ansible.builtin.shell: pm2 startup
+
+- name: use pm2 to start server
+  ansible.builtin.shell: pm2 start mmso.sh
+
+- name: save pm2 configuration
+  ansible.builtin.shell: pm2 save

@@ -33,3 +33,70 @@
 #         src: /root/vault_init_output.txt
 #         dest: "/home/ubuntu/vault_init_output-{{ ansible_date_time.iso8601_basic_short }}.txt"
 #         flat: true
+
+- name: login to vault
+  hosts: localhost
+  connection: local
+  vars:
+    kubeapiip: 192.168.86.90
+    kubeapidns: kubeapi.local
+  tasks:
+    # - name: Load Kubernetes CA cert from file
+    #   set_fact:
+    #     kube_ca: "{{ lookup('file', '/usr/local/share/ca-certificates/ca.crt') }}"
+
+    # - name: Find matching files
+    #   ansible.builtin.find:
+    #     paths: /home/ubuntu
+    #     patterns: "vault_init_output-*.txt"
+    #     file_type: file
+    #   register: vault_files
+
+    # - name: Set fact for newest file
+    #   set_fact:
+    #     newest_vault_file: "{{ (vault_files.files | sort(attribute='mtime', reverse=true))[0].path }}"
+    #   when: vault_files.files | length > 0
+
+    # - name: Read the output file from the vault container
+    #   slurp:
+    #     src: "{{ newest_vault_file }}"
+    #   register: vault_output_raw
+
+    # - name: Decode file and extract root token
+    #   set_fact:
+    #     initial_root_token: >-
+    #       {{
+    #         (vault_output_raw.content | b64decode).splitlines()
+    #         | select('match', '^Initial Root Token:')
+    #         | first
+    #         | regex_replace('^Initial Root Token: ', '')
+    #       }}
+
+    # - name: Show the root token
+    #   debug:
+    #     msg: "Initial Root Token is: {{ initial_root_token }}"
+
+    # - name: Update server.conf.template
+    #   ansible.builtin.lineinfile:
+    #     path: csr.conf.template
+    #     insertbefore: "IP.1 = 127.0.0.1"
+    #     line: |
+    #       DNS.6 = kubeapi
+    #       DNS.7 = kubeapi.local
+    - name: Update server.conf.template
+      ansible.builtin.lineinfile:
+        path: csr.conf.template
+        insertbefore: "IP.1 = 127.0.0.1"
+        line: "DNS.6 = {{ kubeapidns }}"
+    - name: Update server.conf.template
+      ansible.builtin.lineinfile:
+        path: csr.conf.template
+        insertbefore: "#MOREIPS"
+        line: "IP.3 = {{ kubeapiip }}"
+
+    # - name: Update server.conf.template
+    #   ansible.builtin.lineinfile:
+    #     path: csr.conf.template
+    #     insertbefore: "#MOREIPS"
+    #     line: |
+    #       IP.3 = 192.168.86.90

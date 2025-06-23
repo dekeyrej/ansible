@@ -1,0 +1,25 @@
+---
+- name: initialize the vault (capturing the root token and unseal keys)
+  ansible.builtin.shell: vault operator init
+  register: result
+
+- name: save the output into a file
+  when: result.rc == 0
+  ansible.builtin.copy:
+    content: "{{ result.stdout }}"
+    dest: /root/vault_init_output.txt
+    backup: yes
+
+- name: fetch output from vault
+  when: result.rc == 0
+  ansible.builtin.fetch:
+    src: /root/vault_init_output.txt
+    # dest: /home/ubuntu/vault_init_output.txt
+    dest: "/home/ubuntu/vault_init_output-{{ ansible_date_time.iso8601_basic_short }}.txt"
+    flat: true
+
+# let's clean this up after we have configured for KUBEVAULT...
+# - name: delete output file from vault host
+#   ansible.builtin.file:
+#     path: /root/vault_init_output.txt
+#     state: absent

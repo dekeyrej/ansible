@@ -1,0 +1,56 @@
+---
+# - name: stop vault service
+#   ansible.builtin.service:
+#     name: vault.service
+#     # enabled: yes
+#     state: stopped
+
+- name: "Copy {{ inventory_hostname }}.key to ~"
+  ansible.builtin.copy:
+    src: "/home/ubuntu/certificate_authority/{{ inventory_hostname }}.key"
+    dest: /opt/vault/tls/vault.key
+    owner: vault
+    group: vault
+    mode: '0600'
+
+- name: "Copy {{ inventory_hostname }}.crt to ~"
+  ansible.builtin.copy:
+    src: "/home/ubuntu/certificate_authority/{{ inventory_hostname }}.crt"
+    dest: /opt/vault/tls/vault.crt
+    owner: vault
+    group: vault
+    mode: '0600'
+
+- name: Copy vault configuration file "vault.hcl"
+  ansible.builtin.template:
+    src: vault.hcl.j2
+    dest: /etc/vault.d/vault.hcl
+    owner: vault
+    group: vault
+    mode: '0644'
+
+- name: Copy vault environment file "vault.env"
+  ansible.builtin.copy:
+    src: vault.env
+    dest: /etc/vault.d/vault.env
+    owner: vault
+    group: vault
+    mode: '0644'
+
+- name: Copy gcloud credentials file "application_default_credentials.json"
+  ansible.builtin.copy:
+    src: application_default_credentials.json
+    dest: /etc/vault.d/application_default_credentials.json
+    owner: vault
+    group: vault
+    mode: '0644'
+
+- name: start vault service
+  ansible.builtin.service:
+    name: vault.service
+    enabled: yes
+    state: restarted
+
+- name: pause a bit
+  ansible.builtin.pause:
+    seconds: 10

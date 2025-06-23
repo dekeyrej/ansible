@@ -1,27 +1,77 @@
 ---
-- name: Prepare nodes (create microceph and microk8s clusters)
+- name: Prepare nodes - Part 1 (create microceph cluster and install microk8s)
   hosts: allnodes
   become: yes
   vars_files:
     - 05_disk_list.yaml
   roles:
+    - copy-ca-to-host   
+    - python3_packages
     - microceph
-    - microk8s
+    - microk8s-install     # check for new ca.crt, refresh certs _BEFORE_ making cluster!
+                   # add task to add IP SANs for kubeapi.local, 192.168.86.90 to the server.crt on each node!
+
+- name: Prepare nodes - Part 2 (create microk8s cluster)
+  hosts: subnodes
+  serial: 1
+  become: yes
+  roles:
+    - microk8s-assemble-cluster
+
+- name: Prepare nodes - Part 3 (create microceph and microk8s clusters)
+  hosts: allnodes
+  become: yes
+  roles:
+    - microk8s-configure  
 
 - name: Deploy cluster services (kubegres, redis, tcp_ingresses)
   hosts: prime
   become: no
   roles:
+    - microk8s-enable-addons
     - fetch_kube_config
     - kubegres
     - redis
-    - tcp_ingresses
 
-- name: Deploy application microservices
+- name: Create microservice-backing database, and create github secret to pull images
   hosts: prime
   become: no
   roles:
     - create_matrix_database
     - github_secret
+    
+- name: Configure vault support kuberneets authentication and transit secrets
+  hosts: localhost
+  connection: local
+  become: no
+  roles:
+    - vault-configure-for-kubevault
+
+- name: Deploy application microservices, API and webdisplay
+  hosts: prime
+  become: no
+  roles:
     - update_secrets
+    # - update-other-secrets # Need to write this...
     - deploy_microservices
+
+# - name: Deploy other stuff
+#   hosts: prime
+#   become: no
+#   roles:
+    # - deploy_mtig_stack  # Need to write this...
+    # - deploy_open-webui  # Need to write this...
+    
+- name: create Proxmox Container for MagicMirror2
+  hosts: localhost
+  connection: local
+  vars:
+    host_group: magicmirror
+  roles:
+    - role: proxmox-container
+      
+- name: Setup MagicMirror2
+  hosts: magicmirror
+  roles:
+    - role: update-all
+    - role: magic-mirror

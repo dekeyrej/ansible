@@ -1,0 +1,10 @@
+---
+- name: clone module from github
+  ansible.builtin.shell:
+    cmd: git clone {{ item.git_path }}
+    chdir: /root/MagicMirror/modules
+
+- name: npm install modules
+  ansible.builtin.shell:
+    cmd: npm install --omit=dev || true
+    chdir: /root/MagicMirror/modules/{{ item.mod_name }}

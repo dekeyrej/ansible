@@ -63,7 +63,7 @@
           name: mypostgres
           namespace: kubegres
         spec:
-          replicas: 3
+          replicas: 2
           image: postgres:latest
           database:
               size: 200Mi
@@ -89,7 +89,8 @@
           name: mypostgres
           namespace: kubegres
         spec:
-          clusterIP: None
+          type: LoadBalancer
+          loadBalancerIP: 192.168.86.91
           ports:
           - port: 5432
             targetPort: 5432

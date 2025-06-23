@@ -1,0 +1,5 @@
+cafiles:
+  - ca.crt
+  - ca.key
+kubeapidns: kubeapi.local
+kubeapiip: 192.168.86.90

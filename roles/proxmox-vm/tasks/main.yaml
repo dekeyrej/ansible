@@ -1,0 +1,23 @@
+---
+- name: update diskimage if required
+  ansible.builtin.shell:
+    cmd: /root/update_diskimage.sh
+  register: output
+
+- name: debug output
+  ansible.builtin.debug:
+    var: output.stdout
+
+- name: Build the VM(s)
+  include_tasks: vm_tasks.yaml
+  loop: "{{ groups[host_group] }}"
+
+- name: Start the VM(s)
+  community.general.proxmox_kvm:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ api_host }}"
+    node: "{{ node }}"
+    vmid: "{{ hostvars[item]['vmid'] }}"
+    state: started
+  loop: "{{ groups[host_group] }}"

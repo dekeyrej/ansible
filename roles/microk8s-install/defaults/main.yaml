@@ -1,0 +1,3 @@
+cafiles:
+  - ca.crt
+  - ca.key

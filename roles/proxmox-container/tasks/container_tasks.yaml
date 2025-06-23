@@ -8,7 +8,7 @@
     vmid: "{{ hostvars[item]['ctid'] }}"
     hostname: "{{ item }}"
     ostemplate: "{{ template }}"
-    disk: "{{ rootfs }}"
+    disk: "{{ diskpool }}:{{rootsize}}"
     # disk_volume:    # requires community.general 9.2.0 or greater
     #   storage: "{{ diskpool }}"
     #   size: "{{ rootsize }}"

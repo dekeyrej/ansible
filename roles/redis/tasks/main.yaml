@@ -31,5 +31,4 @@
       state: absent
     loop: "{{ files }}"
 
-      
   when: inventory_hostname in groups['prime']

@@ -1,14 +1,18 @@
 ---
 - name: Install microk8s and kubectl
-  include_tasks: install.yaml
+  include_tasks: 01_install.yaml
 
 - name: Add subnodes to the cluster
-  include_tasks: add_nodes.yaml
+  serial: 1
+  include_tasks: 02_add_nodes.yaml
   when: "'subnodes' in group_names"
 
 - name: Configure kubectl for user
-  import_tasks: make_kubectl_work.yaml
+  import_tasks: 03_make_kubectl_work.yaml
+
+- name: generate new server.crt for each nodes to add IP SANs for kubeapi loadbalancer
+  import_tasks: 04_update_server_certs.yaml
 
 - name: Enable and configure microk8s addons
-  include_tasks: configure.yaml
+  include_tasks: 05_configure.yaml
   when: "'prime' in group_names"

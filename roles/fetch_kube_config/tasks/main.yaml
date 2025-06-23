@@ -1,6 +1,6 @@
 ---
 - name: fetch kube config from new cluster
   ansible.builtin.fetch:
-    src: /home/ubuntu/.kube/config
-    dest: "/home/ubuntu/kube.config-{{ inventory_hostname }}.txt"
+    src: /home/ubuntu/.kube/config  # path on prime
+    dest: "/home/ubuntu/.kube/config" # path on localhost
     flat: true

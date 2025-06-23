@@ -2,3 +2,5 @@
 - name: Loop through containers
   include_tasks: container_tasks.yaml
   loop: "{{ groups[host_group] }}"
+  loop_control:
+    loop_var: item

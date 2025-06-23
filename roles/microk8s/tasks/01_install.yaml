@@ -1,0 +1,40 @@
+---
+- name: Install snaps in classic mode
+  community.general.snap:
+    name: 
+      - microk8s
+      - kubectl
+    classic: true
+
+- name: Add ubuntu to group microk8s
+  ansible.builtin.user:
+    name: ubuntu
+    groups: microk8s
+    append: yes
+
+# copy new RFC 5280 compliant cert to /var/snap/microk8s/current/certs/cadir and kickoff a refresh_certs
+- name: make the directoey
+  ansible.builtin.file:
+    path: /var/snap/microk8s/current/certs/cadir
+    state: directory
+    mode: 0755
+    owner: microk8s
+    group: microk8s
+
+- name: copy new RFC 5280 compliant certificate authority to /var/snap/microk8s/current/certs/cadir
+  ansible.builtin.copy:
+    src: "/home/ubuntu/certificate_authority/{{ item }}"
+    dest: "/var/snap/microk8s/current/certs/cadir/{{ item }}"
+  loop: "{{ cafiles }}"
+
+- name: tell microk8s to refresh-certs
+  ansible.builtin.shell: microk8s.refresh-certs cadir
+  chdir: /var/snap/microk8s/current/certs
+
+- name: restart microk8s
+  ansible.builtin.shell: |
+    microk8s stop
+    microk8s start
+
+# - name: reboot for group changes to take effect
+#   ansible.builtin.reboot:

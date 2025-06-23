@@ -1,0 +1,15 @@
+[Unit]
+Description=MagicMirror
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=server
+WorkingDirectory=/root/MagicMirror/
+ExecStart=/usr/bin/node serveronly
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,66 @@
+---
+- name: "Create userconfig-vmid for VM {{ hostvars[item]['vmid'] }}"
+  ansible.builtin.template:
+    src: cloud-init.yaml.j2
+    dest: "/var/lib/vz/snippets/userconfig-{{ hostvars[item]['vmid'] }}.yaml"
+
+- name: "Create VM {{ item }}, VMID: {{ hostvars[item]['vmid'] }}"
+  community.general.proxmox_kvm:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ api_host }}"
+    name: "{{ item }}"
+    node: "{{ node }}"
+    vmid: "{{ hostvars[item]['vmid'] }}"
+    balloon: "{{ balloon }}"
+    memory: "{{ memory }}"
+    cores: "{{ cores }}"
+    cpulimit: "{{ cpulimit }}"
+    cpu: "cputype={{ cputype }}"
+    ide:
+      ide2: "{{ diskpool }}:cloudinit"
+    cicustom: "user=local:snippets/userconfig-{{ hostvars[item]['vmid'] }}.yaml"
+    net:
+      net0: "{{ netinf }}"
+    ipconfig:
+      ipconfig0: "ip={{ hostvars[item]['ansible_host'] }}/24,gw={{ gateway }}"
+    scsihw: "{{ scsinf }}"
+    ostype: "{{ ostype }}"
+    boot: "order={{ bootdiskname }}"
+    agent: "{{ agent }}"
+    pool: "{{ pool }}"
+    protection: true
+    state: present
+
+- name: "Add boot disk from image for VM {{ item }}, VMID: {{ hostvars[item]['vmid'] }}"
+  community.general.proxmox_disk:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ api_host }}"
+    vmid: "{{ hostvars[item]['vmid'] }}"
+    disk: "{{ bootdiskname }}"
+    storage: "{{ diskpool }}"
+    import_from: "{{ diskimg }}"
+
+- name: "Check vm disk size for VM {{ item }}, VMID: {{ hostvars[item]['vmid'] }}"
+  community.general.proxmox_vm_info:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ api_host }}"
+    vmid: "{{ hostvars[item]['vmid'] }}"
+  register: vm_info
+  until: vm_info.proxmox_vms is defined and vm_info.proxmox_vms[0].maxdisk | int > 0
+  retries: 5
+  delay: 2
+  
+- name: "Resize boot disk for VM VM {{ item }}, VMID: {{ hostvars[item]['vmid'] }}"
+  community.general.proxmox_disk:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ api_host }}"
+    vmid: "{{ hostvars[item]['vmid'] }}"
+    disk: "{{ bootdiskname }}"
+    size: "{{ diskincrement }}"
+    state: resized
+  when: vm_info.proxmox_vms[0].maxdisk | int < 5000000000  # 5GB - base image  is about 3.5G
+

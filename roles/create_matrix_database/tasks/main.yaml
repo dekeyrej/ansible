@@ -1,19 +1,20 @@
 ---
 - name: pause for ingress changes to take effect
   ansible.builtin.wait_for:
+    host: "{{ db_lb_host }}"
     port: 5432
     sleep: 10
 
 - name: create database
   community.postgresql.postgresql_db:
-    login_host: "{{ inventory_hostname }}"
+    login_host: "{{ db_lb_host }}"
     login_user: postgres
     login_password: "{{ supasswd }}"
     name: matrix
 
 - name: create user
   community.postgresql.postgresql_user:
-    login_host: "{{ inventory_hostname }}"
+    login_host: "{{ db_lb_host }}"
     login_user: postgres
     login_password: "{{ supasswd }}"
     name: "{{ matrixuser }}"
@@ -23,7 +24,7 @@
     
 - name: grant priviledges on database to user
   community.postgresql.postgresql_privs:
-    login_host: "{{ inventory_hostname }}"
+    login_host: "{{ db_lb_host }}"
     login_user: postgres
     login_password: "{{ supasswd }}"
     db: matrix

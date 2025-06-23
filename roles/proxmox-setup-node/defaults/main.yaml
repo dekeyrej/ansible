@@ -1,0 +1,4 @@
+pmpackages:
+  # - python3-kubernetes
+  - python3-proxmoxer
+  # - python3-psycopg2

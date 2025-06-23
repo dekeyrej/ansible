@@ -1,17 +1,22 @@
-node: bluep
-host_group: vault_host
-gateway: 192.168.86.1
-diskpool: hdd_pool
-rootsize: 10
-rootfs: "{{ diskpool }}:{{rootsize}}"
-resource_pool: Sierra
+# host_group: an inventory group, role will create a container for each
+node: iluvatar                              # proxmox node and api_host
+# api_user:                                  from (encrypted) variables
+# api_password:                              from (encrypted) variables
+# sshkey:                                    from (encrypted) variables
+# hostname as {item}                         from inventory
+# ctid     as {{ hostvars[item]['ctid'] }}   from inventory
+# ip       as hostvars[item]['ansible_host'] from inventory
+template: local:vztmpl/ubuntu-24.04-standard_24.04-2_amd64.tar.zst
+# ostype: ubuntu                            # Reserved for future use
 cores: 2
 cpuunits: 100
 cpulimit: 2
 memory: 2048
 swap: 0
 bridge: vmbr0
+gateway: 192.168.86.1
+diskpool: ssd_pool
+rootsize: 10
 unprivileged: 1
 onboot: 1
-template: local:vztmpl/ubuntu-24.04-standard_24.04-2_amd64.tar.zst
-ostype: ubuntu
+resource_pool: Sierra

@@ -1,25 +1,46 @@
-- name: create Proxmox Container and generate TLS keys if desired
-  hosts: localhost
-  connection: local
-  vars:
-    host_group: other_container
-  roles:
-    - role: proxmox-container
-    - role: generate_keys
+# - name: create Proxmox Container and generate TLS keys if desired
+#   hosts: localhost
+#   connection: local
+#   vars:
+#     host_group: vault_host
+#   roles:
+#     - role: proxmox-container
+#     - role: generate_keys
       
-- name: Setup Vault
-  hosts: other_container
-  roles:
-    - role: copy_ca_to_host
-    - role: update_all
-    - role: vault_install
-    - role: vault_configure
-    - role: vault_initialize
+# - name: Setup Vault
+#   hosts: vault_host
+#   roles:
+#     - role: copy_ca_to_host
+#     - role: update_all
+#     - role: vault_install
+#     - role: vault_configure
+#     - role: vault_initialize
 
-- name: prepare vault for KUBEVAULT
+# - name: prepare vault for KUBEVAULT
+#   hosts: localhost
+#   connection: local
+#   vars:
+#     host_group: vault_host
+#   roles:
+#     - role: vault_configure_for_kubevault
+
+# handy routine to clean up the known_hosts file to avoid nasty warnings
+- name: Clear known_hosts
   hosts: localhost
   connection: local
   vars:
-    host_group: other_container
+    host_group: vmtest
+  tasks:
+    - name: Loop through hosts removing previous entries from /home/ubuntu/.ssh/known_hosts
+      ansible.builtin.shell:
+        cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item }}"
+      loop: "{{ groups[host_group] }}"
+
+- name: Provision Proxmox VM hosts
+  hosts: pvenode
+  become: no  # root user only on PVE Node
   roles:
-    - role: vault_configure_for_kubevault
+    - role: proxmox-setup-node
+    - role: proxmox-vm
+      vars:
+        host_group: vmtest

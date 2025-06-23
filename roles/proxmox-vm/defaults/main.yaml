@@ -1,0 +1,26 @@
+---
+# api_user:
+# api_password:
+# sha:
+api_host: "{{ inventory_hostname }}"
+node: "{{ inventory_hostname }}"
+pool: Sierra
+gateway: 192.168.86.1
+# vmid specified in inventory
+balloon: 8192
+memory: 32768
+cores: 8
+cpulimit: 8
+cputype: host
+nettype: virtio
+bridge: vmbr0
+ifname: eth0
+netinf: "{{ nettype }},bridge={{ bridge }}"
+scsinf: virtio-scsi-pci
+diskpool: nvme_pool
+diskimg: /root/noble-server-cloudimg-amd64.img
+bootdiskname: scsi0
+diskincrement: +146.5G    # base image is ~ 3.5G - this is the amount to ADD to the boot disk
+ostype: l26
+bootorder: "{{ bootdiskname }}"
+agent: enabled=1
