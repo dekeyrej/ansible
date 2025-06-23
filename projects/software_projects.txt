@@ -1,0 +1,84 @@
+Microcontroller:
+    circuitpython:
+        servo tester: {
+            purpose: allows quickly presetting servo to mid range by generating a 1500us PWM pulse; also allows testing servo range
+            implementation: initially written in circuitpython for an ESP32S2. subsequently modified to work with the blinka library and a rp2040 running the adafruit/u2if firmware image
+            status: "complete"
+        }
+        IR Remote for matrix: {
+            purpose: decodes IR signals from a remote control to send commands (play/pause, forward, rewind, etc.) to the LED Signboard/matrix
+            implementation: written in circuitpython running on an ESP32S3 microcontroller using a TSOP38238 IR receiver. decoded signals are passed to the signboard via the apiserver, and then via the redis pubsub channel
+            status: "complete"
+        }
+    c++:
+        battery system monitor: {
+            purpose: "develop a monitor for DIY solar power and battery  power system for my detached garage; visible monitoring in the garage + status reporting via mqtt reporting", 
+            implementation: "microcontroller, analog to digital converters, temperature and humidity sensor, 320x240 led touch screen, custom carrier circuit card; programmed in C++",
+            status: "inital implementation complete"
+        }
+computer:
+    python:
+        LED Signboard project: {
+            purpose: "initially to display Boston Red Sox game scores while using work computer, since expanded to displaying other information as well",
+            implementations: [
+                "series of microservices written in python and published as multi-platform [amd64, arm64] images via github actions, and running on a kubernetes cluster serving a raspberry pi hosted client connected to the LED signboard",
+                "refactored into a server and a client - still in python, still running on one raspberry pi",
+                "monolithic application ported from circuitpython to python and rehosted to a raspberry pi",
+                "monolithic application written in circuitpython running on a microcontroller"
+            ],
+            data_architecture: "microservces poll their respective data sources at various appropriate intervals, post sturctured (json) data to the postgresql database, and send out a notification to any clients of new information via a redis pub/sub channel",
+            status: "complete"
+        }
+        Kubernetes cluster project: {
+            purpose: "learn about kubernetes and related components",
+            Production Kubernetes cluster (amd64) implementation: "three retired/donated PCs - 1 with RTX 2060S with 12GB VRAM, ubuntu server 24.04, microceph clustered storage, microk8s, postgresql, redis, mosquitto, telegraf, influxdb, grafana, open-webui:ollama",
+            Test Kubernetes cluster hosts (arm64) implementation: "three raspberry pi 5s each with 8GB RAM, and a PCIe NVMe SSD, ubuntu server 24.04, microceph clustered storage, microk8s, postgresql, redis",
+            applications: "multi-platform images of the microservices for the LED signboard, multi-platform images for the nodejs apiserver and webdisplay replicating the LED signboard functionality via a browser",
+            status: "complete"
+        }
+        libraries: {
+            datasource: intended to be a wrapper around different database technologies (postgresql, mongodb, sqlite) allows connection, reading and writing data.
+            kubesecrets: a series of convenience routines for creating, reading, updating and deleteing kubernetes configmaps and secrets. Can be used outside the cluster if a config file to access the cluster is available, or by a pod in the cluster. Provides an alternate method of accessing maps and secrets without mounting them as a file, or to the environment.
+            pages: provides two classes (DisplayPage and ServerPage). Depends on datasource and kubesecrets. DisplayPage is the basis for the individual matrix displays. ServerPage is the basis for each of the microservices.
+        }
+        microservices: {
+            concept - each microservice fetches data, formats the data for consumption, and stores latest in postgresql database, generates notification to clients via redis pubsub
+            aqi: fetches raw air qality data from openweathermap.org - ozone, carbon monoxide, sulfur dioxide, nitrogen dioxide and particulate matter (less then 2.5 microns and less than 10 microns), and calculates the air quality index.
+            weather: fetches weather data from openweathermap.org - current conditions, hourly and daily forecasts
+            moon: fetches astronomical data from met.no - sunrise/sunset and moonrise/moonset for today, and for tomorrow - calulates next sun and moon events, moon % illumination and phase
+            mlb: fetches mlb data from espn.com - flattens the data for eaiser display; dynamically alters update rate based on collective game states
+            nfl: fetches nfl data from espn.com - flattens the data for easier display
+            events: reads from a kubernetes secret/configmap mounted as a file and generates notifications for family events (birthdays and anniversaries)
+            mycal: fetches calendar data from google calendar
+        }   
+        matrix: {
+            concept - establishes a complete copy of the microservice data state at startup, connects to redis pubsub service. Thereafter calls the appropriate DisplayPage to update it's intenal data when notified that an update is available via the redis pubsub. Cycles through displays of data collected by microservices. displays formatted for a 128x64 pixel RGB LED matrix.
+            clock: displays current time and date drawn from computer (raspberry pi) hosting the LED matrix
+            wifi: displays qrcode to join the local wifi based on a local configuration file containing the wifi connect string
+            events: displays the next family event and the number of days until the event
+            mycal: displays google calendar data from a manually scrubbed copy of my work calendar which is color coded by the type of event (red - do not disturb, orange - quiet, yellow - busy, green or blue - not busy)
+            current: displays current weather and aqi data
+            hourly: displays hourly weather forecast data
+            forecast: displays forecast weather forecast data
+            moon: displays moon phase (graphically), % lunar illumination, next sunrise/sunset event, and next moonrise/moonset event data
+            mlb: displays mlb daily data with distinct scheduled, in progress, and post-game layouts. Option to spotlight a favorite, or cycle through all of the games
+            nfl: displays nfl weekly data with distinct scheduled, in progress, and post-game layouts. Cycles through all of the games
+            uptime: displays uptime of the matrix client, and the microservices. Bolor-coded by time up.
+        }
+        AC power and temperature monitor: {
+            purpose: "monitor: 1. the status of an AC circuit for a freezer, 2. door closure status, and 3. temperature [inside and out] of the freezer",
+            implementation: "Raspberry pi Zero 2, PiSugar UPS, Pi developer hat for thermocouple and a magnetic reed switch, python application which monitors UPS/AC Power, switch open/closed, ambient and freezer temperature and reports via MQTT",
+            status: "complete"
+        }
+    javascript:
+        apiserver: {
+            concept - on startup retrieves a complete copy of the data state, updates state when notofied via redis pubsub, and serves the data out via a series of api paths.
+            platform: nodejs
+            database: reads from postgresql
+            redis: recieves notifications to update particular portions of the data state from database
+        }
+        webdisplay: {
+            concept - single page app that displays data from microservices. primary page displays all of the environmental data. other pages display NFL and MLB games. Links are provided to other services on the cluster.
+            frontend: react
+            platform: nodejs - consumes data from apiserver
+        }        

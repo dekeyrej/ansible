@@ -1,0 +1,14 @@
+{
+    technical-interests: [
+        learning new things, 
+        software development (PC, raspberry pi, microcontroller), 
+        modern computer and information architectures, 
+        circuit design, 
+        remote controlled airplanes, 
+        3D printing, 
+        experimental airplane building]
+    leisure-interests: [
+        movies (super hero/adventure, sci fi), 
+        tv (super hero/adventure, sci fi, situation comedies, police procedural, medical), 
+        private pilot]
+}

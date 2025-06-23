@@ -1,0 +1,18 @@
+summary: I have a modest codebase written in python and javascript, running predominantly on a small, on-premise kubernetes cluster.
+Cluster:
+    microk8s: 1.32
+    ceph: microceph
+    addons: 
+        gpu: nvidia-device-plugin
+        storage: rook-ceph, ceph-rbd (default), hostpath
+        ingress: nginx
+        dns: coredns
+        dashboard: microk8s dashboard
+    infrastructure:
+        postgresql: 16.1
+        redis: 7.0.11
+        influxdb: 2.7.0
+        telegraf: 1.28.0
+        mosquitto: 2.0.15
+        grafana: 10.1.0
+        open-webui: 0.6.2
