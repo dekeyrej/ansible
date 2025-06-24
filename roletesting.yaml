@@ -32,15 +32,49 @@
     host_group: vmtest
   tasks:
     - name: Loop through hosts removing previous entries from /home/ubuntu/.ssh/known_hosts
-      ansible.builtin.shell:
-        cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item }}"
+      ansible.builtin.known_hosts:
+        name: "{{ item }}"
+        state: absent
+      # ansible.builtin.shell:
+      #   cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item }}"
       loop: "{{ groups[host_group] }}"
 
-- name: Provision Proxmox VM hosts
+- name: Provision Proxmox VMs and LXC containers
   hosts: pvenode
   become: no  # root user only on PVE Node
   roles:
-    - role: proxmox-setup-node
-    - role: proxmox-vm
+    - role: apt-add-packages
       vars:
+        packages: python3-proxmoxer
+    - role: proxmox-vm
+      vars: 
         host_group: vmtest
+        pool: Mirkwood
+        diskincrement: +6.5G
+    - role: proxmox-container
+      vars: 
+        host_group: lxctest
+        pool: Mirkwood
+        # diskincrement: +6.5G
+
+- name: Wait for VMs to become reachable
+  hosts: vmtest
+  gather_facts: no
+  tasks:
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 10     # Initial delay before polling
+        sleep: 5      # Time between retries
+
+- name: prepare vmtest hosts
+  hosts: vmtest
+  become: yes
+  roles:
+    - role: apt-add-packages
+      vars:
+        packages:
+          - qemu-guest-agent
+          - curl
+          - python3-pip
+          - python3-venv

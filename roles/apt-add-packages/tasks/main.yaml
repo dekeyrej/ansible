@@ -1,6 +1,6 @@
 ---
 # simply wraps ansible.builtin.apt in a role accepting a single package, or a list of packages
-- name: Install python3 packages for kubernetes and psycopg2
+- name: Install apt packages
   ansible.builtin.apt:
     pkg: "{{ packages }}"
     update_cache: yes

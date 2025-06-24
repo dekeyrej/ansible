@@ -24,3 +24,4 @@ diskincrement: +146.5G    # base image is ~ 3.5G - this is the amount to ADD to 
 ostype: l26
 bootorder: "{{ bootdiskname }}"
 agent: enabled=1
+protection: false
