@@ -1,0 +1,14 @@
+- name: Install curl
+  ansible.builtin.shell: apt-get install -y curl git
+
+- name: get nodesource script
+  ansible.builtin.shell: curl -fsSL https://deb.nodesource.com/setup_lts.x -o nodesource_setup.sh
+
+- name: add node repository to apt
+  ansible.builtin.shell: bash nodesource_setup.sh
+
+- name: install nodejs
+  ansible.builtin.shell: apt-get install -y nodejs
+
+- name: install pm2
+  ansible.builtin.shell: npm install -g pm2

@@ -1,0 +1,75 @@
+---
+# - name: Provision Proxmox-VE VM
+#   hosts: pvenode
+#   become: no  # root user only on PVE Node
+#   roles:
+#     - role: proxmox-setup-node
+#     - role: proxmox-vm
+#       vars:
+#         host_group: openwebui
+#         pool: Mirkwood
+#         memory: 16384
+#         diskincrement: +46.5G
+
+# - name: prep for CUDA installation
+#   hosts: openwebui
+#   become: yes
+#   tasks:
+#     - name: get cuda keyring
+#       ansible.builtin.shell: wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+
+#     - name: install cuda keyring
+#       ansible.builtin.shell: dpkg -i cuda-keyring_1.1-1_all.deb
+
+# - name: setup GPU host
+#   hosts: openwebui
+#   become: yes
+#   roles:
+#     - role: update-all
+#     - role: apt-add-packages
+#       vars:
+#         packages:
+#           - python3-pip
+#           - python3-venv
+#           - qemu-guest-agent
+#           - cuda-toolkit-12-9
+#           - nvidia-open
+          # - python3-transformers
+          # - python3-torch
+          # - python3-torchvision
+          # - python3-torchaudio
+          # - python3-bitsandbytes
+
+- name: Provision Proxmox-VE LXC
+  hosts: pvenode
+  become: no  # root user only on PVE Node
+  roles:
+    - role: proxmox-setup-node
+    - role: proxmox-cloud-container
+      vars:
+        host_group: redishost
+        pool: Mirkwood
+        memory: 4096
+        cores: 1
+        cpulimit: 1
+        rootsize: 100
+        onboot: true
+
+- name: Clear known_hosts
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Loop through hosts removing previous entries from /home/ubuntu/.ssh/known_hosts
+      ansible.builtin.shell:
+        cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item }}"
+      loop: "{{ groups['redishost'] }}"
+
+# - name: Install Redis
+#   hosts: redis
+#   roles:
+#     - role: update-all
+#     - role: apt-add-packages
+#       vars:
+#         packages:
+#           - python3-pip
+#           - python3-venv

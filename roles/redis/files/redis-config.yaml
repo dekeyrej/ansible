@@ -279,7 +279,7 @@ data:
     # Set the number of databases. The default database is DB 0, you can select
     # a different one on a per-connection basis using SELECT <dbid> where
     # dbid is a number between 0 and 'databases'-1
-    databases 16
+    databases 1
 
     # By default Redis shows an ASCII art logo only when started to log to the
     # standard output and if the standard output is a TTY. Basically this means
@@ -1095,8 +1095,8 @@ data:
     #
     # If unsure, use "everysec".
 
-    # appendfsync always
-    appendfsync everysec
+    appendfsync always
+    # appendfsync everysec
     # appendfsync no
 
     # When the AOF fsync policy is set to always or everysec, and a background
@@ -1138,7 +1138,7 @@ data:
     # rewrite feature.
 
     auto-aof-rewrite-percentage 100
-    auto-aof-rewrite-min-size 64mb
+    auto-aof-rewrite-min-size 16mb
 
     # An AOF file may be found to be truncated at the end during the Redis
     # startup process, when the AOF data gets loaded back into memory.

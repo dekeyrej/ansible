@@ -1,4 +1,5 @@
 ---
+## used for local development of apiserver
 apiVersion: v1
 kind: Service
 metadata:
@@ -6,7 +7,7 @@ metadata:
   namespace: redis
 spec:
   type: LoadBalancer
-  loadBalancerIP: 192.168.86.92
+  loadBalancerIP: {{ lbip }}
   ports:
   - port: 6379
     targetPort: 6379

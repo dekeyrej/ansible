@@ -1,6 +1,6 @@
 ---
 - block:
-  - name: python3-psycopg2 
+  - name: python3-kubernetes
     ansible.builtin.apt:
       pkg: python3-kubernetes
       
@@ -15,20 +15,29 @@
   
   - name: copy redis files to tmp
     ansible.builtin.copy:
-      src: files/{{ item }}
-      dest: /tmp/
-    loop: "{{ files }}"
+      src: redis-config.yaml
+      dest: /tmp/redis-config.yaml
+
+  - name: template redis statefulset file
+    ansible.builtin.template:
+      src: redis-statefulset.yaml.j2
+      dest: /tmp/redis-statefulset.yaml
+
+  - name: template redis service file
+    ansible.builtin.template:
+      src: redis-service.yaml.j2
+      dest: /tmp/redis-service.yaml
 
   - name: create redis 
     kubernetes.core.k8s:
       state: present
       src: /tmp/{{ item }}
-    loop: "{{ files }}"
+    loop: "{{ apply_files }}"
   
   - name: cleanup redis files
     ansible.builtin.file:
       path: /tmp/{{ item }}
       state: absent
-    loop: "{{ files }}"
+    loop: "{{ apply_files }}"
 
-  when: inventory_hostname in groups['prime']
+  # when: inventory_hostname in groups[{{ host_group }}]

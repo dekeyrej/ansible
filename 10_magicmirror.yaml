@@ -1,15 +1,21 @@
 # Create Proxmox containers for all of the hosts in {host_group} from inventory
 #    hosts must have an ansible_host entry, and a ctid defined
-- name: Create Proxmox containers
-  hosts: localhost
-  connection: local
-  vars:
-    host_group: magicmirror
-  roles:
-    - role: proxmox-container
+# - name: Create Proxmox containers
+#   hosts: localhost
+#   connection: local
+#   vars:
+#     host_group: magicmirror
+#   roles:
+#     - role: proxmox-container
       
-- name: Setup MagicMirror2
+# - name: Setup MagicMirror2
+#   hosts: magicmirror
+#   roles:
+#     - role: update-all
+#     - role: magic-mirror
+
+- name: Update MagicMirror2
   hosts: magicmirror
   roles:
     - role: update-all
-    - role: magic-mirror
+    - role: magic-mirror-update

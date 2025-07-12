@@ -1,0 +1,11 @@
+---
+# mmport: 8080
+mmmodules:
+  - git_path: https://github.com/ulrichwisser/MMM-Worldclock.git
+    mod_name: MMM-Worldclock
+  - git_path: https://github.com/Blastitt/DailyXKCD
+    mod_name: DailyXKCD
+  - git_path: https://github.com/MMM-CalendarExt2/MMM-CalendarExt2.git
+    mod_name: MMM-CalendarExt2
+  - git_path: https://github.com/ottopaulsen/MMM-MQTT.git
+    mod_name: MMM-MQTT

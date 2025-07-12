@@ -69,7 +69,7 @@ spec:
       name: data
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "ceph-rbd"
+      storageClassName: {{ redis_storage_class | default('microk8s-hostpath') }}
       resources:
         requests:
           storage: 50Mi

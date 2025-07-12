@@ -1,0 +1,121 @@
+---
+- name: "Assemble 'ip_info' for hostname: {{ item }}"
+  ansible.builtin.set_fact:
+    ip_info: >-
+      {{ (hostvars[item]['ansible_host'] + '/24,gw=' + gateway)
+         if 'ansible_host' in hostvars[item]
+         else 'dhcp' }}
+
+- name: Create Proxmox-VE Container with vmid
+  community.general.proxmox:
+    api_host: "{{ node }}"
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    node: "{{ node }}"
+    vmid: "{{ hostvars[item]['vmid'] }}"
+    hostname: "{{ item }}"
+    ostemplate: "{{ template }}"
+    ostype: "{{ ostype }}"
+    disk: "{{ diskpool }}:{{ rootsize }}"
+    # disk_volume:    # requires community.general 9.2.0 or greater
+    #   storage: "{{ diskpool }}"
+    #   size: "{{ rootsize }}"
+    netif:
+      net0: "name=eth0,bridge={{ bridge }},ip={{ ip_info }}"
+    unprivileged: "{{ unprivileged }}" 
+    onboot: "{{ onboot }}"
+    pool: "{{ pool }}"
+    cores: "{{ cores }}"
+    memory: "{{ memory }}"
+    swap: "{{ swap }}"
+    # pubkey: "{{ sshkey }}"  this would be sshkeys applied to root
+    state: present
+  when: hostvars[item]['vmid'] is defined
+
+- name: Create Proxmox-VE Container without vmid
+  community.general.proxmox:
+    api_host: "{{ node }}"
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    node: "{{ node }}"
+    hostname: "{{ item }}"
+    ostemplate: "{{ template }}"
+    ostype: "{{ ostype }}"
+    disk: "{{ diskpool }}:{{rootsize}}"
+    # disk_volume:    # requires community.general 9.2.0 or greater
+    #   storage: "{{ diskpool }}"
+    #   size: "{{ rootsize }}"
+    netif:
+      net0: "name=eth0,bridge={{ bridge }},ip={{ ip_info }}"
+    unprivileged: "{{ unprivileged }}" 
+    onboot: "{{ onboot }}"
+    pool: "{{ pool }}"
+    cores: "{{ cores }}"
+    memory: "{{ memory }}"
+    swap: "{{ swap }}"
+    # pubkey: "{{ sshkey }}"  this would be sshkeys applied to root
+    state: present
+  when: hostvars[item]['vmid'] is not defined
+
+- name: try to get the vmid for the hostname
+  community.general.proxmox_vm_info:
+    api_host: "{{ node }}"
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    node: "{{ node }}"
+    type: lxc
+    name: "{{ item }}"
+    config: current
+  register: vminfo
+  until: vminfo.proxmox_vms[0].vmid is defined
+ 
+- name: Set the resolved vmid
+  ansible.builtin.set_fact:
+    resolved_vmid: "{{ hostvars[item]['vmid'] | default(vminfo.proxmox_vms[0].vmid | int) }}"
+
+- name: mount the LXC container's rootfs
+  ansible.builtin.shell: pct mount {{ resolved_vmid }}
+
+- name: create directory for cloud-init seed data
+  ansible.builtin.file:
+    path: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net"
+    state: directory
+    owner: 100000                         # this chown/chgrp is necessary for unpriviledged containers.
+    group: 100000
+
+- name: copy meta-data to container's mounted rootfs
+  ansible.builtin.template:
+    src: meta-data.j2
+    dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net/meta-data"
+    owner: 100000
+    group: 100000
+
+- name: copy user-data to container's mounted rootfs
+  ansible.builtin.template:
+    src: user-data.j2
+    dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net/user-data"
+    owner: 100000
+    group: 100000
+
+- name: copy meta-data to container's mounted rootfs
+  ansible.builtin.copy:
+    src: 90_nocloud.cfg
+    dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/etc/cloud/cloud.cfg.d/90_nocloud.cfg"
+    owner: 100000
+    group: 100000
+
+- name: delete cloud-init.disabled
+  ansible.builtin.file:
+    path: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/etc/cloud/cloud-init.disabled"
+    state: absent
+
+- name: unmount the LXC container's rootfs
+  ansible.builtin.shell: pct unmount {{ resolved_vmid }}
+
+- name: Start Container
+  community.general.proxmox:
+    api_host: "{{ node }}"
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    vmid: "{{ resolved_vmid }}"
+    state: started

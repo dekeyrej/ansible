@@ -9,7 +9,7 @@
     - python3_packages
     - microceph
     - microk8s-install     # check for new ca.crt, refresh certs _BEFORE_ making cluster!
-                   # add task to add IP SANs for kubeapi.local, 192.168.86.90 to the server.crt on each node!
+                           # add task to add IP SANs for kubeapi.local, 192.168.86.90 to the server.crt on each node!
 
 - name: Prepare nodes - Part 2 (create microk8s cluster)
   hosts: subnodes

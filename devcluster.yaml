@@ -1,0 +1,165 @@
+# Creates an RFC 5280 compliant Certificate Authority (if it doesn't exist - which makes Python 3.13 happy)
+- name: Establish Certificate Authority
+  hosts: localhost
+  connection: local
+  roles:
+    - role: certificate_authority
+      vars_files:
+        - ca_vars.yaml
+
+# handy routine to clean up the known_hosts file to avoid nasty warnings
+- name: Clear known_hosts
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Loop through hosts removing previous entries from /home/ubuntu/.ssh/known_hosts
+      ansible.builtin.shell:
+        cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item }}"
+      loop: "{{ groups['devcluster'] }}"
+
+- name: Provision Proxmox-VE LXC
+  hosts: pvenode
+  become: no  # root user only on PVE Node
+  roles:
+    - role: proxmox-setup-node
+    - role: proxmox-vm
+      vars:
+        host_group: devcluster
+        pool: Mirkwood
+        memory: 16384
+        cores: 8
+        cpulimit: 8
+        diskincrement: +46.5G
+
+- name: Prepare nodes - Part 1 (create microceph cluster and install microk8s)
+  hosts: devcluster
+  become: yes
+  vars_files:
+    - 05_disk_list.yaml
+  roles:
+    - copy-ca-to-host   
+    - python3_packages
+    # - microceph
+    - microk8s-install     # check for new ca.crt, refresh certs _BEFORE_ making cluster!
+                           # add task to add IP SANs for kubeapi.local, 192.168.86.90 to the server.crt on each node!
+
+# - name: Prepare nodes - Part 2 (create microk8s cluster)
+#   hosts: subnodes
+#   serial: 1
+#   become: yes
+#   roles:
+#     - microk8s-assemble-cluster
+
+- name: Prepare nodes - Part 3 (generate new server.crt)
+  hosts: devcluster
+  become: yes
+  roles:
+    - microk8s-configure  
+
+- name: Deploy cluster services (kubegres, redis, tcp_ingresses)
+  hosts: devcluster
+  become: no
+  vars:
+    microceph: false
+    lbip: 192.168.86.98
+  roles:
+    - microk8s-enable-addons
+    - fetch_kube_config
+    - redis
+    # - kubegres
+    # - redis
+
+- name: Create microservice-backing database, and create github secret to pull images
+  hosts: devcluster
+  become: no
+  roles:
+    # - create_matrix_database
+    - github_secret
+    
+# - name: Configure vault support kubernetes authentication and transit secrets
+#   hosts: localhost
+#   connection: local
+#   become: no
+#   roles:
+#     - vault-configure-for-kubevault
+
+# - name: create Proxmox Container and generate TLS keys if desired
+#   hosts: localhost
+#   connection: local
+#   vars:
+#     host_group: vault_host
+#   roles:
+#     - role: proxmox-container
+#     - role: generate_keys
+      
+# - name: Setup Vault
+#   hosts: vault_host
+#   roles:
+#     - role: copy_ca_to_host
+#     - role: update_all
+#     - role: vault_install
+#     - role: vault_configure
+#     - role: vault_initialize
+
+# - name: prepare vault for KUBEVAULT
+#   hosts: localhost
+#   connection: local
+#   vars:
+#     host_group: vault_host
+#   roles:
+#     - role: vault_configure_for_kubevault
+
+# # handy routine to clean up the known_hosts file to avoid nasty warnings
+# - name: Clear known_hosts
+#   hosts: localhost
+#   connection: local
+#   vars:
+#     host_group: vmtest
+#   tasks:
+#     - name: Loop through hosts removing previous entries from /home/ubuntu/.ssh/known_hosts
+#       ansible.builtin.known_hosts:
+#         name: "{{ item }}"
+#         state: absent
+#       # ansible.builtin.shell:
+#       #   cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item }}"
+#       loop: "{{ groups[host_group] }}"
+
+# - name: Provision Proxmox VMs and LXC containers
+#   hosts: pvenode
+#   become: no  # root user only on PVE Node
+#   roles:
+#     - role: apt-add-packages
+#       vars:
+#         packages: python3-proxmoxer
+#     - role: proxmox-vm
+#       vars: 
+#         host_group: vmtest
+#         pool: Mirkwood
+#         diskincrement: +6.5G
+#     - role: proxmox-container
+#       vars: 
+#         host_group: lxctest
+#         pool: Mirkwood
+#         # diskincrement: +6.5G
+
+# - name: Wait for VMs to become reachable
+#   hosts: vmtest
+#   gather_facts: no
+#   tasks:
+#     - name: Wait for SSH to come up
+#       ansible.builtin.wait_for_connection:
+#         timeout: 300  # Adjust as needed
+#         delay: 10     # Initial delay before polling
+#         sleep: 5      # Time between retries
+
+# - name: prepare vmtest hosts
+#   hosts: vmtest
+#   become: yes
+#   roles:
+#     - role: apt-add-packages
+#       vars:
+#         packages:
+#           - qemu-guest-agent
+#           - curl
+#           - python3-pip
+#           - python3-venv

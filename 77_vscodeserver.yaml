@@ -1,0 +1,16 @@
+- name: create Proxmox Container
+  hosts: pvenode
+  vars:
+    host_group: codehost
+  roles:
+    - role: proxmox-cloud-container
+      
+- name: Setup Code Server
+  hosts: codehost
+  become: yes
+  roles:
+    - role: update-all
+    - role: apt-add-packages
+      vars:
+        packages: [git, curl, wget, unzip, python3-pip, python3-venv]
+    - role: nodejs-install

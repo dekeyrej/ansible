@@ -6,18 +6,22 @@
 
   - name: enable dashboard
     ansible.builtin.shell: microk8s enable dashboard
-  - ansible.builtin.pause: seconds=5
+  - ansible.builtin.pause: seconds=10
 
   - name: save dashboard token
     ansible.builtin.shell: kubectl describe secret -n kube-system microk8s-dashboard-token | grep token > /home/ubuntu/dashboard.token
 
   - name: enable rook-ceph
     ansible.builtin.shell: microk8s enable rook-ceph
+    when: microceph
   - ansible.builtin.pause: seconds=5
+    when: microceph
 
   - name: connect microk8s to microceph
     ansible.builtin.shell: sudo -E microk8s connect-external-ceph
+    when: microceph
   - ansible.builtin.pause: seconds=10
+    when: microceph
 
 # kubectl patch storageClass ceph-rbd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
   - name: make ceph-rbd the default storage class
@@ -29,11 +33,15 @@
         - ceph-rbd 
         - -p
         - '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+    when: microceph
   - ansible.builtin.pause: seconds=5
+    when: microceph
   
   - name: enable minio  # this enables the microk8s-hostpath storageclass as default!?!
     ansible.builtin.shell: sudo -E microk8s enable minio -s ceph-rbd
+    when: microceph
   - ansible.builtin.pause: seconds=5
+    when: microceph
 
   - name: undefault microk8s-hostpath storageClass
     ansible.builtin.command: 
@@ -44,6 +52,7 @@
         - microk8s-hostpath 
         - -p 
         - '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+    when: microceph
 
   - name: enable ingress
     ansible.builtin.shell: microk8s enable ingress
