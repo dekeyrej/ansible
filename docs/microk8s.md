@@ -56,3 +56,14 @@ Once configured, Vault-backed secrets are available to Kubernetes workloads. The
 - Improve cloud-init templating for MicroK8s base images
 - Replace certificate patching once MicroK8s supports modern key usages
 - Add validation role to verify Vault–Kubernetes integration
+
+---
+
+### In `vault.md`
+Vault is provisioned via Ansible and integrated with MicroK8s for Kubernetes-based authentication. See microk8s.md for cluster setup and secretmanager.md for secrets templating and consumption.
+
+### In `microk8s.md`
+This role configures MicroK8s to authenticate with Vault and enables secrets encryption via Vault Transit. See vault.md for Vault provisioning and secretmanager.md for secrets usage patterns.
+
+### In `secretmanager.md`
+Secrets are encrypted using Vault Transit and consumed by microservices deployed in MicroK8s. See vault.md for encryption setup and microk8s.md for cluster integration.

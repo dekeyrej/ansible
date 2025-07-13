@@ -75,7 +75,6 @@ Method Description (for methods used in the example):
     -  `decrypt_data_with_vault()` decrypts ciphertext using vault Transit service
     -  `load_json_secrets()` deserializes and returns decrypted text into Python dictionary
 
-
 ---
 
 ## 🔭 Roadmap
@@ -90,3 +89,14 @@ Method Description (for methods used in the example):
 
 - `ansible`: Infrastructure automation for Vault and Kubernetes
 - `microservicematrix`: Microservices consuming secrets via SecretManager
+
+---
+
+### In `vault.md`
+Vault is provisioned via Ansible and integrated with MicroK8s for Kubernetes-based authentication. See microk8s.md for cluster setup and secretmanager.md for secrets templating and consumption.
+
+### In `microk8s.md`
+This role configures MicroK8s to authenticate with Vault and enables secrets encryption via Vault Transit. See vault.md for Vault provisioning and secretmanager.md for secrets usage patterns.
+
+### In `secretmanager.md`
+Secrets are encrypted using Vault Transit and consumed by microservices deployed in MicroK8s. See vault.md for encryption setup and microk8s.md for cluster integration.

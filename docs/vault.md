@@ -116,3 +116,14 @@ This playbook coordinates tasks across:
 - Proxmox nodes (VM and container provisioning)
 - The Vault container (installation, configuration, and initialization)
 Each role is modular and reusable, allowing for flexible orchestration across different environments.
+
+---
+
+### In `vault.md`
+Vault is provisioned via Ansible and integrated with MicroK8s for Kubernetes-based authentication. See microk8s.md for cluster setup and secretmanager.md for secrets templating and consumption.
+
+### In `microk8s.md`
+This role configures MicroK8s to authenticate with Vault and enables secrets encryption via Vault Transit. See vault.md for Vault provisioning and secretmanager.md for secrets usage patterns.
+
+### In `secretmanager.md`
+Secrets are encrypted using Vault Transit and consumed by microservices deployed in MicroK8s. See vault.md for encryption setup and microk8s.md for cluster integration.
