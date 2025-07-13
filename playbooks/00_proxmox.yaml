@@ -4,7 +4,7 @@
   hosts: localhost
   connection: local
   roles:
-    - role: certificate_authority
+    - role: certificate-authority
       vars_files:
         - ca_vars.yaml
 
@@ -34,7 +34,7 @@
     - 01_template_overrides.yaml
     - 03_sha_keys.yaml
   roles:
-    - role: proxmox-setup-node
+    - role: proxmox-node-setup
     - role: proxmox-template
     - role: proxmox-clone
       vars:
@@ -44,7 +44,7 @@
   hosts: pvenode
   become: no  # root user only on PVE Node
   roles:
-    - role: proxmox-setup-node
+    - role: proxmox-node-setup
     - role: proxmox-vm
       vars:
         host_group: allnodes
@@ -55,7 +55,7 @@
   vars:
     host_group: vault
   roles:
-    - role: proxmox-setup-node
+    - role: proxmox-node-setup
     - role: proxmox-container
 
 # Creates RFC 2818 compliant TLS certificates with IP SANs (which makes Vault happy)
@@ -66,7 +66,7 @@
   vars:
     host_group: vault
   roles:
-    - role: generate_keys
+    - role: generate-keys
 
 # need a pause here to  let the container settle...
 - name: wait a bit
@@ -90,10 +90,3 @@
     - role: vault-configure
     - role: vault-initialize
         
-# # different take on installing the PostgreSQL client
-# #   rather than shoehorning it in to cloud-init        
-# - name: install PostgreSQL client
-#   hosts: prime
-#   become: yes
-#   roles:
-#     - postgresql_client
