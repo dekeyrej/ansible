@@ -1,3 +1,9 @@
+- name: Test fetching latest Ubuntu Server Cloud Noble AMD64 image
+  hosts: pvenode
+  roles:
+    - proxmox-fetch-container-image
+    - proxmox-fetch-vm-image
+
 # - name: Create cloud-init
 #   hosts: localhost
 #   connection: local
@@ -34,13 +40,13 @@
 #         dest: "/home/ubuntu/vault_init_output-{{ ansible_date_time.iso8601_basic_short }}.txt"
 #         flat: true
 
-- name: login to vault
-  hosts: localhost
-  connection: local
-  vars:
-    kubeapiip: 192.168.86.90
-    kubeapidns: kubeapi.local
-  tasks:
+# - name: login to vault
+#   hosts: localhost
+#   connection: local
+#   vars:
+#     kubeapiip: 192.168.86.90
+#     kubeapidns: kubeapi.local
+  # tasks:
     # - name: Load Kubernetes CA cert from file
     #   set_fact:
     #     kube_ca: "{{ lookup('file', '/usr/local/share/ca-certificates/ca.crt') }}"
@@ -83,16 +89,16 @@
     #     line: |
     #       DNS.6 = kubeapi
     #       DNS.7 = kubeapi.local
-    - name: Update server.conf.template
-      ansible.builtin.lineinfile:
-        path: csr.conf.template
-        insertbefore: "IP.1 = 127.0.0.1"
-        line: "DNS.6 = {{ kubeapidns }}"
-    - name: Update server.conf.template
-      ansible.builtin.lineinfile:
-        path: csr.conf.template
-        insertbefore: "#MOREIPS"
-        line: "IP.3 = {{ kubeapiip }}"
+    # - name: Update server.conf.template
+    #   ansible.builtin.lineinfile:
+    #     path: csr.conf.template
+    #     insertbefore: "IP.1 = 127.0.0.1"
+    #     line: "DNS.6 = {{ kubeapidns }}"
+    # - name: Update server.conf.template
+    #   ansible.builtin.lineinfile:
+    #     path: csr.conf.template
+    #     insertbefore: "#MOREIPS"
+    #     line: "IP.3 = {{ kubeapiip }}"
 
     # - name: Update server.conf.template
     #   ansible.builtin.lineinfile:

@@ -1,0 +1,4 @@
+base_url: "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
+image_path: "/root"
+target: noble-server-cloudimg-amd64.img
+work_dir: "/tmp/diskimage_version_tracking"

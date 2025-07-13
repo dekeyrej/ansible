@@ -1,0 +1,62 @@
+# roles/fetch_container_image/tasks/main.yml
+- name: Fetch LXC image index page
+  uri:
+    url: "{{ base_url }}/"
+    return_content: yes
+  register: lxc_index
+
+- name: Extract all directory names from HTML
+  set_fact:
+    dir_list: "{{ lxc_index.content | regex_findall('href=\\\"(\\d{8}_\\d{2}%3A\\d{2})/') }}"
+
+- name: Decode and sort directory names
+  set_fact:
+    sorted_dirs: "{{ dir_list | map('urldecode') | sort }}"
+
+- name: Set latest directory
+  set_fact:
+    latest_dir: "{{ sorted_dirs[-1] }}"
+
+- name: create tmp directory
+  ansible.builtin.file:
+    path: "{{ work_dir }}"
+    state: directory
+
+- name: Save current container version
+  copy:
+    content: "{{ latest_dir }}"
+    dest: "{{ work_dir }}/current_container"
+
+- name: Compare with latest_container
+  stat:
+    path: "{{ work_dir }}/latest_container"
+  register: latest_container_file
+
+- name: Read latest_container if it exists
+  slurp:
+    src: "{{ work_dir }}/latest_container"
+  register: latest_container_content
+  when: latest_container_file.stat.exists
+
+- name: Set image_is_current fact
+  set_fact:
+    image_is_current: "{{ latest_container_content.content | b64decode == latest_dir }}"
+  when: latest_container_file.stat.exists
+
+- name: Remove old image if new one is available
+  file:
+    path: "{{ image_path }}/{{ target }}"
+    state: absent
+  when: not image_is_current | default(false)
+
+- name: Download new image
+  get_url:
+    url: "{{ base_url }}/{{ latest_dir }}/{{ filecomp }}"
+    dest: "{{ image_path }}/{{ target }}"
+  when: not image_is_current | default(false)
+
+- name: Update latest_container
+  copy:
+    content: "{{ latest_dir }}"
+    dest: "{{ work_dir }}/latest_container"
+  when: not image_is_current | default(false)

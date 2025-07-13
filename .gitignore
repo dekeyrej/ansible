@@ -1,1 +1,9 @@
 vault.password
+ca.crt
+ca_vars.yaml
+json2yaml.py
+my-app-policy.hcl
+nodeapiserver-service.yaml
+scaledown.sh
+scaleup.sh
+projects/

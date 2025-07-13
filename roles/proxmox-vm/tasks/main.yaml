@@ -1,12 +1,5 @@
 ---
-- name: update diskimage if required
-  ansible.builtin.shell:
-    cmd: /root/update_diskimage.sh
-  register: output
-
-- name: debug output
-  ansible.builtin.debug:
-    var: output.stdout
+# invoke role: fetch_vm_image to update the diskimage before cloning
 
 - name: Build the VM(s)
   include_tasks: vm_tasks.yaml

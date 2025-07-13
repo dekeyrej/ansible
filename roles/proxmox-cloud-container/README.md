@@ -8,7 +8,29 @@ Download a recent, cloud-ready image from https://images.linuxcontainers.org/ li
 
 For the specific URL, you're looking for the rootfs.tar.xz - https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud/20250620_07:42/rootfs.tar.xz
 
-And give it a Proxmox-VE friendly name like ```ubuntu-24.04-latest_24.04-2_amd64.tar.xz```
+And give it a Proxmox-VE friendly name like `ubuntu-24.04-latest_24.04-2_amd64.tar.xz`
+
+Something like `update_cloud_image.sh` to download the latest:
+```bash
+#!/usr/bin/env bash
+BASEURL=https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud/
+FILECOMP=rootfs.tar.xz
+TARGET=ubuntu-24.04-latest_24.04-2_amd64.tar.xz
+DIRCOMP=$(wget -qO- https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud/ | \
+               lynx -dump -listonly -nonumbers -stdin | tail -n 1 | awk -F / '{print $6}')
+echo $DIRCOMP > current_container
+if cmp -s current_container latest_container; then
+   echo "Container image is current"
+else
+   echo "New image available. Fetching now."
+   rm -f /var/lib/vz/template/cache/$TARGET
+   wget https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud/$DIRCOMP/$FILECOMP -O \
+        /var/lib/vz/template/cache/$TARGET
+   cp current_container latest_container
+fi
+```
+
+Or, just use the `fetch_container_image` role!
 
 ## 🛠️ 2. Create (But Don’t Start) Your Container
 
