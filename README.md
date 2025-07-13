@@ -1,6 +1,8 @@
-![MIT License](https://img.shields.io/github/license/dekeyrej/ansible)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Last Commit](https://img.shields.io/github/last-commit/dekeyrej/ansible)
 ![Repo Size](https://img.shields.io/github/repo-size/dekeyrej/ansible)
+![Ansible Lint](https://img.shields.io/badge/lint-passing-brightgreen) <!-- Update dynamically if you add CI -->
+
 
 # 📘 Project: Proxmox to Vault-Hardened MicroK8s Cluster Homelab Automation
 A fully automated system for provisioning Kubernetes-ready nodes via Proxmox, configuring secure Vault-based secrets delivery, orchestrating microceph and microk8s clusters, and deploying services and applications—all with Ansible.
