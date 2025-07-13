@@ -7,3 +7,4 @@ nodeapiserver-service.yaml
 scaledown.sh
 scaleup.sh
 projects/
+old_README.md

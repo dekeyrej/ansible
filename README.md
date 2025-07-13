@@ -1,3 +1,7 @@
+![MIT License](https://img.shields.io/github/license/dekeyrej/ansible)
+![Last Commit](https://img.shields.io/github/last-commit/dekeyrej/ansible)
+![Repo Size](https://img.shields.io/github/repo-size/dekeyrej/ansible)
+
 # 📘 Project: Proxmox to Vault-Hardened MicroK8s Cluster Homelab Automation
 A fully automated system for provisioning Kubernetes-ready nodes via Proxmox, configuring secure Vault-based secrets delivery, orchestrating microceph and microk8s clusters, and deploying services and applications—all with Ansible.
 
@@ -62,8 +66,9 @@ Use roletesting.yaml or testbook.yaml for isolated role testing.
 MIT
 
 ## 🧩 Related Projects
-- : SSE-driven client for Redis-first architecture
-- : Modular microservices for real-time updates
+- [MicroServiceMatrix](https://github.com/dekeyrej/microservicematrix) Modular microservices for real-time updates
+- [MatrixClient](https://github.com/dekeyrej/matrixclient) SSE-driven client for Redis-first architecture
+
 
 
 ## 🌱 Extras
