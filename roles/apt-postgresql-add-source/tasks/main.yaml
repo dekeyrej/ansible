@@ -1,0 +1,18 @@
+---
+- name: Install PostgreSQL prequisites 
+  ansible.builtin.apt:
+      pkg:
+      - curl
+      - ca-certificates
+      state: present
+      update_cache: yes
+
+- name: Add PostgreSQL apt key
+  ansible.builtin.shell: |
+    install -d /usr/share/postgresql-common/pgdg
+    curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+
+- name: Add PostgreSQL apt source
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main
+    state: present

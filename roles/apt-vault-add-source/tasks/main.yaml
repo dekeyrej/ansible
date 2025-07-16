@@ -1,0 +1,22 @@
+---
+- name: Install Vault installation prequisites 
+  ansible.builtin.apt:
+      pkg:
+      - gpg
+      state: present
+      update_cache: yes
+
+- name: Check if Vault apt keyring exists
+  ansible.builtin.stat:
+    path: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+  register: file_check # Register the output in file_check variable
+
+- name: Add Vault apt keyring
+  ansible.builtin.shell: |
+    wget -O - https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+  when: not file_check.stat.exists
+  
+- name: Add Vault apt source
+  ansible.builtin.apt_repository:
+    repo: deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com noble main
+    state: present

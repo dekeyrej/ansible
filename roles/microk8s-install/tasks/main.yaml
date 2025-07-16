@@ -13,26 +13,30 @@
     append: yes
 
 # copy new RFC 5280 compliant cert to /var/snap/microk8s/current/certs/cadir and kickoff a refresh_certs
-- name: make the directoey
+- name: make the directory
   ansible.builtin.file:
     path: /var/snap/microk8s/current/certs/cadir
     state: directory
     mode: 0755
     owner: root
     group: microk8s
+  when: new_ca == true
 
 - name: copy new RFC 5280 compliant certificate authority to /var/snap/microk8s/current/certs/cadir
   ansible.builtin.copy:
     src: "/home/ubuntu/certificate_authority/{{ item }}"
     dest: "/var/snap/microk8s/current/certs/cadir/{{ item }}"
   loop: "{{ cafiles }}"
+  when: new_ca == true
 
 - name: tell microk8s to refresh-certs
   ansible.builtin.shell: 
     cmd: microk8s.refresh-certs cadir
     chdir: /var/snap/microk8s/current/certs/
+  when: new_ca == true
 
 - name: restart microk8s
   ansible.builtin.shell: |
     microk8s stop
     microk8s start
+  when: new_ca == true

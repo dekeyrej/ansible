@@ -19,9 +19,9 @@
     newest_vault_file: "{{ (vault_files.files | sort(attribute='mtime', reverse=true))[0].path }}"
   when: vault_files.files | length > 0
 
-- name: Show newest file
-  debug:
-    msg: "Newest vault init file is: {{ newest_vault_file }}"
+# - name: Show newest file
+#   debug:
+#     msg: "Newest vault init file is: {{ newest_vault_file }}"
 
 - name: Read the output file from the vault container
   slurp:
@@ -38,9 +38,9 @@
         | regex_replace('^Initial Root Token: ', '')
       }}
 
-- name: Show the root token
-  debug:
-    msg: "Initial Root Token is: {{ initial_root_token }}"
+# - name: Show the root token
+#   debug:
+#     msg: "Initial Root Token is: {{ initial_root_token }}"
 
 - name: Create Vault service account
   kubernetes.core.k8s:
@@ -122,7 +122,8 @@
 #     policy: "{{ lookup('file', role_path ~ '/files/my-app-policy.hcl') }}"
 #     token: "{{ vault_root_token }}"
 
-
+#### not sure these two work
+### 1.
 - name: Configure Kubernetes auth
   community.hashi_vault.vault_write:
     path: auth/kubernetes/config
@@ -132,7 +133,7 @@
       kubernetes_ca_cert: "{{ kube_ca_cert }}"
       token_reviewer_jwt: "{{ jwt_token }}"
 
-
+### 2.
 - name: Create Vault role
   community.hashi_vault.vault_write:
     path: auth/kubernetes/role/demo
