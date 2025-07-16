@@ -1,5 +1,5 @@
 ---
-balloon: 8192
-memory: 32768
-cores: 8
-cpulimit: 8
+balloon: 4096
+memory: 16384
+cores: 4
+cpulimit: 4

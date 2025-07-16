@@ -1,16 +1,40 @@
+# 77_vscodeserver.yaml
+# Provisions a Proxmox container and installs VS Code Server dependencies, CLI tools, and Git config
+# Assumes: Vault and CA are already configured, container image is available
+
 - name: create Proxmox Container
   hosts: pvenode
   vars:
     host_group: codehost
+    rootsize: 50
   roles:
-    - role: proxmox-cloud-container
+    - role: proxmox-container-create-cloud-init
       
-- name: Setup Code Server
+- name: Setup Code Server - Part 1 - Update and Install
   hosts: codehost
   become: yes
   roles:
-    - role: update-all
+    - role: apt-nodejs-add-source
+    - role: apt-vault-add-source
+    - role: apt-update-all
     - role: apt-add-packages
       vars:
-        packages: [git, curl, wget, unzip, python3-pip, python3-venv]
-    - role: nodejs-install
+        packages: [curl, git, git-filter-repo, gpg, wget, unzip, tree,  build-essential, buildah,
+                  python3-pip, pipx, python3-venv, python3-ansible, python3-proxmoxer, python3-kubernetes,
+                  nodejs, vault]
+    - role: kubernetes-kubectl-install
+
+- name: Setup Code Server - Part 2 - ssh keys and git config
+  hosts: codehost
+  become: no
+  roles:
+    - role: host-ssh-keys-create
+    - role: git-global-configure
+
+
+# have to add id_rsa.pub to keys https://github.com/dekeyrej before ssh-style clone will work 
+# - name: clone repositories
+#   hosts: codehost
+#   become: no
+#   roles:
+#     - role: git-clone-repositories

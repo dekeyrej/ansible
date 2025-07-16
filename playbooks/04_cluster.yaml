@@ -1,59 +1,63 @@
 ---
+# 04_cluster.yaml
+# Builds a MicroK8s cluster with MicroCeph, configures Vault for KUBEVAULT secrets, and deploys microservices
+# Assumes: CA is created, Vault is initialized, and Proxmox VMs are provisioned (all in 00_proxmox.yaml)
+
 - name: Prepare nodes - Part 1 (create microceph cluster and install microk8s)
   hosts: allnodes
   become: yes
   vars_files:
     - 05_disk_list.yaml
   roles:
-    - copy-ca-to-host   
-    - python3_packages
-    - microceph
-    - microk8s-install     # check for new ca.crt, refresh certs _BEFORE_ making cluster!
-                           # add task to add IP SANs for kubeapi.local, 192.168.86.90 to the server.crt on each node!
-
+    - role: certificate-authority-copy-to-host
+    - role: apt-add-packages
+      vars:
+        packages: [ python3-kubernetes, pipx, python3-pip, python3-venv ]
+    - role: microceph-all
+    - role: microk8s-install
+      vars:
+        new_ca: true       # check for new ca.crt, refresh certs _BEFORE_ making cluster!
+                           
 - name: Prepare nodes - Part 2 (create microk8s cluster)
   hosts: subnodes
   serial: 1
   become: yes
   roles:
-    - microk8s-assemble-cluster
+    - role: microk8s-assemble-cluster
 
-- name: Prepare nodes - Part 3 (create microceph and microk8s clusters)
+- name: Prepare nodes - Part 3 (configure microk8s cluster)
   hosts: allnodes
   become: yes
   roles:
-    - microk8s-configure  
+    - role: microk8s-configure   # add task to add IP SANs for kubeapi.local, 192.168.86.90 to the server.crt on each node!
 
-- name: Deploy cluster services (kubegres, redis, tcp_ingresses)
+- name: Deploy cluster services (add-ons, pull kubeconfig, redis)
   hosts: prime
   become: no
   roles:
-    - microk8s-enable-addons
-    - fetch_kube_config
-    - kubegres
-    - redis
-
-- name: Create microservice-backing database, and create github secret to pull images
-  hosts: prime
-  become: no
-  roles:
-    - create_matrix_database
-    - github_secret
+    - role: microk8s-enable-addons
+      vars:
+        microceph: false
+    - role: kubernetes-fetch-config
+    - role: kubernetes-redis-deploy
+      vars:
+        redis_storage_class: microk8s-hostpath
+    - role: ghcr-secret-create
     
-- name: Configure vault support kuberneets authentication and transit secrets
+### the last two tasks are suspect
+- name: Configure vault support kubernetes authentication and transit secrets
   hosts: localhost
   connection: local
   become: no
   roles:
-    - vault-configure-for-kubevault
+    - role: vault-configure-for-kubevault
 
 - name: Deploy application microservices, API and webdisplay
   hosts: prime
   become: no
   roles:
-    - update_secrets
-    # - update-other-secrets # Need to write this...
-    - deploy_microservices
+    - role: kubernetes-bootstrap-secrets
+    - role: kubernetes-microservices-deploy
 
 # - name: Deploy other stuff
 #   hosts: prime
@@ -61,17 +65,3 @@
 #   roles:
     # - deploy_mtig_stack  # Need to write this...
     # - deploy_open-webui  # Need to write this...
-    
-- name: create Proxmox Container for MagicMirror2
-  hosts: localhost
-  connection: local
-  vars:
-    host_group: magicmirror
-  roles:
-    - role: proxmox-container
-      
-- name: Setup MagicMirror2
-  hosts: magicmirror
-  roles:
-    - role: update-all
-    - role: magic-mirror

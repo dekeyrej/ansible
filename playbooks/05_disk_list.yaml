@@ -1,3 +1,5 @@
+---
+### Some examples of microceph disk lists ###
 disk_list: loop,100G,1
 # disk_list: loop,5G,3
 # disk_list: /dev/nvme0n1p3   # appropriate disk to use for ceph on a Pi 5 with a PCIe NVME SSD

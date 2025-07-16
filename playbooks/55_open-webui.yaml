@@ -1,0 +1,32 @@
+---
+- name: Provision Proxmox-VE VM
+  hosts: pvenode
+  become: no  # root user only on PVE Node
+  roles:
+    - role: proxmox-setup-node
+    - role: proxmox-vm
+      vars:
+        host_group: openwebui
+        pool: Mirkwood
+        memory: 16384
+        diskincrement: +96.5G
+
+- name: setup GPU host
+  hosts: openwebui
+  become: yes
+  roles:
+    - role: apt-nvidia-container-toolkit-add-source
+    - role: apt-update-all
+    - role: apt-add-packages
+      vars:
+        packages:
+          - python3-pip
+          - python3-venv
+          - qemu-guest-agent
+          - cuda-toolkit-12-9
+          - nvidia-open
+          # - python3-transformers
+          # - python3-torch
+          # - python3-torchvision
+          # - python3-torchaudio
+          # - python3-bitsandbytes

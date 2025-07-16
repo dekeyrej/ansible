@@ -17,6 +17,12 @@ A fully automated system for provisioning Kubernetes-ready nodes via Proxmox, co
 
 ## 🚀 Getting Started
 
+### Requirements
+- Ansible 2.14+
+- Python 3.10+
+- Proxmox VE with API access
+- Vault with GCP KMS credentials (optional)
+
 Install required collections:
 
 ```bash
@@ -29,16 +35,8 @@ ansible-galaxy install -r collections/requirements.yml
 - Self-signed RFC-compliant CA and TLS cert generation
 - Vault installation, configuration, auto-unseal with GCP KMS
 - MicroK8s and MicroCeph clustering with node prep
-- Secrets provisioning for K8s workloads using 
+- Secrets provisioning for K8s workloads using Vault and KubeVault integration
 - Turnkey deployment of microservices & supporting infrastructure
-
-## 📁 Repo Structure
-
-- `playbooks/`: Entry points for specific automation tasks.
-- `roles/`: Modular roles for provisioning, configuration, and updates.
-- `inventory/`: Host definitions for targeting your infrastructure.
-- `collections/`: External dependencies (e.g., community modules).
-- `ansible.cfg`: Configuration for Ansible execution.
 
 Run a playbook:
 ```bash
@@ -48,12 +46,12 @@ ansible-playbook -i inventory/hosts.ini playbooks/88_proxmox_provision.yaml
 ## 🧱 Key Roles
 | Role | Description | 
 |---|---|
-| proxmox-fetch-container-image | Downloads latest Ubuntu Noble LXC image | 
-| vault-install | Installs and configures HashiCorp Vault | 
+| proxmox-container-fetch-image | Downloads latest Ubuntu Noble LXC image | 
+| vault-configure | Installs and configures HashiCorp Vault | 
 | microk8s-assemble-cluster | Builds a MicroK8s cluster across nodes | 
-| redis | Sets up Redis for real-time data flow | 
-| deploy-microservices | Deploys Redis-first microservices | 
-| magic-mirror | Configures MagicMirror display system | 
+| kubernetes-redis-deploy | Sets up Redis for real-time data flow | 
+| kubernetes-microservices-deploy | Deploys Redis-first microservices | 
+| magic-mirror-install | Configures MagicMirror display system | 
 
 
 ## 🧪 Testing & Development

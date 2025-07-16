@@ -1,0 +1,18 @@
+- name: read global git config
+  community.general.git_config_info:
+    scope: global
+  register: result
+
+- name: configure git user.name if it doesn't exist
+  community.general.git_config:
+    name: user.name
+    scope: global
+    value: 'dekeyrej'
+  when: result.config_values['user.name'] is not defined or result.config_values['user.name'] | length == 0
+
+- name: configure git user.email if it doesn't exist
+  community.general.git_config:
+    name: user.email
+    scope: global
+    value: 'joedekeyrel@gmail.com'
+  when: result.config_values['user.email'] is not defined or result.config_values['user.email'] | length == 0

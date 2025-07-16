@@ -8,3 +8,4 @@ scaledown.sh
 scaleup.sh
 projects/
 old_README.md
+99_multipass_teardown.yaml
