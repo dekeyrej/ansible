@@ -1,5 +1,6 @@
 vault.password
 ca.crt
+jwt.tk
 ca_vars.yaml
 json2yaml.py
 my-app-policy.hcl
@@ -9,3 +10,4 @@ scaleup.sh
 projects/
 old_README.md
 99_multipass_teardown.yaml
+synced_manifests/

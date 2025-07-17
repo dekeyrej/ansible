@@ -28,6 +28,7 @@ Each role is purpose-built, idempotent, and scoped to a single responsibility. W
 | `kubernetes-fetch-config` | Retrieves kubeconfig files from cluster nodes. |
 | `kubernetes-kubegres-deploy` | Deploys Kubegres for PostgreSQL HA in Kubernetes. |
 | `kubernetes-redis-deploy` | Deploys Redis workloads to Kubernetes. |
+| `kubernetes-manifests-sync` | Syncs manifests for components from across all of the source repos. |
 | `kubernetes-microservices-deploy` | Deploys microservices to Kubernetes. |
 | `kubernetes-tcp-ingresses-create` | Creates TCP ingress rules for Kubernetes services. |
 | `magic-mirror-install` | Installs MagicMirror² on target hosts. |

@@ -1,0 +1,39 @@
+- name: Include manifest map
+  include_vars: manifest_map.yaml
+
+- name: set github_token
+  set_fact:
+    github_token: "{{ lookup('env','GITHUB_TOKEN') }}"
+
+- name: Filter manifests by sync_keys
+  set_fact:
+    selected_manifests: >-
+      {{
+        sync_keys | map('extract', manifests) | list | flatten
+      }}
+  when: sync_keys is defined
+
+- name: Use all manifests if no sync_keys provided
+  set_fact:
+    selected_manifests: "{{ manifests.values() | list | flatten }}"
+  when: sync_keys is not defined
+
+- name: Initialize raw_urls
+  set_fact:
+    raw_urls: []
+
+- name: Build raw URLs from selected manifests
+  vars:
+    repo_path: "{{ item | regex_findall('https://github.com/([^/]+/[^/]+)/blob/(.+)') | list }}"
+    raw_url: "https://raw.githubusercontent.com/{{ repo_path[0][0] }}/{{ repo_path[0][1] }}"
+  set_fact:
+    raw_urls: "{{ raw_urls + [raw_url] }}"
+  loop: "{{ selected_manifests }}"
+
+- name: Download selected manifests
+  get_url:
+    url: "{{ item }}"
+    dest: "{{ playbook_dir | dirname }}/synced_manifests/{{ item | basename }}"
+    headers:
+      Authorization: "token {{ github_token }}"
+  loop: "{{ raw_urls }}"

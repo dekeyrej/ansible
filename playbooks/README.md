@@ -28,6 +28,7 @@ Variable files (`*.yaml`) are used to inject structured configuration into playb
 | `55_open-webui.yaml` | Sets up an LXC container with GPU passthrough to run Open WebUI and Ollama. |
 | `77_vscodeserver.yaml` | Provisions a container and installs VS Code Server dependencies, CLI tools, and Git config. |
 | `88_proxmox_provision.yaml` | Draft playbook for unified Proxmox provisioning based on inventory `type=kvm` or `type=lxc`. |
+| `manifest-sync-test.yaml` | Example of using `kubernetes-manifests-sync` with or without specifying `sync_keys` |
 | `wait_for_hosts.yaml` | Utility playbook to pause execution until hosts are reachable post-reboot. |
 
 ---
