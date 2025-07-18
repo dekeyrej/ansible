@@ -1,0 +1,43 @@
+- name: deploy base manifests
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ manifest_directory }}/{{ item }}"
+  loop: "{{ base_manifests }}"
+  
+- name: wait for Grafana pod to be running
+  kubernetes.core.k8s_info:
+    kind: Pod
+    namespace: iot
+    label_selectors:
+      - app = grafana
+  register: pod_list
+  until: pod_list.resources | length > 0 and pod_list.resources[0].status.phase == 'Running'
+  retries: 30
+  delay: 5
+
+- name: cp out of pod
+  kubernetes.core.k8s_cp:
+    namespace: iot
+    pod: "{{ pod_list.resources[0].metadata.name }}"
+    remote_path: /var/lib/grafana/grafana.db
+    local_path: "{{ playbook_dir }}/grafana.db"
+    state: from_pod
+  when: fresh
+            
+- name: cp in to pod
+  kubernetes.core.k8s_cp:
+    namespace: iot
+    pod: "{{ pod_list.resources[0].metadata.name }}"
+    local_path: "{{ playbook_dir }}/grafana.db"
+    remote_path: /var/lib/grafana/backup/
+    state: to_pod
+
+- name: delete step1 deployment manifest
+  kubernetes.core.k8s:
+    state: absent
+    src: "{{ manifest_directory }}/grafana-deployment-step1.yaml"
+
+- name: deploy final deployment manifest
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ manifest_directory }}/grafana-deployment.yaml"

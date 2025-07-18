@@ -1,0 +1,26 @@
+---
+manifest_directory: /home/ubuntu/repos/ansible/synced_manifests
+
+kvupdater:
+  - kv-updater.yaml
+
+apiserver:
+  - apiserver-deployment.yaml
+  - apiserver-service.yaml
+  - apiserver-ingress.yaml
+
+microservices:
+  - aqi.yaml
+  - weather.yaml
+  - moon.yaml
+  - nfl.yaml
+  - mlb.yaml
+  - events.yaml
+  - github.yaml
+  # - garmin.yaml
+  - mycal.yaml
+
+webdisplay:
+  - webdisplay-deployment.yaml
+  - webdisplay-service.yaml
+  - webdisplay-ingress.yaml

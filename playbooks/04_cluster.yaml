@@ -12,8 +12,8 @@
     - role: certificate-authority-copy-to-host
     - role: apt-add-packages
       vars:
-        packages: [ python3-kubernetes, pipx, python3-pip, python3-venv ]
-    - role: microceph-all
+        packages: [ python3-kubernetes, python3-pip, python3-venv ]
+    # - role: microceph-all
     - role: microk8s-install
       vars:
         new_ca: true       # check for new ca.crt, refresh certs _BEFORE_ making cluster!
@@ -56,12 +56,14 @@
   hosts: prime
   become: no
   roles:
-    - role: kubernetes-bootstrap-secrets
+    - role: kubernetes-secrets-bootstrap
+    - role: kubernetes-manifests-sync
     - role: kubernetes-microservices-deploy
+    - role: kubernetes-mqtt-telegraf-influxdb-deploy
+    - role: kubernetes-grafana-deploy
 
 # - name: Deploy other stuff
 #   hosts: prime
 #   become: no
 #   roles:
-    # - deploy_mtig_stack  # Need to write this...
     # - deploy_open-webui  # Need to write this...

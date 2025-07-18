@@ -1,0 +1,10 @@
+manifest_directory: /home/ubuntu/repos/ansible/synced_manifests
+base_manifests:
+  - grafana-config.yaml
+  - grafana-dashboards.yaml
+  - grafana-dashboard.yaml
+  - grafana-datasources.yaml
+  - grafana-service.yaml
+  - grafana-data.yaml
+  - grafana-deployment-step1.yaml
+fresh: False

@@ -3,26 +3,26 @@
   ansible.builtin.apt:
     pkg: python3-kubernetes
 
-- name: create kv-updater 
+- name: create iot namespace 
   kubernetes.core.k8s:
     state: present
     src: "{{ manifest_directory }}/{{ item }}"
-  loop: "{{ kvupdater }}"
+  loop: "{{ iot }}"
 
-- name: create apiserver
+- name: create mosquitto 
   kubernetes.core.k8s:
     state: present
     src: "{{ manifest_directory }}/{{ item }}"
-  loop: "{{ apiserver }}"
+  loop: "{{ mosquitto }}"
 
-- name: create microservices apps 
+- name: create influxdb
   kubernetes.core.k8s:
     state: present
     src: "{{ manifest_directory }}/{{ item }}"
-  loop: "{{ microservices }}"
+  loop: "{{ influxdb }}"
 
-- name: create webdisplay 
+- name: create telegraf 
   kubernetes.core.k8s:
     state: present
     src: "{{ manifest_directory }}/{{ item }}"
-  loop: "{{ webdisplay }}"
+  loop: "{{ telegraf }}"

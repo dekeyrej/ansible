@@ -1,0 +1,10 @@
+- name: deployment role testing
+  hosts: localhost
+  connection: local
+  roles:
+    - role: kubernetes-manifests-sync
+    - role: kubernetes-microservices-deploy
+    - role: kubernetes-mqtt-telegraf-influxdb-deploy
+    - role: kubernetes-grafana-deploy
+      # vars:
+      #   fresh: True

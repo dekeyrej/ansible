@@ -1,0 +1,22 @@
+---
+manifest_directory: /home/ubuntu/repos/ansible/synced_manifests
+
+iot:
+  - iot.yaml
+
+mosquitto:
+  - mosquitto-config.yaml
+  - mosquitto-deployment.yaml
+  - mosquitto-service.yaml
+
+influxdb:
+  - influxdb-config.yaml
+  - influxdb-secrets.yaml
+  - influxdb-data.yaml
+  - influxdb-deployment.yaml
+  - influxdb-service.yaml
+
+telegraf:
+  - telegraf-config.yaml
+  - telegraf-secrets.yaml
+  - telegraf-deployment.yaml
