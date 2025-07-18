@@ -1,0 +1,59 @@
+#=== Provision and Configure Vault Container ===
+
+# Additional role to create an LXC Container on proxmox using the community.general.proxmox module
+- name: create Proxmox Container for Vault
+  hosts: pvenode
+  vars:
+    host_group: vault
+  roles:
+    - role: proxmox-node-setup
+    - role: proxmox-container-create
+
+# Creates RFC 2818 compliant TLS certificates with IP SANs (which makes Vault happy)
+#   works with Certificate Authority above
+- name: TLS keys for server
+  hosts: localhost
+  connection: local
+  vars:
+    host_group: vault
+  roles:
+    - role: certificate-authority-generate-certs
+
+# wait for the container to settle...
+- name: wait a bit
+  localhost:
+  connection: local
+  tasks:
+    - name: wait a bit
+      ansible.builtin.pause:
+        seconds: 10
+      
+# Adds CA to cert store, installs vault package, 
+#   configures vault (TLS Keys and configuration including gcpckms auto-unseal),
+#   enables/starts the vault service, and initializes the vault - writing the root token and 
+#   unseal keys back to the ansible host
+- name: Setup Vault
+  hosts: vault
+  roles:
+    - role: certificate-authority-copy-to-host
+    - role: apt-vault-add-source
+    - role: apt-update-all
+    - role: apt-add-packages
+      vars:
+        packages: vault
+    - role: vault-configure
+    - role: vault-initialize
+
+# kubernetes has to be installed/operational before final role is executed
+
+- name: Configure vault support kubernetes authentication and transit secrets
+  hosts: localhost
+  connection: local
+  become: no
+  roles:
+    - role: vault-configure-for-kubevault
+      vars:
+        kubeapiaddress: https://192.168.86.3:16443
+        role: demo
+        policy: my-app-policy
+        transit_key: aes256-key

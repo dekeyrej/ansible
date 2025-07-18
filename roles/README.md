@@ -24,12 +24,14 @@ Each role is purpose-built, idempotent, and scoped to a single responsibility. W
 | `git-clone-repositories` | Clones specified Git repositories to target hosts. |
 | `host-ssh-keys-create` | Creates ssh-keys for user, if they don't exist.|
 | `kubernetes-kubectl-install` | Installs latest kubectl binary. |
-| `kubernetes-bootstrap-secrets` | Bootstraps secrets for Kubernetes workloads. |
+| `kubernetes-secrets-bootstrap` | Bootstraps secrets for Kubernetes workloads. |
 | `kubernetes-fetch-config` | Retrieves kubeconfig files from cluster nodes. |
 | `kubernetes-kubegres-deploy` | Deploys Kubegres for PostgreSQL HA in Kubernetes. |
 | `kubernetes-redis-deploy` | Deploys Redis workloads to Kubernetes. |
 | `kubernetes-manifests-sync` | Syncs manifests for components from across all of the source repos. |
-| `kubernetes-microservices-deploy` | Deploys microservices to Kubernetes. |
+| `kubernetes-microservices-deploy` | Deploys kv-updater, apiserver, microservices and webdisplay to Kubernetes. |
+| `kubernetes-mqtt-telegraf-influxdb-deploy` | Deploys IOT backend services to Kubernetes.|
+| `kubernetes-grafana-deploy` | Deploys IOT frontend grafana service to Kubernetes.|
 | `kubernetes-tcp-ingresses-create` | Creates TCP ingress rules for Kubernetes services. |
 | `magic-mirror-install` | Installs MagicMirror² on target hosts. |
 | `magic-mirror-update` | Updates MagicMirror² modules and config. |

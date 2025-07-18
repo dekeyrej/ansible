@@ -3,9 +3,9 @@
   set_fact:
     kube_ca_cert: "{{ lookup('file', '/usr/local/share/ca-certificates/ca.crt') }}"
 
-- name: dump '/usr/local/share/ca-certificates/ca.crt'
-  debug:
-    msg: "{{ kube_ca_cert }}"
+# - name: dump '/usr/local/share/ca-certificates/ca.crt'
+#   debug:
+#     msg: "{{ kube_ca_cert }}"
 
 - name: Find matching files
   ansible.builtin.find:
@@ -99,30 +99,11 @@
     vault auth enable kubernetes
     vault secrets enable transit
     echo '{{ vault_policy_content }}' | vault policy write my-app-policy -
-    vault write -f transit/keys/aes256-key
+    vault write -f transit/keys/{{ transit_key }}
   args:
     executable: /usr/bin/bash
 
-# - name: Enable Kubernetes auth in Vault
-#   community.hashi_vault.vault_auth_method:
-#     name: kubernetes
-#     state: enabled
-#     mount_point: kubernetes
-#     token: "{{ vault_root_token }}"
-
-# - name: Enable transit engine
-#   community.hashi_vault.vault_secret_engine:
-#     name: transit
-#     state: enabled
-#     token: "{{ vault_root_token }}"
-
-# - name: Upload policy to Vault
-#   community.hashi_vault.vault_policy:
-#     name: my-app-policy
-#     policy: "{{ lookup('file', role_path ~ '/files/my-app-policy.hcl') }}"
-#     token: "{{ vault_root_token }}"
-
-#### not sure these two work
+#### not sure this one works
 ### 1.
 - name: Configure Kubernetes auth
   community.hashi_vault.vault_write:
@@ -133,25 +114,14 @@
       kubernetes_ca_cert: "{{ kube_ca_cert }}"
       token_reviewer_jwt: "{{ jwt_token }}"
 
-### 2.
 - name: Create Vault role
   community.hashi_vault.vault_write:
-    path: auth/kubernetes/role/demo
+    path: "auth/kubernetes/role/{{ role }}"
     token: "{{ initial_root_token }}"
     data:
       bound_service_account_namespaces: default
-      bound_service_account_names: vault-auth
-      policies: my-app-policy
+      bound_service_account_names: default
+      policies: "{{ policy }}"
       ttl: 10s
 
-
-# - name: Create AES key
-#   community.hashi_vault.vault_write:
-#     path: transit/keys/aes256-key
-#     token: "{{ initial_root_token }}"
-#     method: POST
-
-# - name: delete output file from vault host
-#   ansible.builtin.file:
-#     path: /root/vault_init_output.txt
-#     state: absent
+## test with:  vault write auth/kubernetes/login role=demo jwt=$(kubectl create token default) 
