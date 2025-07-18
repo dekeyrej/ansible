@@ -1,0 +1,95 @@
+---
+- name: python3-kubernetes 
+  ansible.builtin.apt:
+    pkg: python3-kubernetes
+
+- name: create directory if it doesn't exist
+  ansible.builtin.file:
+    path: /tmp/encryptonator
+    state: directory
+
+#=== Curl in latest encryptonator ===#
+- name: Use all manifests
+  ansible.builtin.set_fact:
+    selected_manifests: "{{ manifests.values() | list | flatten }}"
+
+- name: Initialize raw_urls
+  ansible.builtin.set_fact:
+    raw_urls: []
+
+- name: Build raw URLs from selected manifests
+  vars:
+    repo_path: "{{ item | regex_findall('https://github.com/([^/]+/[^/]+)/blob/(.+)') | list }}"
+    raw_url: "https://raw.githubusercontent.com/{{ repo_path[0][0] }}/{{ repo_path[0][1] }}"
+  ansible.builtin.set_fact:
+    raw_urls: "{{ raw_urls + [raw_url] }}"
+  loop: "{{ selected_manifests }}"
+
+- name: Download selected manifests
+  ansible.builtin.get_url:
+    url: "{{ item }}"
+    dest: "/tmp/encryptonator/{{ item | basename }}"
+  loop: "{{ raw_urls }}"
+
+- name: copy in ca.crt
+  ansible.builtin.copy:
+    src: /home/ubuntu/certificate_authority/ca.crt
+    dest: /tmp/encryptonator
+
+- name: copy in secrets.json
+  ansible.builtin.copy:
+    src: secrets.json   # ansible-vault encrypted
+    dest: /tmp/encryptonator
+
+- name: edit encryptonator - remove 'sys.append.path...'
+  ansible.builtin.lineinfile:
+    path: /tmp/encryptonator/encryptonator.py
+    regexp: '^sys.path.append'
+    state: absent
+
+- name: Patch encryptonator.py to use ca.crt path
+  ansible.builtin.replace:
+    path: /tmp/encryptonator/encryptonator.py
+    regexp: 'True'
+    replace: '"/tmp/encryptonator/ca.crt"'
+
+- name: Patch encryptonator.py to use ca.crt path
+  ansible.builtin.replace:
+    path: /tmp/encryptonator/encryptonator.py
+    regexp: 'examples'
+    replace: '/tmp'
+
+- name: Setup and Run encryptonator
+  ansible.builtin.shell:
+    cmd: |
+      python3 -m venv venv
+      source venv/bin/activate
+      pip install -r requirements.txt
+      pip install dekeyrej-secretmanager
+      python encryptonator.py
+    chdir: /tmp/encryptonator
+    executable: /usr/bin/bash
+  register: encryptonator_output
+
+- name: debug
+  ansible.builtin.debug:
+    var: encryptonator_output.stderr_lines
+    
+- name: cleanup secrets files
+  ansible.builtin.file:
+    path: /tmp/encryptonator/secrets.json
+    state: absent
+
+#=== Create configMap of events_data ===#
+- name: create configMap of events data
+  kubernetes.core.k8s:
+    state: present
+    definition: 
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: matrix-events
+        namespace: default
+      data:
+        events.json: "{{ event_data | from_json | to_nice_json }}"
+        

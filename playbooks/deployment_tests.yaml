@@ -2,6 +2,7 @@
   hosts: localhost
   connection: local
   roles:
+    - role: kubernetes-secrets-bootstrap
     - role: kubernetes-manifests-sync
     - role: kubernetes-microservices-deploy
     - role: kubernetes-mqtt-telegraf-influxdb-deploy
