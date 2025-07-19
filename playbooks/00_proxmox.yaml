@@ -83,13 +83,15 @@
     - role: certificate-authority-generate-certs
 
 # wait for the container to settle...
-- name: wait a bit
-  localhost:
-  connection: local
+- name: Wait for Container to become reachable
+  hosts: vault
+  gather_facts: no
   tasks:
-    - name: wait a bit
-      ansible.builtin.pause:
-        seconds: 10
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 10     # Initial delay before polling
+        sleep: 5      # Time between retries
       
 # Adds CA to cert store, installs vault package, 
 #   configures vault (TLS Keys and configuration including gcpckms auto-unseal),

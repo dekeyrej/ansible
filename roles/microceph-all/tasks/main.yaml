@@ -1,24 +1,26 @@
 ---
-- name: Install microceph
-  community.general.snap:
-    name: microceph
-  when: inventory_hostname in groups['allnodes']
-
-- name: Bootstrap microceph cluster
-  ansible.builtin.shell: microceph cluster bootstrap
-  when: inventory_hostname in groups['prime']
-
 - block:
-  - name: Generate token to add a new microceph node
-    ansible.builtin.shell: "microceph cluster add {{ inventory_hostname }}"
-    delegate_to: "{{ groups.prime[0] }}"
-    register: result
+  - name: Install microceph
+    community.general.snap:
+      name: microceph
+    when: inventory_hostname in groups['allnodes']
 
-  - name: join subnodes to the microceph cluster using the returned token
-    ansible.builtin.shell: "microceph cluster join {{ result.stdout }}"
-  when: inventory_hostname in groups['subnodes']
+  - name: Bootstrap microceph cluster
+    ansible.builtin.shell: microceph cluster bootstrap
+    when: inventory_hostname in groups['prime']
 
-- ansible.builtin.pause: seconds=10
-- name: Add Disks (OSDs) to the cluster nodes
-  ansible.builtin.shell: "microceph disk add {{ disk_list }} --wipe"
-  when: inventory_hostname in groups['allnodes']
+  - block:
+    - name: Generate token to add a new microceph node
+      ansible.builtin.shell: "microceph cluster add {{ inventory_hostname }}"
+      delegate_to: "{{ groups.prime[0] }}"
+      register: result
+
+    - name: join subnodes to the microceph cluster using the returned token
+      ansible.builtin.shell: "microceph cluster join {{ result.stdout }}"
+    when: inventory_hostname in groups['subnodes']
+
+  - ansible.builtin.pause: seconds=10
+  - name: Add Disks (OSDs) to the cluster nodes
+    ansible.builtin.shell: "microceph disk add {{ disk_list }} --wipe"
+    when: inventory_hostname in groups['allnodes']
+  when: ceph_enabled

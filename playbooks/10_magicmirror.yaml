@@ -6,14 +6,17 @@
 - name: Create Proxmox container
   hosts: localhost
   connection: local
+  tags: magicmirror:provision
   vars:
     host_group: magicmirror
   roles:
     - role: proxmox-container-create
       
+      
 # performs apt update && apt upgrade; install node.js (LTS); clones and installs MagicMirror2 and defined modules
 - name: Setup MagicMirror2
   hosts: magicmirror
+  tags: magicmirror:install
   roles:
     - role: apt-nodejs-add-source
     - role: apt-update-all
@@ -26,6 +29,7 @@
 # performs apt update && apt upgrade; pulls and updates MagicMirror2 and defined modules
 - name: Update MagicMirror2
   hosts: magicmirror
+  tags: magicmirror:update
   roles:
     - role: apt-update-all
     - role: magic-mirror-update

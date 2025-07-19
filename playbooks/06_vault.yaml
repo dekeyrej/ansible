@@ -3,6 +3,7 @@
 # Additional role to create an LXC Container on proxmox using the community.general.proxmox module
 - name: create Proxmox Container for Vault
   hosts: pvenode
+  tags: vault:provision
   vars:
     host_group: vault
   roles:
@@ -14,19 +15,24 @@
 - name: TLS keys for server
   hosts: localhost
   connection: local
+  tags: vault:configure
   vars:
     host_group: vault
   roles:
     - role: certificate-authority-generate-certs
 
 # wait for the container to settle...
-- name: wait a bit
-  localhost:
-  connection: local
+- name: Wait for Container to become reachable
+  hosts: vault
+  gather_facts: no
+  tags: vault:configure
   tasks:
-    - name: wait a bit
-      ansible.builtin.pause:
-        seconds: 10
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 10     # Initial delay before polling
+        sleep: 5      # Time between retries
+
       
 # Adds CA to cert store, installs vault package, 
 #   configures vault (TLS Keys and configuration including gcpckms auto-unseal),
@@ -34,6 +40,7 @@
 #   unseal keys back to the ansible host
 - name: Setup Vault
   hosts: vault
+  tags: vault:configure
   roles:
     - role: certificate-authority-copy-to-host
     - role: apt-vault-add-source
@@ -50,6 +57,7 @@
   hosts: localhost
   connection: local
   become: no
+  tags: vault:kubevault
   roles:
     - role: vault-configure-for-kubevault
       vars:

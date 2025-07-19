@@ -2,6 +2,9 @@
 # 04_cluster.yaml
 # Builds a MicroK8s cluster with MicroCeph, configures Vault for KUBEVAULT secrets, and deploys microservices
 # Assumes: CA is created, Vault is initialized, and Proxmox VMs are provisioned (all in 00_proxmox.yaml)
+- name: Show Ceph status
+  debug:
+    msg: "Ceph is {{ 'enabled' if ceph_enabled else 'disabled' }}"
 
 - name: Prepare nodes - Part 1 (create microceph cluster and install microk8s)
   hosts: allnodes
@@ -13,7 +16,7 @@
     - role: apt-add-packages
       vars:
         packages: [ python3-kubernetes, python3-pip, python3-venv ]
-    # - role: microceph-all
+    - role: microceph-all                 # only if group_vars-all-ceph_enabled == true
     - role: microk8s-install
       vars:
         new_ca: true       # check for new ca.crt, refresh certs _BEFORE_ making cluster!
@@ -35,16 +38,11 @@
   hosts: prime
   become: no
   roles:
-    - role: microk8s-enable-addons
-      vars:
-        microceph: false
+    - role: microk8s-enable-addons       # affected by group_vars-all-ceph_enabled == true
     - role: kubernetes-fetch-config
-    - role: kubernetes-redis-deploy
-      vars:
-        redis_storage_class: microk8s-hostpath
+    - role: kubernetes-redis-deploy      # affected by group_vars-all-ceph_enabled == true
     - role: ghcr-secret-create
     
-### the last two tasks are suspect
 - name: Configure vault support kubernetes authentication and transit secrets
   hosts: localhost
   connection: local

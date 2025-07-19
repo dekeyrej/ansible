@@ -12,12 +12,22 @@
         kind: Namespace
         metadata:
           name: redis
-  
+
   - name: copy redis files to tmp
     ansible.builtin.copy:
       src: redis-config.yaml
       dest: /tmp/redis-config.yaml
 
+  - name: Set storage class for hostpath
+    set_fact:
+      redis_storage_class: microk8s-hostpath
+
+- name: Set storage class for ceph-rbd
+  set_fact:
+    redis_storage_class: ceph-rbd
+  when: ceph_enabled
+
+- block:
   - name: template redis statefulset file
     ansible.builtin.template:
       src: redis-statefulset.yaml.j2
@@ -33,11 +43,9 @@
       state: present
       src: /tmp/{{ item }}
     loop: "{{ apply_files }}"
-  
+
   - name: cleanup redis files
     ansible.builtin.file:
       path: /tmp/{{ item }}
       state: absent
     loop: "{{ apply_files }}"
-
-  # when: inventory_hostname in groups[{{ host_group }}]
