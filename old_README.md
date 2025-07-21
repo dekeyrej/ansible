@@ -17,7 +17,6 @@ The deployment roles work consistently whether deploying to AMD64 Ubuntu hosts, 
 ```
 - name: Provision Multipass hosts in inventory
   hosts: localhost
-  connection: local
   gather_facts: no
   become: no
   vars_files: 
@@ -33,7 +32,6 @@ The deployment roles work consistently whether deploying to AMD64 Ubuntu hosts, 
 ```
 - name: Provision Proxmox VM hosts
   hosts: localhost
-  connection: local
   become: no
   vars_files:
     - 01_sha_keys.yaml

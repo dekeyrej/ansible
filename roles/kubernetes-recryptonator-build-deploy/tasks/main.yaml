@@ -1,0 +1,48 @@
+---
+- name: python3-kubernetes 
+  ansible.builtin.apt:
+    pkg: python3-kubernetes
+
+- name: create directory if it doesn't exist
+  ansible.builtin.file:
+    path: /tmp/recryptonator
+    state: directory
+
+#=== Curl in latest recryptonator ===#
+- name: Use all manifests
+  ansible.builtin.set_fact:
+    selected_manifests: "{{ manifests.values() | list | flatten }}"
+
+- name: Initialize raw_urls
+  ansible.builtin.set_fact:
+    raw_urls: []
+
+- name: Build raw URLs from selected manifests
+  vars:
+    repo_path: "{{ item | regex_findall('https://github.com/([^/]+/[^/]+)/blob/(.+)') | list }}"
+    raw_url: "https://raw.githubusercontent.com/{{ repo_path[0][0] }}/{{ repo_path[0][1] }}"
+  ansible.builtin.set_fact:
+    raw_urls: "{{ raw_urls + [raw_url] }}"
+  loop: "{{ selected_manifests }}"
+
+- name: Download selected manifests
+  ansible.builtin.get_url:
+    url: "{{ item }}"
+    dest: "/tmp/recryptonator/{{ item | basename }}"
+  loop: "{{ raw_urls }}"
+
+- name: copy in ca.crt
+  ansible.builtin.copy:
+    src: /home/ubuntu/certificate_authority/ca.crt
+    dest: /tmp/recryptonator
+
+- name: edit recryptonator - remove 'sys.append.path...'
+  ansible.builtin.lineinfile:
+    path: /tmp/recryptonator/recryptonator.py
+    regexp: '^sys.path.append'
+    state: absent
+
+# - name: create 
+#   kubernetes.core.k8s:
+#     src: /tmp/recryptonator/recryptonator-cronjob.yaml
+#     state: present

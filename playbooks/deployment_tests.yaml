@@ -1,11 +1,11 @@
 - name: deployment role testing
   hosts: localhost
-  connection: local
   roles:
-    - role: kubernetes-secrets-bootstrap
-    - role: kubernetes-manifests-sync
-    - role: kubernetes-microservices-deploy
-    - role: kubernetes-mqtt-telegraf-influxdb-deploy
-    - role: kubernetes-grafana-deploy
+    # - role: kubernetes-secrets-bootstrap
+    # - role: kubernetes-manifests-sync
+    # - role: kubernetes-microservices-deploy
+    # - role: kubernetes-mqtt-telegraf-influxdb-deploy
+    # - role: kubernetes-grafana-deploy
+    - role: kubernetes-recryptonator-build-deploy
       # vars:
       #   fresh: True

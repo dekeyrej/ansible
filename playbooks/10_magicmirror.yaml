@@ -4,8 +4,7 @@
 
 #=== Create Proxmox container for MagicMirror2 ===
 - name: Create Proxmox container
-  hosts: localhost
-  connection: local
+  hosts: pvenode
   tags: magicmirror:provision
   vars:
     host_group: magicmirror

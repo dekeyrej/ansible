@@ -1,0 +1,52 @@
+#=== Remove known_host entries to keep ssh from squaking ==
+# handy routine to clean up the known_hosts file to avoid nasty warnings when provisioning/tearing down
+- name: Clear known_hosts
+  hosts: localhost
+  tasks:
+    - name: Loop through hosts removing previous entries from /home/ubuntu/.ssh/known_hosts
+      ansible.builtin.shell:
+        cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item }}"
+      loop: "{{ groups['allnodes'] }}"
+
+- name: Provision Proxmox VM hosts for Celebrimbor
+  hosts: pvenode
+  become: no  # root user only on PVE Node
+  vars_files:
+    - 03_sha_keys.yaml   # structered as a list of keys
+  vars:
+    host_group: builder
+    pool: Lothlorien
+    balloon: 4096
+    memory: 16384
+    diskincrement: +46.5G
+    protection: true
+  roles:
+    - role: proxmox-node-setup
+    - role: proxmox-vm-fetch-image
+    - role: proxmox-vm-create
+
+# wait for the container to settle...
+- name: Wait for VM to become reachable
+  hosts: builder
+  gather_facts: no
+  tasks:
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 10     # Initial delay before polling
+        sleep: 5      # Time between retries
+
+- name: Setup Celebrimbor
+  hosts: builder
+  become: yes
+  roles:
+    - role: apt-update-all
+    - role: apt-add-packages
+      vars:
+        packages: [buildah, podman, podman-docker, skopeo]
+  tasks:
+    - name: inject github token into root's .bashrc
+      ansible.builtin.lineinfile:
+        path: /root/.bashrc
+        insertafter: EOF
+        line: "export GITHUB_TOKEN={{ github_token }}"

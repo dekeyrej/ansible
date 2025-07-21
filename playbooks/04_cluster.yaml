@@ -45,7 +45,6 @@
     
 - name: Configure vault support kubernetes authentication and transit secrets
   hosts: localhost
-  connection: local
   become: no
   roles:
     - role: vault-configure-for-kubevault

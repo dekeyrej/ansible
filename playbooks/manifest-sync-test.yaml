@@ -1,7 +1,6 @@
 #=== Just grabs the manifests for 'iot' ===#
 - name: test sync manifest roles
   hosts: localhost
-  connection: local
   roles:
     - role: kubernetes-manifests-sync
       vars:
@@ -10,6 +9,5 @@
 #=== grabs all of the manifests in the manifest_map ===#
 - name: test sync manifest roles
   hosts: localhost
-  connection: local
   roles:
     - role: kubernetes-manifests-sync

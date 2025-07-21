@@ -7,7 +7,6 @@
 # Creates an RFC 5280 compliant Certificate Authority (which makes Python 3.13 happy)
 - name: Establish Certificate Authority
   hosts: localhost
-  connection: local
   roles:
     - role: certificate-authority
       vars_files:
@@ -17,7 +16,6 @@
 # handy routine to clean up the known_hosts file to avoid nasty warnings when provisioning/tearing down
 - name: Clear known_hosts
   hosts: localhost
-  connection: local
   tasks:
     - name: Loop through hosts removing previous entries from /home/ubuntu/.ssh/known_hosts
       ansible.builtin.shell:
@@ -76,7 +74,6 @@
 #   works with Certificate Authority above
 - name: TLS keys for server
   hosts: localhost
-  connection: local
   vars:
     host_group: vault
   roles:

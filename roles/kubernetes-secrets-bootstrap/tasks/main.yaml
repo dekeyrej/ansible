@@ -36,49 +36,44 @@
     src: /home/ubuntu/certificate_authority/ca.crt
     dest: /tmp/encryptonator
 
-- name: copy in secrets.json
-  ansible.builtin.copy:
-    src: secrets.json   # ansible-vault encrypted
-    dest: /tmp/encryptonator
-
 - name: edit encryptonator - remove 'sys.append.path...'
   ansible.builtin.lineinfile:
     path: /tmp/encryptonator/encryptonator.py
     regexp: '^sys.path.append'
     state: absent
 
-- name: Patch encryptonator.py to use ca.crt path
-  ansible.builtin.replace:
-    path: /tmp/encryptonator/encryptonator.py
-    regexp: 'True'
-    replace: '"/tmp/encryptonator/ca.crt"'
+- name: Extract encrypted JSON-text from secrets.json
+  ansible.builtin.set_fact:
+    secret_json_text : "{{ lookup('ansible.builtin.file', role_path ~ '/files/secrets.json') | from_json }}"
 
-- name: Patch encryptonator.py to use ca.crt path
-  ansible.builtin.replace:
-    path: /tmp/encryptonator/encryptonator.py
-    regexp: 'examples'
-    replace: '/tmp'
+- name: check if /tmp/encryptonator/venv exists
+  ansible.builtin.stat:
+    path: /tmp/encryptonator/venv/bin/python
+  register: venv_stat
 
-- name: Setup and Run encryptonator
+- name: Setup encryptonator virtualenv
   ansible.builtin.shell:
     cmd: |
       python3 -m venv venv
       source venv/bin/activate
       pip install -r requirements.txt
-      pip install dekeyrej-secretmanager
-      python encryptonator.py
     chdir: /tmp/encryptonator
     executable: /usr/bin/bash
+  when: not venv_stat.stat.exists
+
+- name: Run encryptonator
+  ansible.builtin.shell:
+    cmd: |
+      source venv/bin/activate
+      python encryptonator.py --json '"{{ secret_json_text }}"'
+    chdir: /tmp/encryptonator
+    executable: /usr/bin/bash
+  no_log: true
   register: encryptonator_output
 
 - name: debug
   ansible.builtin.debug:
     var: encryptonator_output.stderr_lines
-    
-- name: cleanup secrets files
-  ansible.builtin.file:
-    path: /tmp/encryptonator/secrets.json
-    state: absent
 
 #=== Create configMap of events_data ===#
 - name: create configMap of events data
@@ -92,4 +87,3 @@
         namespace: default
       data:
         events.json: "{{ event_data | from_json | to_nice_json }}"
-        

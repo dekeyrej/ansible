@@ -14,7 +14,6 @@
 #   works with Certificate Authority above
 - name: TLS keys for server
   hosts: localhost
-  connection: local
   tags: vault:configure
   vars:
     host_group: vault
@@ -55,7 +54,6 @@
 
 - name: Configure vault support kubernetes authentication and transit secrets
   hosts: localhost
-  connection: local
   become: no
   tags: vault:kubevault
   roles:
