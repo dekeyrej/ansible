@@ -45,3 +45,5 @@ manifests:
     - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/grafana/grafana-deployment-step1.yaml
   grafana-step2:
     - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/grafana/grafana-deployment.yaml
+  recryptonator:
+    - https://github.com/dekeyrej/secretmanager/blob/main/examples/recryptonator/recryptonator-cronjob.yaml

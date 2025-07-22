@@ -1,0 +1,4 @@
+- name: create recryptonator CronJob 
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ manifest_directory }}/recryptonator-cronjob.yaml"

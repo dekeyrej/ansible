@@ -1,11 +1,27 @@
-- name: deployment role testing
+- name: Make sure localhost is ready
   hosts: localhost
+  become: yes
   roles:
-    # - role: kubernetes-secrets-bootstrap
-    # - role: kubernetes-manifests-sync
-    # - role: kubernetes-microservices-deploy
-    # - role: kubernetes-mqtt-telegraf-influxdb-deploy
-    # - role: kubernetes-grafana-deploy
-    - role: kubernetes-recryptonator-build-deploy
-      # vars:
-      #   fresh: True
+    - role: apt-add-packages
+      vars:
+        packages: [python3-pip, python3-venv, python3-kubernetes]
+
+- name: Build recryptonator image
+  hosts: builder
+  become: yes
+  roles:
+    - role: kubernetes-recryptonator-build
+
+- name: Deploy everything
+  hosts: localhost
+  become: no
+  roles:
+    - role: kubernetes-encryptonator-build
+    - role: kubernetes-secrets-bootstrap
+    - role: kubernetes-manifests-sync
+    - role: kubernetes-microservices-deploy
+    - role: kubernetes-mqtt-telegraf-influxdb-deploy
+    - role: kubernetes-grafana-deploy
+      vars:
+        fresh: False
+    - role: kubernetes-recryptonator-deploy

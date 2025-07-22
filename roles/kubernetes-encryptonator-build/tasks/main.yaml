@@ -1,0 +1,87 @@
+---
+#=== Create directory to perform the build ===#
+- name: create directory if it doesn't exist
+  ansible.builtin.file:
+    path: "{{ repo_base_path }}"
+    state: directory
+
+#=== Curl in latest encryptonator ===#
+- name: Use all manifests
+  ansible.builtin.set_fact:
+    selected_manifests: "{{ manifests.values() | list | flatten }}"
+
+- name: Initialize raw_urls
+  ansible.builtin.set_fact:
+    raw_urls: []
+
+- name: Build raw URLs from selected manifests
+  vars:
+    repo_path: "{{ item | regex_findall('https://github.com/([^/]+/[^/]+)/blob/(.+)') | list }}"
+    raw_url: "https://raw.githubusercontent.com/{{ repo_path[0][0] }}/{{ repo_path[0][1] }}"
+  ansible.builtin.set_fact:
+    raw_urls: "{{ raw_urls + [raw_url] }}"
+  loop: "{{ selected_manifests }}"
+
+- name: Download selected manifests
+  ansible.builtin.get_url:
+    url: "{{ item }}"
+    dest: "{{ repo_base_path }}/{{ item | basename }}"
+  loop: "{{ raw_urls }}"
+
+#=== Copy in the system ca.crt ===#
+- name: copy in ca.crt
+  ansible.builtin.copy:
+    src: /home/ubuntu/certificate_authority/ca.crt
+    dest: "{{ repo_base_path }}"
+
+#=== Edit the files as necessary to make this standalone ===#
+- name: edit encryptonator.py - remove 'sys.append.path...'
+  ansible.builtin.lineinfile:
+    path: "{{ repo_base_path }}/encryptonator.py"
+    regexp: '^sys.path.append'
+    state: absent
+
+- name: edit encryptonator.py - remove 'file_path'
+  ansible.builtin.lineinfile:
+    path: "{{ repo_base_path }}/encryptonator.py"
+    regexp: '^file_path'
+    state: absent
+
+- name: edit encryptonator.py - change "ca.crt" to True
+  ansible.builtin.replace:
+    path: "{{ repo_base_path }}/encryptonator.py"
+    regexp:  '"ca.crt"'
+    replace: 'True    '
+
+- name: edit check_and_append_cacert.py - remove 'examples/vault_ssl_support/'
+  ansible.builtin.replace:
+    path: "{{ repo_base_path }}/check_and_append_cacert.py"
+    regexp: 'examples/vault_ssl_support/'
+    replace: ''
+
+#=== check and setup venv as required ===#
+- name: "check if {{ repo_base_path }}/venv exists"
+  ansible.builtin.stat:
+    path: "{{ repo_base_path }}/venv/bin/python"
+  register: venv_stat
+
+- name: Setup encryptonator virtualenv
+  ansible.builtin.shell:
+    cmd: |
+      python3 -m venv venv
+      source {{ repo_base_path }}/venv/bin/activate
+      pip install -r requirements.txt
+      pip install pyinstaller
+      python check_and_append_cacert.py
+    chdir: "{{ repo_base_path }}"
+    executable: /usr/bin/bash
+  when: not venv_stat.stat.exists
+
+#=== Build the executable ===#
+- name: Build encryptonator executable
+  ansible.builtin.shell:
+    cmd: |
+      source {{ repo_base_path }}/venv/bin/activate
+      pyinstaller --onefile encryptonator.py
+    chdir: "{{ repo_base_path }}"
+    executable: /usr/bin/bash

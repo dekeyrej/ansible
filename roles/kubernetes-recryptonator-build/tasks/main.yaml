@@ -1,0 +1,86 @@
+---
+#=== create directory from defaults:base_dir ===#
+- name: create directory if it doesn't exist
+  ansible.builtin.file:
+    path: "{{ base_dir }}"
+    state: directory
+
+#=== Curl in files from vars:manifests ===#
+- name: Use all manifests
+  ansible.builtin.set_fact:
+    selected_manifests: "{{ manifests.values() | list | flatten }}"
+
+- name: Initialize raw_urls
+  ansible.builtin.set_fact:
+    raw_urls: []
+
+- name: Build raw URLs from selected manifests
+  vars:
+    repo_path: "{{ item | regex_findall('https://github.com/([^/]+/[^/]+)/blob/(.+)') | list }}"
+    raw_url: "https://raw.githubusercontent.com/{{ repo_path[0][0] }}/{{ repo_path[0][1] }}"
+  ansible.builtin.set_fact:
+    raw_urls: "{{ raw_urls + [raw_url] }}"
+  loop: "{{ selected_manifests }}"
+
+- name: Download selected manifests
+  ansible.builtin.get_url:
+    url: "{{ item }}"
+    dest: "{{ base_dir }}/{{ item | basename }}"
+  loop: "{{ raw_urls }}"
+
+- name: copy in ca.crt
+  ansible.builtin.copy:
+    src: /home/ubuntu/certificate_authority/ca.crt
+    dest: "{{ base_dir }}"
+
+#=== edit the individual fetched files, as required ===#
+- name: edit recryptonator - remove 'sys.append.path...'
+  ansible.builtin.lineinfile:
+    path: "{{ base_dir }}/recryptonator.py"
+    regexp: '^sys.path.append'
+    state: absent
+
+- name: edit check_and_append_cacert.py - remove 'examples/vault_ssl_support/'
+  ansible.builtin.replace:
+    path: "{{ base_dir }}/check_and_append_cacert.py"
+    regexp: 'examples/vault_ssl_support/'
+    replace: ''
+
+- name: edit Dockerfile - remove 'examples/vault_ssl_support/'
+  ansible.builtin.replace:
+    path: "{{ base_dir }}/Dockerfile"
+    regexp: 'examples/vault_ssl_support/'
+    replace: ''
+
+- name: edit Dockerfile - remove 'examples/recryptonator/'
+  ansible.builtin.replace:
+    path: "{{ base_dir }}/Dockerfile"
+    regexp: 'examples/recryptonator/'
+    replace: ''
+
+- name: edit Dockerfile - remove 'secretmanager/'
+  ansible.builtin.replace:
+    path: "{{ base_dir }}/Dockerfile"
+    regexp: 'secretmanager/'
+    replace: ''
+
+#=== do buildah stuff using defaults ===#
+- name: assemble image name
+  ansible.builtin.set_fact:
+    image_tag: "{{ repository }}/{{ github_user }}/{{ image_name }}:{{ version }}"
+
+- name: build recryptonator image
+  ansible.builtin.shell:
+    cmd: "buildah bud --tag {{ image_tag }} ."
+    chdir: "{{ base_dir }}"
+
+- name: log buildah in to ghcr.io
+  ansible.builtin.shell:
+    cmd: |
+      buildah login {{ repository }} -u {{ github_user }} --password {{ github_token }}
+  no_log: true
+
+- name: push recryptonator image
+  ansible.builtin.shell:
+    cmd: |
+      buildah push {{ image_tag }} docker://{{ image_tag }}
