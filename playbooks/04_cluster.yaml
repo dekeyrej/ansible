@@ -49,15 +49,23 @@
   roles:
     - role: vault-configure-for-kubevault
 
+- name: Build recryptonator image
+  hosts: builder
+  become: yes
+  roles:
+    - role: kubernetes-recryptonator-build
+
 - name: Deploy application microservices, API and webdisplay
   hosts: prime
   become: no
   roles:
+    - role: kubernetes-encryptonator-build
     - role: kubernetes-secrets-bootstrap
     - role: kubernetes-manifests-sync
     - role: kubernetes-microservices-deploy
     - role: kubernetes-mqtt-telegraf-influxdb-deploy
     - role: kubernetes-grafana-deploy
+    - role: kubernetes-recryptonator-deploy
 
 # - name: Deploy other stuff
 #   hosts: prime
