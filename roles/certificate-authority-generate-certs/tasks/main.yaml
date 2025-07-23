@@ -1,5 +1,79 @@
+#  server_name = {{ inventory_name }}
+#  server_ip   = {{ hostvars[inventory_hostname]['ansible_host'] }}
+#  server_key_path  = 'fully qualified path (directory/filename)'
+#  server_cert_path = 'fully qualified path (directory/filename)'
 ---
-- name: Loop through host_group
-  include_tasks: generate_tasks.yaml
-  loop: "{{ groups[host_group] }}"
+- name: set server_name
+  ansible.builtin.set_fact:
+    server_name: "{{ inventory_name }}"
 
+- name: set server_ip
+  ansible.builtin.set_fact:
+    server_ip: "{{ hostvars[inventory_hostname]['ansible_host'] }}"
+
+# Need the AKI (equal to the CA's SKI) for the CSR
+- name:  Get info for CA Certificate
+  community.crypto.x509_certificate_info:
+    path: "{{ ca_base_path }}/{{ ca_cert_name }}"
+  delagate to: "{{ ca_host }}"          # or whatever host holds the certificate_authority
+  register: result
+
+- name: set authority_key_identifier
+  ansible.builtin.set_fact:
+    aki: "{{ result.subject_key_identifier }}"
+
+- name: Create private key for new certificate on server
+  community.crypto.openssl_privatekey:
+    path: "{{ server_key_path }}"
+  run_once: true
+
+- name: Create certificate signing request (CSR) for new certificate
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ server_key_path }}"
+    key_usage:
+      - keyEncipherment
+      - digitalSignature
+    key_usage_critical: true
+    extended_key_usage:
+      - serverAuth
+    subject_alt_name:
+      - "DNS:{{ server_name }}"
+      - "DNS:{{ server_name }}.local"
+      - "IP:{{ server_ip }}"
+      - "IP:127.0.0.1"
+    authority_key_identifier: "{{ aki }}"
+  run_once: true
+  register: csr
+
+- name: Check whether certificate exists
+  ansible.builtin.stat:
+    path: "{{ server_cert_path }}"
+  run_once: true
+  register: certificate_exists
+
+- name: Read existing certificate if exists
+  ansible.builtin.slurp:
+    src: "{{ server_cert_path }}"
+  when: certificate_exists.stat.exists
+  run_once: true
+  register: certificate
+
+- name: Sign certificate with our CA
+  community.crypto.x509_certificate_pipe:
+    content: "{{ (certificate.content | b64decode) if certificate_exists.stat.exists else omit }}"
+    csr_content: "{{ csr.csr }}"
+    provider: ownca
+    ownca_path: "{{ ca_base_path }}/{{ ca_cert_name }}"
+    ownca_privatekey_path: "{{ ca_base_path }}/{{ ca_key_name }}"
+    ownca_not_after: +365d  # valid for one year
+    ownca_not_before: "-1d"  # valid since yesterday
+  delegate_to: "{{ ca_host }}"          # or whatever host holds the certificate_authority
+  run_once: true
+  register: certificate
+
+- name: Write certificate file on server_1
+  ansible.builtin.copy:
+    content: "{{ certificate.certificate }}"
+    dest: "{{ server_cert_path }}"
+  run_once: true
+  when: certificate is changed

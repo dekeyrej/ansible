@@ -1,0 +1,17 @@
+PUBKEY=$(cat ~/.ssh/id_ed25519.pub)
+TITLE="Manwe"
+
+# Check if key already exists
+EXISTS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+    https://api.github.com/user/keys | jq --arg key "$PUBKEY" '.[] | select(.key == $key)')
+
+if [ -z "$EXISTS" ]; then
+  echo "Key not found. Adding..."
+  curl -H "Authorization: token $GITHUB_TOKEN" \
+       -H "Content-Type: application/json" \
+       -X POST \
+       -d "{\"title\":\"$TITLE\",\"key\":\"$PUBKEY\"}" \
+       https://api.github.com/user/keys
+else
+  echo "Key already exists. Skipping."
+fi

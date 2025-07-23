@@ -1,36 +1,39 @@
----
-- name: ensure directory exists
-  ansible.builtin.shell: install -d /home/ubuntu/certificate_authority
+- name: Create certificate_authority directory, if it doesn't exist
+  ansible.builtin.file:
+    path: "{{ ca_base_path }}"
+    state: directory
 
-- name: check if ca-config.conf exists
-  ansible.builtin.stat: 
-    path: /home/ubuntu/certificate_authority/ca-config.conf
-  register: config_check
+# community.crypto.openssl_privatekey defaults to 4096 bits and RSA
+- name: Create private key with password protection
+  community.crypto.openssl_privatekey:
+    path: "{{ ca_base_path }}/{{ ca_key_name }}"
 
-- name: create CA configuration file if it doesn't exist
-  ansible.builtin.template: 
-    src: ca-config.conf.j2
-    dest: /home/ubuntu/certificate_authority/ca-config.conf
-  when: not config_check.stat.exists
+- name: Create certificate signing request (CSR) for CA certificate
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ ca_base_path }}/{{ ca_key_name }}"
+    ### Optional keys
+    country_name: "{{ country }}"
+    state_or_province_name: "{{ state }}"
+    locality_name: "{{ locality }}"
+    organization_name: "{{ organization }}"
+    organizational_unit_name: "{{ organizational_unit }}"
+    ### End Optional keys
+    common_name: "{{ common_name }}"
+    use_common_name_for_san: false  # since we do not specify SANs, don't use CN as a SAN
+    basic_constraints:
+      - 'CA:TRUE'
+    basic_constraints_critical: true
+    ### Python 3.13 specific keyUsage keys
+    key_usage:
+      - keyCertSign
+      - digitalSignature
+    key_usage_critical: true
+    ### End Python 3.13 specific keys
+  register: ca_csr
 
-- name: check if ca.key exists
-  ansible.builtin.stat: 
-    path: /home/ubuntu/certificate_authority/ca.key
-  register: key_check
-
-- name: create ca.key if it doesn't exist
-  ansible.builtin.shell: 
-    cmd: openssl genrsa -out ca.key 4096
-    chdir: /home/ubuntu/certificate_authority/
-  when: not key_check.stat.exists
-
-- name: check if ca.crt exists
-  ansible.builtin.stat: 
-    path: /home/ubuntu/certificate_authority/ca.crt
-  register: crt_check
-
-- name: create ca.key if it doesn't exist
-  ansible.builtin.shell: 
-    cmd: openssl req -new -x509 -new -nodes -days 3650 -key ca.key -out ca.crt -config ca-config.conf
-    chdir: /home/ubuntu/certificate_authority/
-  when: not crt_check.stat.exists
+- name: Create self-signed CA certificate from CSR
+  community.crypto.x509_certificate:
+    path: "{{ ca_base_path }}/{{ ca_cert_name }}"
+    csr_content: "{{ ca_csr.csr }}"
+    privatekey_path: "{{ ca_base_path }}/{{ ca_key_name }}"
+    provider: selfsigned

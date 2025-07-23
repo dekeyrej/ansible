@@ -1,9 +1,8 @@
-# secret_ca_passphrase: from 00-ca-key-passphrase.yaml -- encrypted
 # bits: 4096 - default for community.cypto.x509_certificate
 # type: RSA  - default for community.cypto.x509_certificate
-ca_base_path: /tmp/certificate_authority
-ca_key_path: /tmp/certificate_authority/ca-certificate.key
-ca_cert_path: /tmp/certificate_authority/ca-certificate.pem
+ca_base_path: /home/ubuntu/certificate_authority
+ca_key_path: /home/ubuntu/certificate_authority/ca-certificate.key
+ca_cert_path: /home/ubuntu/certificate_authority/ca-certificate.pem
 country: US
 state: Virginia
 locality:  Lovettsville

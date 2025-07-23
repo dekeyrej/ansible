@@ -1,16 +1,25 @@
 ---
-- name: Generate command to add a new microk8s node
-  ansible.builtin.shell: microk8s add-node | grep -m 1 microk8s
-  delegate_to: "{{ groups.prime[0] }}"
-  register: result
+- name: Check if {{ inventory_hostname }} is already in the cluster
+  shell: microk8s kubectl get nodes | grep {{ inventory_hostname }}
+  delegate_to: "{{ groups['prime'][0] }}"
+  register: node_check
+  ignore_errors: true
 
-- name: add the node to the cluster
-  ansible.builtin.shell: "{{ result.stdout }}" # --skip-verify"
+- block:
+  - name: Generate command to add a new microk8s node
+    ansible.builtin.shell: microk8s add-node | grep -m 1 microk8s
+    delegate_to: "{{ groups.prime[0] }}"
+    register: result
 
-- name: check node has been added
-  ansible.builtin.shell: microk8s kubectl get nodes | grep {{ inventory_hostname }}
-  delegate_to: "{{ groups.prime[0] }}"
-  register: result
-  until: result.rc == 0
-  retries: 6
-  delay: 10
+  - name: add the node to the cluster
+    ansible.builtin.shell: "{{ result.stdout }}" # --skip-verify"
+    when: result.stdout is search("microk8s join")
+
+  - name: check node has been added
+    ansible.builtin.shell: microk8s kubectl get nodes | grep {{ inventory_hostname }}
+    delegate_to: "{{ groups.prime[0] }}"
+    register: result
+    until: result.rc == 0
+    retries: 6
+    delay: 10
+  when node_check.rc != 0

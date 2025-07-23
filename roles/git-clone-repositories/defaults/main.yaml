@@ -7,4 +7,4 @@ repositories:
   - { name: ecosystem-map.wiki , repo: 'https://github.com/dekeyrej/ecosystem-map.wiki.git'}
   - { name: kv-updater ,         repo: 'git@github.com:dekeyrej/kv-updater.git'}
   - { name: apiserver ,          repo: 'git@github.com:dekeyrej/apiserver.git'}
-  - { name: nodewebdisplay ,     repo: 'git@github.com:dekeyrej/nodewebdisplay.git'}  # won't work until repo is public _or_ ssh-key added to github
+  - { name: nodewebdisplay ,     repo: 'git@github.com:dekeyrej/nodewebdisplay.git'}

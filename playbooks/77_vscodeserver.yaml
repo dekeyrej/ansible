@@ -3,15 +3,17 @@
 # Assumes: Vault and CA are already configured, container image is available
 
 - name: create Proxmox Container
-  hosts: pvenode
+  hosts: iluvatar
   vars:
-    host_group: codehost
+    host_group: valar
     rootsize: 50
   roles:
+    - role: proxmox-node-setup
+    - role: proxmox-container-fetch-image
     - role: proxmox-container-create-cloud-init
       
 - name: Setup Code Server - Part 1 - Update and Install
-  hosts: codehost
+  hosts: manwe
   become: yes
   roles:
     - role: apt-nodejs-add-source
@@ -19,22 +21,16 @@
     - role: apt-update-all
     - role: apt-add-packages
       vars:
-        packages: [curl, git, git-filter-repo, gpg, wget, unzip, tree,  build-essential, buildah,
-                  python3-pip, pipx, python3-venv, python3-ansible, python3-proxmoxer, python3-kubernetes,
+        packages: [build-essential, curl, git, git-filter-repo, gpg, tree, unzip, wget, 
+                  python3-ansible, python3-proxmoxer, python3-kubernetes, python3-pip, python3-venv, pipx
                   nodejs, vault]
     - role: kubernetes-kubectl-install
 
-- name: Setup Code Server - Part 2 - ssh keys and git config
-  hosts: codehost
+- name: Setup Code Server - Part 2 - create ssh keys and git config
+  hosts: manwe
   become: no
   roles:
     - role: host-ssh-keys-create
-    - role: git-global-configure
-
-
-# have to add id_rsa.pub to keys https://github.com/dekeyrej before ssh-style clone will work 
-# - name: clone repositories
-#   hosts: codehost
-#   become: no
-#   roles:
-#     - role: git-clone-repositories
+    - role: git-global-configure  
+    - role: git-add-sshkey     # will need to inject GITHUB_TOKEN to add the new ssh-key to github
+    - role: git-clone-repositories

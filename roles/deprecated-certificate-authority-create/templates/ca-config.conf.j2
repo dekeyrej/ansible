@@ -13,7 +13,7 @@ OU = {{  organizational_unit }}
 CN = {{  common_name }}
 
 [ v3_ca ]
-basicConstraints = CA:TRUE
+basicConstraints = critical,CA:TRUE
 keyUsage   = critical,digitalSignature,keyCertSign
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always
