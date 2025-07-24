@@ -19,4 +19,3 @@
 
 - name: Add GitHub to known_hosts
   ansible.builtin.shell: ssh-keyscan github.com >> ~/.ssh/known_hosts
-
