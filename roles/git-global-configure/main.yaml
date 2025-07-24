@@ -16,3 +16,8 @@
     scope: global
     value: 'joedekeyrel@gmail.com'
   when: result.config_values['user.email'] is not defined or result.config_values['user.email'] | length == 0
+
+  - name: Add GitHub to known_hosts
+    ansible.builtin.shell: ssh-keyscan github.com >> ~/.ssh/known_hosts
+    args:
+      executable: /bin/bash
