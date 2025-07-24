@@ -27,7 +27,7 @@
     - name: Wait for SSH to come up
       ansible.builtin.wait_for_connection:
         timeout: 300  # Adjust as needed
-        delay: 0     # Initial delay before polling
+        delay: 5     # Initial delay before polling
         sleep: 5      # Time between retries
       
 - name: Setup Code Server - Part 1 - Update and Install
