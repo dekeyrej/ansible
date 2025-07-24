@@ -11,6 +11,17 @@
     - role: proxmox-node-setup
     - role: proxmox-container-fetch-image
     - role: proxmox-container-create-cloud-init
+
+# wait for the container to settle...
+- name: Wait for Container to become reachable
+  hosts: manwe
+  gather_facts: no
+  tasks:
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 10     # Initial delay before polling
+        sleep: 5      # Time between retries
       
 - name: Setup Code Server - Part 1 - Update and Install
   hosts: manwe
