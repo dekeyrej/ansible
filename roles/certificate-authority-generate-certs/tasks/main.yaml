@@ -25,6 +25,9 @@
 - name: Create private key for new certificate on server
   community.crypto.openssl_privatekey:
     path: "{{ server_key_path }}"
+    owner: "{{ owner }}"
+    group: "{{ group }}"
+    mode: "{{ mode }}"
   run_once: true
 
 - name: Create certificate signing request (CSR) for new certificate
@@ -75,5 +78,8 @@
   ansible.builtin.copy:
     content: "{{ certificate.certificate }}"
     dest: "{{ server_cert_path }}"
+    owner: "{{ owner }}"
+    group: "{{ group }}"
+    mode: "{{ mode }}"
   run_once: true
   when: certificate is changed

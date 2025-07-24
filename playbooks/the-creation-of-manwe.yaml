@@ -1,9 +1,9 @@
-# 77_vscodeserver.yaml
-# Provisions a Proxmox container and installs VS Code Server dependencies, CLI tools, and Git config
-# Assumes: Vault and CA are already configured, container image is available
+# the-creation-of-manwe.yaml
+# Provisions a Proxmox container and installs VS Code Server dependencies, CLI tools, and Git config,
+# and fetches GitHub repositories
 
-- name: create Proxmox Container
-  hosts: iluvatar
+- name: create Proxmox Container (Manwë)
+  hosts: localhost   # run from Ilúvatar
   vars:
     host_group: valar
     rootsize: 50
@@ -21,8 +21,8 @@
     - role: apt-update-all
     - role: apt-add-packages
       vars:
-        packages: [build-essential, curl, git, git-filter-repo, gpg, tree, unzip, wget, 
-                  python3-ansible, python3-proxmoxer, python3-kubernetes, python3-pip, python3-venv, pipx
+        packages: [ansible, build-essential, curl, git, git-filter-repo, gpg, tree, unzip, wget, 
+                  python3-proxmoxer, python3-kubernetes, python3-pip, python3-venv, pipx
                   nodejs, vault]
     - role: kubernetes-kubectl-install
 
@@ -30,7 +30,6 @@
   hosts: manwe
   become: no
   roles:
-    - role: host-ssh-keys-create
-    - role: git-global-configure  
-    - role: git-add-sshkey     # will need to inject GITHUB_TOKEN to add the new ssh-key to github
+    - role: host-ssh-keys-set
+    - role: git-global-configure
     - role: git-clone-repositories

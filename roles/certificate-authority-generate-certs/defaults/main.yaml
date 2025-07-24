@@ -8,3 +8,6 @@ state: Virginia
 locality:  Lovettsville
 organization: Sierra Lane
 organizational_unit: Infrastructure Services
+owner: ubuntu
+group: ubuntu
+mode: '0600'

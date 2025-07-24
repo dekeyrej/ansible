@@ -1,21 +1,19 @@
-# 10_magicmirror.yaml
+# the-coming-of-stormcrow.yaml
 # Provisions a Proxmox container and installs MagicMirror² with Node.js and PM2
 # Assumes: Vault and CA are already configured, container image is available
 
 #=== Create Proxmox container for MagicMirror2 ===
 - name: Create Proxmox container
-  hosts: pvenode
-  tags: magicmirror:provision
+  hosts: iluvatar
   vars:
-    host_group: magicmirror
+    host_group: watchers
   roles:
     - role: proxmox-container-create
       
       
 # performs apt update && apt upgrade; install node.js (LTS); clones and installs MagicMirror2 and defined modules
 - name: Setup MagicMirror2
-  hosts: magicmirror
-  tags: magicmirror:install
+  hosts: gandalf
   roles:
     - role: apt-nodejs-add-source
     - role: apt-update-all
@@ -27,8 +25,8 @@
 
 # performs apt update && apt upgrade; pulls and updates MagicMirror2 and defined modules
 - name: Update MagicMirror2
-  hosts: magicmirror
-  tags: magicmirror:update
+  hosts: gandalf
+  tags: update
   roles:
     - role: apt-update-all
     - role: magic-mirror-update

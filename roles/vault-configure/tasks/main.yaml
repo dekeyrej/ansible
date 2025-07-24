@@ -1,26 +1,4 @@
 ---
-# - name: stop vault service
-#   ansible.builtin.service:
-#     name: vault.service
-#     # enabled: yes
-#     state: stopped
-
-- name: "Copy {{ inventory_hostname }}.key to ~"
-  ansible.builtin.copy:
-    src: "/home/ubuntu/certificate_authority/{{ inventory_hostname }}.key"
-    dest: /opt/vault/tls/vault.key
-    owner: vault
-    group: vault
-    mode: '0600'
-
-- name: "Copy {{ inventory_hostname }}.crt to ~"
-  ansible.builtin.copy:
-    src: "/home/ubuntu/certificate_authority/{{ inventory_hostname }}.crt"
-    dest: /opt/vault/tls/vault.crt
-    owner: vault
-    group: vault
-    mode: '0600'
-
 - name: Copy vault configuration file "vault.hcl"
   ansible.builtin.template:
     src: vault.hcl.j2

@@ -3,10 +3,11 @@
 # and updates host certificate store
 
 - name: Copy ca.crt to /usr/local/share/ca-certificates
-  ansible.builtin.syncronize:
+  ansible.posix.syncronize:
     src: "{{ ca_base_path }}/{{ ca_cert_name }}"
     dest: /usr/local/share/ca-certificates/ca.crt
   delegate_to: "{{ ca_host }}"
 
 - name: Update the server 'trust store'
+  become: yes
   ansible.builtin.shell: update-ca-certificates

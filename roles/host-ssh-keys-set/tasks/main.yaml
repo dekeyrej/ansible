@@ -1,0 +1,21 @@
+- name: Copy Manwe's public key
+  ansible.builtin.copy:
+    src: id_rsa.pub
+    dest: /home/ubuntu/.ssh/id_rsa.pub
+    owner: ubuntu
+    group: ubuntu
+    mode: 0644
+- name: Copy Manwe's public key
+  ansible.builtin.copy:
+    src: id_rsa
+    dest: /home/ubuntu/.ssh/id_rsa
+    owner: ubuntu
+    group: ubuntu
+    mode: 0600
+- name: Copy Manwe's ssh config
+  ansible.builtin.copy:
+    src: config
+    dest: /home/ubuntu/.ssh/config
+    owner: ubuntu
+    group: ubuntu
+    mode: 0644

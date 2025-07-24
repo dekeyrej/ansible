@@ -6,13 +6,13 @@
     - role: proxmox-setup-node
     - role: proxmox-vm
       vars:
-        host_group: openwebui
+        host_group: seers
         pool: Mirkwood
         memory: 16384
         diskincrement: +96.5G
 
 - name: setup GPU host
-  hosts: openwebui
+  hosts: galadriel
   become: yes
   roles:
     - role: apt-nvidia-container-toolkit-add-source

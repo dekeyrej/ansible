@@ -1,18 +1,17 @@
 #=== Remove known_host entries to keep ssh from squaking ==
 # handy routine to clean up the known_hosts file to avoid nasty warnings when provisioning/tearing down
-- name: Clear known_hosts
-  hosts: localhost
-  tasks:
-    - name: Loop through hosts removing previous entries from /home/ubuntu/.ssh/known_hosts
-      ansible.builtin.shell:
-        cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item }}"
-      loop: "{{ groups['allnodes'] }}"
+# - name: Clear known_hosts
+#   hosts: localhost
+#   tasks:
+#     - name: Loop through hosts removing previous entries from /home/ubuntu/.ssh/known_hosts
+#       ansible.builtin.shell:
+#         cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item }}"
+#       loop: "{{ groups['allnodes'] }}"
 
 - name: Provision Proxmox VM hosts for Celebrimbor
-  hosts: pvenode
-  become: no  # root user only on PVE Node
-  vars_files:
-    - 03_sha_keys.yaml   # structered as a list of keys
+  hosts: iluvatar
+  # vars_files:
+  #   - 03_sha_keys.yaml   # structered as a list of keys
   vars:
     host_group: builder
     pool: Lothlorien
@@ -21,13 +20,12 @@
     diskincrement: +46.5G
     protection: true
   roles:
-    - role: proxmox-node-setup
     - role: proxmox-vm-fetch-image
     - role: proxmox-vm-create
 
 # wait for the container to settle...
 - name: Wait for VM to become reachable
-  hosts: builder
+  hosts: celebrimbor
   gather_facts: no
   tasks:
     - name: Wait for SSH to come up
@@ -37,7 +35,7 @@
         sleep: 5      # Time between retries
 
 - name: Setup Celebrimbor
-  hosts: builder
+  hosts: celebrimbor
   become: yes
   roles:
     - role: apt-update-all
@@ -45,8 +43,9 @@
       vars:
         packages: [buildah, podman, podman-docker, skopeo]
   tasks:
-    - name: inject github token into root's .bashrc
+    - name: inject github token into ubuntu's .bashrc
+      become_user: ubuntu
       ansible.builtin.lineinfile:
-        path: /root/.bashrc
+        path: /home/ubuntu/.bashrc
         insertafter: EOF
         line: "export GITHUB_TOKEN={{ github_token }}"

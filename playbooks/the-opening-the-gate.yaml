@@ -1,0 +1,11 @@
+- name: create Proxmox Container for Vault
+  hosts: iluvatar
+  vars:
+    host_group: certificate_authority
+  roles:
+    - role: proxmox-container-create-cloud-init
+
+- name: create RFC 5280 compliant Certificate Authority
+  hosts: moria
+  roles:
+    - certificate-authority-create

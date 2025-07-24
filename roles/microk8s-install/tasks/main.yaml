@@ -12,7 +12,7 @@
     groups: microk8s
     append: yes
 
-# copy new RFC 5280 compliant cert to /var/snap/microk8s/current/certs/cadir and kickoff a refresh_certs
+#=== copy new RFC 5280 compliant cert to /var/snap/microk8s/current/certs/cadir and kickoff a refresh_certs
 - name: make the directory
   ansible.builtin.file:
     path: /var/snap/microk8s/current/certs/cadir
@@ -22,12 +22,26 @@
     group: microk8s
   when: new_ca == true
 
-- name: copy new RFC 5280 compliant certificate authority to /var/snap/microk8s/current/certs/cadir
-  ansible.builtin.copy:
-    src: "/home/ubuntu/certificate_authority/{{ item }}"
-    dest: "/var/snap/microk8s/current/certs/cadir/{{ item }}"
-  loop: "{{ cafiles }}"
+- name: Copy ca.crt to /var/snap/microk8s/current/certs/cadir/
+  ansible.posix.syncronize:
+    src: "{{ ca_base_path }}/{{ ca_cert_name }}"
+    dest: /var/snap/microk8s/current/certs/cadir/ca.crt
+  delegate_to: "{{ ca_host }}"
   when: new_ca == true
+
+- name: Copy ca.key to /var/snap/microk8s/current/certs/cadir/
+  ansible.posix.syncronize:
+    src: "{{ ca_base_path }}/{{ ca_key_name }}"
+    dest: /var/snap/microk8s/current/certs/cadir/ca.key
+  delegate_to: "{{ ca_host }}"
+  when: new_ca == true
+
+# - name: copy new RFC 5280 compliant certificate authority to /var/snap/microk8s/current/certs/cadir
+#   ansible.builtin.copy:
+#     src: "/home/ubuntu/certificate_authority/{{ item }}"
+#     dest: "/var/snap/microk8s/current/certs/cadir/{{ item }}"
+#   loop: "{{ cafiles }}"
+#   when: new_ca == true
 
 - name: tell microk8s to refresh-certs
   ansible.builtin.shell: 
