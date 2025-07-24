@@ -9,7 +9,9 @@ users:
     shell: /bin/bash
     lock_passwd: true
     ssh_authorized_keys:
-      - {{ sshkey }}
+{% for key in sshkey %}
+      - {{ key }}
+{% endfor %}
 package_update: true
 package_upgrade: true
 packages:
