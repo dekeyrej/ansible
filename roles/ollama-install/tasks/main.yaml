@@ -13,7 +13,8 @@
 - name: Update NVidia drivers
   ansible.builtin.apt:
     pkg:
-      - nvidia-driver-575
+      - nvidia-container-toolkit
+      # - nvidia-driver-575
     state: present
     update_cache: yes
 

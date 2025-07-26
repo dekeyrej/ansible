@@ -30,5 +30,6 @@
   become: yes
   roles:
     - role: apt-update-all
+    - role: apt-add-source-nvidia-container-toolkit
     - role: open-webui-install
     - role: ollama-install
