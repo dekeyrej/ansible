@@ -1,77 +1,75 @@
-# 🛠️ Ansible Roles Overview
+# 🧩 Role Overview
 
-Welcome to the heart of my homelab automation engine. This directory contains modular, task-oriented Ansible roles designed to provision, configure, and orchestrate a wide range of infrastructure components — from containerized services to Kubernetes clusters, certificate authorities, and beyond.
+This repository contains modular Ansible roles for orchestrating my thematic homelab infrastructure. Roles are grouped by function and purpose:
 
-Each role is purpose-built, idempotent, and scoped to a single responsibility. While some tasks may appear conceptually similar (e.g. image fetching, secret creation), their implementations are tailored to the specific systems they interact with.
+- 🛠️ Core System Setup
+- 🔐 Certificate Authority & Secrets
+- 🧬 Git & SSH Configuration
+- ☸️ Kubernetes & MicroK8s
+- 🧙 MagicMirror & Node.js
+- 🧠 LLM & AI Interfaces
+- 🧱 Proxmox Infrastructure
+- 🧪 Experimental / Deprecated
 
----
-
-## 📦 Role Index
-
-| Role Name | Description |
-|-----------|-------------|
-| `apt-add-packages` | Installs a curated list of system packages via APT. |
-| `apt-nodejs-add-source` | Adds Node.js APT source for version-controlled installs. |
-| `apt-nvidia-container-toolkit-add-source` | Adds NVIDIA container toolkit repository. |
-| `apt-postgresql-add-source` | Adds PostgreSQL APT source for database setup. |
-| `apt-vault-add-source` | Adds HashiCorp Vault APT source. |
-| `apt-update-all` | Updates all APT package lists and upgrades installed packages. |
-| `certificate-authority-create` | Initializes a new RFC 5280 compliant certificate authority. |
-| `certificate-authority-copy-to-host` | Copies CA files to target hosts. |
-| `certificate-authority-generate-certs` | Issues RFC 2818 compliant certs and keys from the CA with IP SANs. |
-| `ghcr-secret-create` | Creates Docker registry secrets for GitHub Container Registry. |
-| `git-global-configure` | Configures user's global git config (user.name, user.email). |
-| `git-clone-repositories` | Clones specified Git repositories to target hosts. |
-| `host-ssh-keys-create` | Creates ssh-keys for user, if they don't exist.|
-| `kubernetes-kubectl-install` | Installs latest kubectl binary. |
-| `kubernetes-secrets-bootstrap` | Bootstraps secrets for Kubernetes workloads. |
-| `kubernetes-fetch-config` | Retrieves kubeconfig files from cluster nodes. |
-| `kubernetes-kubegres-deploy` | Deploys Kubegres for PostgreSQL HA in Kubernetes. |
-| `kubernetes-redis-deploy` | Deploys Redis workloads to Kubernetes. |
-| `kubernetes-manifests-sync` | Syncs manifests for components from across all of the source repos. |
-| `kubernetes-microservices-deploy` | Deploys kv-updater, apiserver, microservices and webdisplay to Kubernetes. |
-| `kubernetes-mqtt-telegraf-influxdb-deploy` | Deploys IOT backend services to Kubernetes.|
-| `kubernetes-grafana-deploy` | Deploys IOT frontend grafana service to Kubernetes.|
-| `kubernetes-tcp-ingresses-create` | Creates TCP ingress rules for Kubernetes services. |
-| `magic-mirror-install` | Installs MagicMirror² on target hosts. |
-| `magic-mirror-update` | Updates MagicMirror² modules and config. |
-| `matrix-database-create` | Creates the Postgres 'state' database for my matrix microservices. |
-| `microceph-all` | Installs and configures a MicroCeph cluster. |
-| `microk8s` | Meta-role for MicroK8s orchestration. |
-| `microk8s-install` | Installs MicroK8s on target hosts. |
-| `microk8s-assemble-cluster` | Assembles a MicroK8s cluster from nodes. |
-| `microk8s-configure` | Applies post-install configuration to MicroK8s. |
-| `microk8s-enable-addons` | Enables MicroK8s addons (e.g. DNS, ingress). |
-| `multipass` | Provisions Multipass VMs. |
-| `nodejs-pm2-install` | Installs PM2 process manager for Node.js apps. |
-| `proxmox-node-setup` | Prepares Proxmox nodes for automation. |
-| `proxmox-container-create` | Creates LXC containers in Proxmox based on Proxmox container templates. |
-| `proxmox-container-fetch-image` | Fetches cloud-init enabled container images for Proxmox from linuxcontainers.org. |
-| `proxmox-container-create-cloud-init` | Creates cloud-init enabled containers. |
-| `proxmox-vm-fetch-image` | Fetches VM disk images for use in templates. |
-| `proxmox-vm-create` | Creates virtual machines in Proxmox. |
-| `proxmox-vm-create-template` | Creates reusable VM templates. |
-| `proxmox-vm-create-from-template` | Creates VMs from existing templates. |
-| `vault-configure` | Configures Vault policies, auth methods, auto-unseal, and secrets engines. |
-| `vault-initialize` | Initializes Vault and stores recovery keys. |
-| `vault-configure-for-kubevault` | Prepares Vault for Kubernetes authentication and Transit encrypt/decypt as a Service supporting my KubeVault pattern from [SecretManager](https://github.com/dekeyrej/secretmanager). |
+For a full breakdown of each role, including usage notes and dependencies, see the [Extended Role Table](./Extended_README.md).
 
 ---
 
-## 🧭 Usage Notes
+### 🛠️ Core System Setup
+These roles handle base system configuration and package management.
+- apt-add-packages: Installs system packages via APT.
+- apt-update-all: Updates and upgrades all APT packages.
+- apt-add-source-*: Adds APT sources for Node.js, NVIDIA, PostgreSQL, Vault.
+- book-of-creation-delivery: Places vault.password and manwe.sh in repo root.
 
-- Roles are designed to be composable and declarative.
-- Most roles assume root or elevated privileges.
-- Secrets and sensitive data should be passed via Vault or Ansible Vault.
-- For orchestration, use tagged playbooks or include roles conditionally.
+### 🔐 Certificate Authority & Secrets
+Roles for secure communication and secrets management.
+- certificate-authority-create: Initializes RFC 5280 CA.
+- certificate-authority-copy-to-host: Distributes CA files.
+- certificate-authority-generate-certs: Issues certs with IP SANs.
+- vault-configure, vault-initialize, vault-configure-for-kubevault: Full Vault lifecycle and Kubernetes integration.
+- ghcr-secret-create: Creates Docker registry secrets.
 
----
+### 🧬 Git & SSH Configuration
+For repository access and secure host communication.
+- git-global-configure, git-clone-repositories, git-add-sshkey
+- host-ssh-keys-create, host-ssh-keys-set
+- known-hosts-clear, known-hosts-add
 
-## 🧪 Future Enhancements
+### ☸️ Kubernetes & MicroK8s
+Extensive roles for cluster setup, secrets, and workload deployment.
+- Cluster Setup:
+- microk8s-install, microk8s-assemble-cluster, microk8s-configure, microk8s-enable-addons
+- Secrets & Config:
+- kubernetes-encryptonator-build, kubernetes-secrets-bootstrap, kubernetes-fetch-config
+- Workloads:
+- kubernetes-kubegres-deploy, kubernetes-redis-deploy, kubernetes-microservices-deploy, kubernetes-mqtt-telegraf-influxdb-deploy, kubernetes-grafana-deploy
+- Maintenance:
+- kubernetes-manifests-sync, kubernetes-recryptonator-build, kubernetes-recryptonator-deploy, kubernetes-tcp-ingresses-create
 
-- Add role tags and dependencies in `meta/main.yml`
-- Introduce shared handlers for common tasks (e.g. restart services)
-- Consider grouping roles into collections for better reuse
+### 🧙 MagicMirror & Node.js
+For frontend and display services.
+- magic-mirror-install, magic-mirror-update
+- nodejs-pm2-install
+
+### 🧠 LLM & AI Interfaces
+Roles for deploying AI tools.
+- ollama-install: Installs Ollama and NVIDIA dependencies.
+- open-webui-install: Installs Open-WebUI frontend.
+
+### 🧱 Proxmox Infrastructure
+Roles for VM and container orchestration.
+- Node Prep:
+- proxmox-node-setup
+- Containers:
+- proxmox-container-create-cloud-init, proxmox-container-create, proxmox-container-fetch-image
+- VMs:
+- proxmox-vm-fetch-image, proxmox-vm-create, proxmox-vm-create-template, proxmox-vm-create-from-template
+
+### 🧪 Experimental / Deprecated / Not in Use
+Roles marked as deprecated or not currently active.
+- microceph-all, microk8s, multipass
+- Deprecated Proxmox roles: proxmox-container-create, proxmox-container-fetch-image, proxmox-vm-fetch-image
 
 ---
 
