@@ -26,7 +26,7 @@ These roles handle base system configuration and package management.
 - apt-add-packages: Installs system packages via APT.
 - apt-update-all: Updates and upgrades all APT packages.
 - apt-add-source-*: Adds APT sources for Node.js, NVIDIA, PostgreSQL, Vault.
-- book-of-creation-delivery: Places vault.password and manwe.sh in repo root.
+- book-of-creation-delivery: Places vault.password in repo root.
 
 ### 🔐 Certificate Authority & Secrets
 Roles for secure communication and secrets management.

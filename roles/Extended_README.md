@@ -23,7 +23,7 @@ But wait! There's more in [roles/Monolithic_role_list.md](./Monolithic_role_list
 | apt-add-source-nvidia | ✅ Active | apt, gpu | Adds NVIDIA APT source | 
 | apt-add-source-postgresql | ✅ Active | apt, db | Adds PostgreSQL APT source | 
 | apt-add-source-vault | ✅ Active | apt, vault | Adds Vault APT source | 
-| book-of-creation-delivery | ✅ Active | bootstrap, ansible | Places vault.password and manwe.sh | 
+| book-of-creation-delivery | ✅ Active | bootstrap, ansible | Places vault.password | 
 
 
 ## 🔐 Certificate Authority & Secrets

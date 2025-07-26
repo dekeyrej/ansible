@@ -7,7 +7,7 @@
 | `apt-add-source-postgresql` | Adds PostgreSQL APT source for database setup. | the-forming-of-the-fellowship (no longer in use) | (none) | Tested | Yes |
 | `apt-add-source-vault` | Adds HashiCorp Vault APT source. | the-delving-of-moria | (none) | Tested | Yes |
 | `apt-update-all` | Updates all APT package lists and upgrades installed packages. | Several | (none) | Tested | Yes |
-| `book-of-creation-delivery` | Places `vault.password` and `manwe.sh` in the root of the ansible repository. | the creation-of-manwe | (none) | un-tested | Partial |
+| `book-of-creation-delivery` | Places `vault.password` in the root of the ansible repository. | the creation-of-manwe | (none) | un-tested | Partial |
 | `certificate-authority-create` | Initializes a new RFC 5280 compliant certificate authority. |the-creation-of-manwe | (none) | Tested | Yes |
 | `certificate-authority-copy-to-host` | Copies CA files to target hosts. | the-forming-of-the-fellowship, the-delving-of-moria | certificate-authority-create, or suitable ca.crt | Tested | Yes |
 | `certificate-authority-generate-certs` | Issues RFC 2818 compliant certs and keys from the CA with IP SANs. | the-forming-of-the-fellowship, the-delving-of-moria | certificate-authority-create, or suitable ca.crt and ca.key | Tested | will overwrite key/crt |

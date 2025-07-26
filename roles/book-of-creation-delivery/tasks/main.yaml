@@ -18,12 +18,3 @@
     group: ubuntu
     mode: '0600'
   when: ansible_repo.stat.exists
-
-- name: copy in manwe.sh
-  ansible.builtin.copy:
-    src: manwe.sh
-    dest: /home/ubuntu/repos/ansible/manwe.sh
-    owner: ubuntu
-    group: ubuntu
-    mode: '0755'
-  when: ansible_repo.stat.exists
