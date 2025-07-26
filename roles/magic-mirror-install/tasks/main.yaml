@@ -1,10 +1,12 @@
 - name: git clone MagicMirror
-  ansible.builtin.shell: git clone https://github.com/MagicMirrorOrg/MagicMirror.git
+  ansible.builtin.shell: 
+    cmd: git clone https://github.com/MagicMirrorOrg/MagicMirror.git
+    chdir: /root/
 
 - name: npm install MagicMirror2
   ansible.builtin.shell: 
     cmd: npm run install-mm 
-    chdir: MagicMirror/
+    chdir: /root/MagicMirror/
 
 - name: Install modules
   include_tasks: add_modules.yaml
@@ -25,7 +27,7 @@
   ansible.builtin.shell: pm2 startup
 
 - name: use pm2 to start server
-  ansible.builtin.shell: pm2 start mmso.sh
+  ansible.builtin.shell: pm2 start /root/mmso.sh
 
 - name: save pm2 configuration
   ansible.builtin.shell: pm2 save

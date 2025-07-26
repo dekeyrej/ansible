@@ -1,4 +1,13 @@
 ---
+- name: add python3 required packages
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg:
+    - python3-kubernetes
+    - python3-hvac
+  become: yes
+  
+
 - name: Load Kubernetes CA cert from file
   set_fact:
     kube_ca_cert: "{{ lookup('file', '/usr/local/share/ca-certificates/ca.crt') }}"
@@ -12,20 +21,24 @@
     paths: /home/ubuntu
     patterns: "vault_init_output-*.txt"
     file_type: file
+  delegate_to: localhost
   register: vault_files
+
 
 - name: Set fact for newest file
   set_fact:
     newest_vault_file: "{{ (vault_files.files | sort(attribute='mtime', reverse=true))[0].path }}"
+  delegate_to: localhost
   when: vault_files.files | length > 0
 
-# - name: Show newest file
-#   debug:
-#     msg: "Newest vault init file is: {{ newest_vault_file }}"
+- name: Show newest file
+  debug:
+    msg: "Newest vault init file is: {{ newest_vault_file }}"
 
 - name: Read the output file from the vault container
   slurp:
     src: "{{ newest_vault_file }}"
+  delegate_to: localhost
   register: vault_output_raw
 
 - name: Decode file and extract root token
@@ -55,7 +68,15 @@
 - name: Apply default Vault token manifest
   kubernetes.core.k8s:
     state: present
-    src: "{{ role_path }}/files/default-va-token.yaml"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: vault-auth-token
+        namespace: default
+        annotations:
+          kubernetes.io/service-account.name: vault-auth
+      type: kubernetes.io/service-account-token
 
 - name: Patch service account using JSON patch
   kubernetes.core.k8s_json_patch:
@@ -95,6 +116,7 @@
 
 - name: do wierd stuff not in community.hashi_vault
   ansible.builtin.shell: |
+    export VAULT_ADDR="{{ vault_address }}"
     vault login {{ initial_root_token }}
     vault auth enable kubernetes
     vault secrets enable transit
@@ -103,19 +125,20 @@
   args:
     executable: /usr/bin/bash
 
-#### not sure this one works
-### 1.
 - name: Configure Kubernetes auth
   community.hashi_vault.vault_write:
+    url: "{{ vault_address }}"
     path: auth/kubernetes/config
     token: "{{ initial_root_token }}"
     data:
       kubernetes_host: "{{ kubeapiaddress }}"
       kubernetes_ca_cert: "{{ kube_ca_cert }}"
       token_reviewer_jwt: "{{ jwt_token }}"
+  register: result
 
 - name: Create Vault role
   community.hashi_vault.vault_write:
+    url: "{{ vault_address }}"
     path: "auth/kubernetes/role/{{ role }}"
     token: "{{ initial_root_token }}"
     data:

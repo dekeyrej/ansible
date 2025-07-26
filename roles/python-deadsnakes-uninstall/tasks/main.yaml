@@ -1,0 +1,5 @@
+---
+- name: Remove Python version from deadsnakes PPA
+  ansible.builtin.shell: |
+    sudo apt-get remove --autoremove -y python{{ python_version }}-full python{{ python_version }}-dev python{{ python_version }}-venv
+    sudo add-apt-repository --remove ppa:deadsnakes/ppa

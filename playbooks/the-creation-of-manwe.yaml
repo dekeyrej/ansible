@@ -3,21 +3,14 @@
 # and fetches GitHub repositories
 
 - name: create Proxmox Container (Manwë)
-  hosts: localhost   # run from Ilúvatar
+  hosts: localhost   # executed on Ilúvatar
   vars:
     host_group: valar
+    pool: Lothlorien
     rootsize: 50
   roles:
-    - role: proxmox-container-fetch-image
     - role: proxmox-container-create-cloud-init
-  tasks:
-    - name: Remove stale SSH keys
-      ansible.builtin.shell: ssh-keygen -R {{ item }}
-      loop: "{{ groups[host_group] }}"
-      
-    - name: Remove stale SSH keys
-      ansible.builtin.shell: ssh-keygen -R {{ hostvars[item].ansible_host | default('') }}
-      loop: "{{ groups[host_group] }}"
+    - role: known-hosts-clear
 
 # wait for the container to settle...
 - name: Wait for Container to become reachable
@@ -27,27 +20,29 @@
     - name: Wait for SSH to come up
       ansible.builtin.wait_for_connection:
         timeout: 300  # Adjust as needed
-        delay: 5     # Initial delay before polling
+        delay: 5      # Initial delay before polling
         sleep: 5      # Time between retries
       
-- name: Setup Code Server - Part 1 - Update and Install
+- name: Setup Manwë - Part 1 - Update and Install
   hosts: manwe
   become: yes
   roles:
-    - role: apt-nodejs-add-source
-    - role: apt-vault-add-source
     - role: apt-update-all
+    - role: apt-add-source-nodejs
+    - role: apt-add-source-vault
     - role: apt-add-packages
       vars:
         packages: [ansible, build-essential, curl, git, git-filter-repo, gpg, tree, unzip, wget, 
-                  python3-proxmoxer, python3-kubernetes, python3-pip, python3-venv, pipx,
+                  python3-proxmoxer, python3-kubernetes, python3-hvac, python3-pip, python3-venv,
                   nodejs, vault]
     - role: kubernetes-kubectl-install
+    - role: certificate-authority-create
 
-- name: Setup Code Server - Part 2 - create ssh keys and git config
+- name: Setup Manwë - Part 2 - create ssh keys and git config
   hosts: manwe
   become: no
   roles:
-    - role: host-ssh-keys-set
+    - role: host-ssh-keys-set               # Sets ssh-keys to pre-GitHub-registered keys
     - role: git-global-configure
-    - role: git-clone-repositories
+    - role: git-clone-repositories          # Receives the Song of Creation from Ilúvatar
+    - role: book-of-creation-delivery

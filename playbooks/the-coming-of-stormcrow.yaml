@@ -4,16 +4,32 @@
 
 #=== Create Proxmox container for MagicMirror2 ===
 - name: Create Proxmox container
-  hosts: iluvatar
+  hosts: localhost   # executed on Manwë
   vars:
     host_group: watchers
+    pool: Lothlorien
+  tags: provision
   roles:
-    - role: proxmox-container-create
+    - role: proxmox-container-create-cloud-init
+    - role: known-hosts-clear
+
+# wait for the container to settle...
+- name: Wait for Container to become reachable
+  hosts: gandalf
+  gather_facts: no
+  tasks:
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 5     # Initial delay before polling
+        sleep: 5      # Time between retries
       
       
 # performs apt update && apt upgrade; install node.js (LTS); clones and installs MagicMirror2 and defined modules
 - name: Setup MagicMirror2
   hosts: gandalf
+  become: yes
+  tags: install
   roles:
     - role: apt-nodejs-add-source
     - role: apt-update-all
@@ -23,10 +39,10 @@
     - role: nodejs-pm2-install
     - role: magic-mirror-install
 
-# performs apt update && apt upgrade; pulls and updates MagicMirror2 and defined modules
-- name: Update MagicMirror2
-  hosts: gandalf
-  tags: update
-  roles:
-    - role: apt-update-all
-    - role: magic-mirror-update
+# # performs apt update && apt upgrade; pulls and updates MagicMirror2 and defined modules
+# - name: Update MagicMirror2
+#   hosts: gandalf
+#   tags: update
+#   roles:
+#     # - role: apt-update-all
+#     - role: magic-mirror-update

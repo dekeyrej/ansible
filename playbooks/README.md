@@ -1,56 +1,98 @@
-# 📜 Ansible Playbooks Overview
+> ## “In the beginning, Ilúvatar sang the world into being. From his song came Manwë, and from Manwë came the shaping of Arda...”
 
-This directory contains the orchestration logic for provisioning and configuring the homelab infrastructure. Each playbook is scoped to a specific phase of the system lifecycle — from VM creation and container setup to cluster deployment and service initialization.
+## TL;DR
+This is a modular Ansible suite for provisioning a Tolkien-themed homelab. Each host represents a character or realm, and each playbook is a chapter in the shaping of Arda.
 
-For example, to provision, configure, deploy and support development my 'production' environment
-```mermaid
-graph LR
-  A[00_proxmox] --> B[04_cluster]
-  B --> C[10_magicmirror]
-  B --> D[77_vscodeserver]
-  B --> E[55_open-webui]
+## 📚 Table of Contents
+- [🌌 creation.sh on Ilúvatar](#-creationsh-on-ilúvatar-primordial-setup)
+- [🗂️ Structure: Thematic & Functional](#️-structure-thematic--functional)
+- [🧙‍♂️ Modular Execution](#️-modular-execution)
+
+## 🏰 Legend of Hosts
+
+| Hostname      | Role / Identity       | Description                                  |
+|---------------|------------------------|----------------------------------------------|
+| Ilúvatar      | Creator                | Runs `creation.sh`, initiates the world      |
+| Manwë         | Orchestrator           | Runs `manwe.sh`, controls the winds of setup |
+| Celebrimbor   | Builder                | Crafts container images and artifacts        |
+| Moria         | Vault                  | Stores secrets in the depths                 |
+| Aragorn       | Kubernetes node        | Part of the Fellowship cluster               |
+| Legolas       | Kubernetes node        | Agile and swift in orchestration             |
+| Gimli         | Kubernetes node        | Sturdy and dependable                        |
+| Gandalf       | MagicMirror2           | Offers wisdom and visibility                 |
+| Galadriel     | Open-WebUI + Ollama      | Sees beyond the veil                         |
+| Bombadil      | Self-contained node    | Lives outside the orchestration, yet vital for testing  |
+
+## 🌌 creation.sh on Ilúvatar (Primordial Setup)
+This script sets the stage, prepares the environment, and invokes the first playbook to bring Manwë into being.
+```bash
+#!/usr/bin/env bash
+
+echo "🌌 Ilúvatar awakens. Preparing the Song of Creation..."
+
+if [[ ! -f vault.password ]]; then
+  echo "❌ The Secret Fire is missing (vault.password not found). Aborting."
+  exit 1
+fi
+
+apt update
+apt install -y git
+git clone https://github.com/dekeyrej/ansible.git    # this is where all of these playbooks and roles are hosted
+mv vault.password ansible
+cd ansible
+
+echo "🧙‍♂️ Summoning the environment..."
+python3 -m venv venv
+source venv/bin/activate
+pip install ansible proxmoxer requests
+
+echo "⚡ Calling forth Manwë..."
+ansible-playbook playbooks/the-creation-of-manwe.yaml
+
+cd ..
+rm -rf ansible
+echo "✅ Ilúvatar rests. Manwë now walks the winds."
 ```
 
-Variable files (`*.yaml`) are used to inject structured configuration into playbooks, keeping logic declarative and reusable.
+note: create a `vault.password` file to auto-decrypt your encrypted files, **before** running `creation.sh`
 
----
+## 🗂️ Structure: Thematic & Functional
+| Playbook | Purpose / Role | 
+|---|---|
+| the-creation-of-manwe.yaml | Provisioning the control node (Manwë) with Certificate Authority, initial setup from Ilúvatar | 
+| the-delving-of-moria.yaml | Provisions vault container (Moria)| 
+| the-birth-of-celebrimbor.yaml | Provisions Builder VM setup for local image crafting (Celebrimbor) | 
+| the-forming-of-the-fellowship.yaml | Multi-node Kubernetes [MicroK8S] cluster (Aragorn, Legolas, Gimli) | 
+| the-coming-of-stormcrow.yaml | Provisions container running MagicMirror2 (Gandalf) |
+| the-vision-in-lothlorien.yaml | Provisions Open-WebUI container for running local LLMs (Galadriel) | 
+| the-story-of-tom-bombadil.yaml | Provisions VM as single-node, self-contained certificate authority, vault, Kubernetes cluster for testing (Bombadil) | 
 
-## 📦 Playbook Index
 
-| Playbook | Description |
-|----------|-------------|
-| `00_proxmox.yaml` | Provisions Proxmox VMs and containers, sets up Vault with TLS and auto-unseal. |
-| `01_template_overrides.yaml` | Variable file for customizing VM templates. |
-| `03_sha_keys.yaml` | Variable file containing SSH keys used for provisioning. |
-| `04_cluster.yaml` | Builds a MicroK8s cluster with MicroCeph, configures Vault, and deploys microservices. |
-| `05_disk_list.yaml` | Variable file defining disk layout for MicroCeph nodes. |
-| `10_magicmirror.yaml` | Provisions a container and installs MagicMirror² with Node.js and PM2. |
-| `55_open-webui.yaml` | Sets up an LXC container with GPU passthrough to run Open WebUI and Ollama. |
-| `77_vscodeserver.yaml` | Provisions a container and installs VS Code Server dependencies, CLI tools, and Git config. |
-| `88_proxmox_provision.yaml` | Draft playbook for unified Proxmox provisioning based on inventory `type=kvm` or `type=lxc`. |
-| `manifest-sync-test.yaml` | Example of using `kubernetes-manifests-sync` with or without specifying `sync_keys` |
-| `wait_for_hosts.yaml` | Utility playbook to pause execution until hosts are reachable post-reboot. |
+## 🧙‍♂️ Modular Execution:
 
----
+`manwe.sh` a phase-driven orchestrator:
+```bash
+#!/usr/bin/env bash
 
-## 🧭 Usage Notes
+source ~/ansible/venv/bin/activate
 
-- Playbooks are designed to be run sequentially or selectively using tags.
-- Variable files (`01`, `03`, `05`) are intended to be included via `vars_files` in other playbooks.
-- Inventory metadata (e.g. `type=kvm`, `type=lxc`) is used to drive conditional logic in advanced provisioning.
-- Most playbooks assume root or elevated privileges on target hosts.
+declare -a chapters=(
+  "the-delving-of-moria.yaml"
+  "the-birth-of-celebrimbor.yaml"
+  "the-forming-of-the-fellowship.yaml"
+  "the-coming-of-stormcrow.yaml"
+  "the-vision-in-lothlorien.yaml"
+  "the-story-of-tom-bombadil.yaml"
+)
 
----
+for chapter in "${chapters[@]}"; do
+  if ! ansible-playbook "playbooks/$chapter"; then
+    echo "❌ Failed to read $chapter. The winds falter."
+    exit 1
+  fi
+  echo "📖 Reading $chapter..."
+  ansible-playbook "playbooks/$chapter" | tee -a ~/arda.log
+done
 
-## 🧪 Future Enhancements
-
-- Refactor `88_proxmox_provision.yaml` into a meta-role or collection for unified VM/container provisioning.
-- Add tags to playbooks for selective execution (e.g. `--tags vault`, `--tags cluster`).
-- Introduce playbook dependencies or orchestration via a master playbook or Makefile.
-- Visualize playbook flow using Mermaid diagrams.
-
----
-
-## 🤝 Contributions
-
-This repository is a living system. If you spot improvements, edge cases, or want to extend functionality — PRs and issues are welcome.
+echo "🌈 All chapters complete. Arda is shaped."
+```

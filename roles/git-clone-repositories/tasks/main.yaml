@@ -1,6 +1,6 @@
 - name: clone one or more repositories
   ansible.builtin.git:
     repo: "{{ item.repo }}"
-    dest: "/home/ubuntu/repos/{{ item.name }}"
+    dest: "{{ local_repo_base_path }}/{{ item.name }}"
   loop: "{{ repositories }}"
-  become_user: ubuntu
+  become_user: "{{  local_repo_owner }}"

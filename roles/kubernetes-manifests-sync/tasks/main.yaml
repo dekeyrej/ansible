@@ -1,9 +1,14 @@
+---
+# group_vars-github-github_token: token scoped to read/write from repositories
+
 - name: Include manifest map
   include_vars: manifest_map.yaml
 
-- name: set github_token
-  set_fact:
-    github_token: "{{ lookup('env','GITHUB_TOKEN') }}"
+- name: create directory for synced_manifests
+  ansible.builtin.file:
+    path: "{{ playbook_dir | dirname }}/synced_manifests"
+    state: directory
+  # delegate_to: localhost
 
 - name: Filter manifests by sync_keys
   set_fact:

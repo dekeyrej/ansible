@@ -1,0 +1,34 @@
+---
+- name: Provision Proxmox-VE VM
+  hosts: localhost   # executed on Manwë
+  vars:
+    host_group: seers
+  roles:
+    - role: proxmox-container-create-cloud-init
+      vars:
+        pool: Lothlorien
+        memory: 16384
+        diskpool: nvme_pool
+        rootsize: 100
+        protection: true
+        gpu_access: true
+    - role: known-hosts-clear
+
+# wait for the Galadriel to wake...
+- name: Wait for Container to become reachable
+  hosts: galadriel
+  gather_facts: no
+  tasks:
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 5      # Initial delay before polling
+        sleep: 5      # Time between retries
+
+- name: setup GPU host
+  hosts: galadriel
+  become: yes
+  roles:
+    - role: apt-update-all
+    - role: open-webui-install
+    - role: ollama-install

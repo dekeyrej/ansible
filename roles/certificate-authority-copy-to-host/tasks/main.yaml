@@ -1,12 +1,13 @@
 ---
 # copies ca.crt from Certificate_Authority host to server
 # and updates host certificate store
-
-- name: Copy ca.crt to /usr/local/share/ca-certificates
-  ansible.posix.syncronize:
-    src: "{{ ca_base_path }}/{{ ca_cert_name }}"
+- name: Copy CA cert to correct location on Host
+  ansible.builtin.copy:
+    src:  /usr/local/share/ca-certificates/ca.crt
     dest: /usr/local/share/ca-certificates/ca.crt
-  delegate_to: "{{ ca_host }}"
+    owner: root
+    group: root
+    mode: '0644'
 
 - name: Update the server 'trust store'
   become: yes

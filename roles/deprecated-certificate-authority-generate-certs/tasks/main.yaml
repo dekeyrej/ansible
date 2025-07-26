@@ -1,5 +1,0 @@
----
-- name: Loop through host_group
-  include_tasks: generate_tasks.yaml
-  loop: "{{ groups[host_group] }}"
-

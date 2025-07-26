@@ -1,5 +1,5 @@
-ca_host: "{{ groups['certificate_authority'][0] }}"
-ca_base_path: /home/ubuntu/certificate_authority
-ca_key_name: ca-certificate.key
-ca_cert_name: ca-certificate.pem
+# ca_host: "{{ groups['certificate_authority'][0] }}"
+# ca_base_path: /home/ubuntu/certificate_authority
+# ca_key_name: ca-certificate.key
+# ca_cert_name: ca-certificate.pem
 ceph_enabled: false

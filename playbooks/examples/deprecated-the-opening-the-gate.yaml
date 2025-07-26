@@ -1,0 +1,48 @@
+- name: create Proxmox Container for certificate_authority
+  hosts: iluvatar
+  vars:
+    host_group: certificate_authority
+  roles:
+    - role: proxmox-container-create-cloud-init
+  tasks:
+    - name: Remove stale SSH keys
+      ansible.builtin.shell: ssh-keygen -R {{ item }}
+      loop: "{{ groups[host_group] }}"
+      delegate_to: localhost
+      
+    - name: Remove stale SSH keys
+      ansible.builtin.shell: ssh-keygen -R {{ hostvars[item].ansible_host | default('') }}
+      loop: "{{ groups[host_group] }}"
+      delegate_to: localhost
+
+# wait for the container to settle...
+- name: Wait for Container to become reachable
+  hosts: mellon
+  gather_facts: no
+  tasks:
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 5     # Initial delay before polling
+        sleep: 5      # Time between retries
+
+- name: create RFC 5280 compliant Certificate Authority (makes Python 3.13+ happy)
+  hosts: mellon
+  roles:
+    - role: certificate-authority-create
+  tasks:
+    - name: fetch new CA crt
+      ansible.builtin.fetch:
+        src: "{{ ca_base_path }}/{{ ca_cert_name }}"
+        dest: /usr/local/share/ca-certificates/ca.crt
+        flat: yes
+    - name: fetch new CA key
+      ansible.builtin.fetch:
+        src: "{{ ca_base_path }}/{{ ca_key_name }}"
+        dest: /usr/local/share/ca-certificates/ca.key
+        flat: yes
+
+    - name: install new CA
+      ansible.builtin.shell: update-ca-certificates
+      become: yes
+      delegate_to: localhost

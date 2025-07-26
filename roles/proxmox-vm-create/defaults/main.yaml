@@ -1,12 +1,11 @@
 ---
-# api_user:
-# api_password:
-# sha:
+# vars: api_user:      (from encrypted variables)
+# vars: api_password:  (from encrypted variables)
+# vars: sha:           (from encrypted variables)
 api_host: "{{ inventory_hostname }}"
 node: "{{ inventory_hostname }}"
 pool: Mirkwood
 gateway: 192.168.86.1
-# vmid specified in inventory
 balloon: 8192
 memory: 32768
 cores: 8
@@ -25,3 +24,8 @@ ostype: l26
 bootorder: "{{ bootdiskname }}"
 agent: enabled=1
 protection: false
+# fetch_image
+base_url: https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
+image_path: /root
+target: noble-server-cloudimg-amd64.img
+work_dir: /tmp/diskimage_version_tracking

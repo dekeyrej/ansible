@@ -1,11 +1,19 @@
-#  server_name = {{ inventory_name }}
-#  server_ip   = {{ hostvars[inventory_hostname]['ansible_host'] }}
-#  server_key_path  = 'fully qualified path (directory/filename)'
-#  server_cert_path = 'fully qualified path (directory/filename)'
+# bits: 4096 - default for community.cypto.x509_certificate
+# type: RSA  - default for community.cypto.x509_certificate
+# defaults: country: US
+# defaults: state: Virginia
+# defaults: locality:  Lovettsville
+# defaults: organization: Sierra Lane
+# defaults: organizational_unit: Infrastructure Services
+# defaults: owner: ubuntu
+# defaults: group: ubuntu
+# defaults: mode: '0600'
+# required: server_key_path  = 'fully qualified path (directory/filename)'
+# required: server_cert_path = 'fully qualified path (directory/filename)'
 ---
 - name: set server_name
   ansible.builtin.set_fact:
-    server_name: "{{ inventory_name }}"
+    server_name: "{{ inventory_hostname }}"
 
 - name: set server_ip
   ansible.builtin.set_fact:
@@ -14,8 +22,7 @@
 # Need the AKI (equal to the CA's SKI) for the CSR
 - name:  Get info for CA Certificate
   community.crypto.x509_certificate_info:
-    path: "{{ ca_base_path }}/{{ ca_cert_name }}"
-  delagate to: "{{ ca_host }}"          # or whatever host holds the certificate_authority
+    path: /usr/local/share/ca-certificates/ca.crt
   register: result
 
 - name: set authority_key_identifier
@@ -33,17 +40,24 @@
 - name: Create certificate signing request (CSR) for new certificate
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ server_key_path }}"
+    ### (optional) Subject keys
+    country_name: "{{ country }}"
+    state_or_province_name: "{{ state }}"
+    locality_name: "{{ locality }}"
+    organization_name: "{{ organization }}"
+    organizational_unit_name: "{{ organizational_unit }}"
+    ### End (optional) Subject keys
+    common_name: "{{ server_name }}"  ## (required) Subject key
     key_usage:
-      - keyEncipherment
       - digitalSignature
+      - keyEncipherment               ## Vault requirement
     key_usage_critical: true
-    extended_key_usage:
-      - serverAuth
     subject_alt_name:
       - "DNS:{{ server_name }}"
       - "DNS:{{ server_name }}.local"
-      - "IP:{{ server_ip }}"
+      - "IP:{{ server_ip }}"          ## Vault requirement
       - "IP:127.0.0.1"
+    subject_alt_name_critical: true   ## Vault requirement
     authority_key_identifier: "{{ aki }}"
   run_once: true
   register: csr
@@ -70,7 +84,7 @@
     ownca_privatekey_path: "{{ ca_base_path }}/{{ ca_key_name }}"
     ownca_not_after: +365d  # valid for one year
     ownca_not_before: "-1d"  # valid since yesterday
-  delegate_to: "{{ ca_host }}"          # or whatever host holds the certificate_authority
+  delegate_to: localhost          # or whatever host holds the certificate_authority
   run_once: true
   register: certificate
 

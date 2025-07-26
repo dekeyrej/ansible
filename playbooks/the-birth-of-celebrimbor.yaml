@@ -1,17 +1,6 @@
-#=== Remove known_host entries to keep ssh from squaking ==
-# handy routine to clean up the known_hosts file to avoid nasty warnings when provisioning/tearing down
-# - name: Clear known_hosts
-#   hosts: localhost
-#   tasks:
-#     - name: Loop through hosts removing previous entries from /home/ubuntu/.ssh/known_hosts
-#       ansible.builtin.shell:
-#         cmd: "ssh-keygen -f '/home/ubuntu/.ssh/known_hosts' -R {{ item }}"
-#       loop: "{{ groups['allnodes'] }}"
-
-- name: Provision Proxmox VM hosts for Celebrimbor
-  hosts: iluvatar
-  # vars_files:
-  #   - 03_sha_keys.yaml   # structered as a list of keys
+---
+- name: Provision Proxmox VM host for Celebrimbor
+  hosts: localhost   # executed on Manwë
   vars:
     host_group: builder
     pool: Lothlorien
@@ -20,10 +9,10 @@
     diskincrement: +46.5G
     protection: true
   roles:
-    - role: proxmox-vm-fetch-image
     - role: proxmox-vm-create
+    - role: known-hosts-clear
 
-# wait for the container to settle...
+# wait for the container(s) to settle...
 - name: Wait for VM to become reachable
   hosts: celebrimbor
   gather_facts: no
@@ -38,10 +27,13 @@
   hosts: celebrimbor
   become: yes
   roles:
+    - role: certificate-authority-copy-to-host
+    - role: apt-add-source-vault
     - role: apt-update-all
     - role: apt-add-packages
       vars:
         packages: [buildah, podman, podman-docker, skopeo]
+    - role: kubernetes-kubectl-install
   tasks:
     - name: inject github token into ubuntu's .bashrc
       become_user: ubuntu

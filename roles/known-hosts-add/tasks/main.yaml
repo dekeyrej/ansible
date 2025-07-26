@@ -1,0 +1,3 @@
+- name: Add {{ host_group }} to known_hosts
+  ansible.builtin.shell: ssh-keyscan {{ item }} >> ~/.ssh/known_hosts
+  loop: "{{ groups[host_group] }}"

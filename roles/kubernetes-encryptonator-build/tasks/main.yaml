@@ -31,7 +31,7 @@
 #=== Copy in the system ca.crt ===#
 - name: copy in ca.crt
   ansible.builtin.copy:
-    src: /home/ubuntu/certificate_authority/ca.crt
+    src: /home/ubuntu/ca.crt
     dest: "{{ repo_base_path }}"
 
 #=== Edit the files as necessary to make this standalone ===#

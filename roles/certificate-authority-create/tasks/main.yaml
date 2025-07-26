@@ -1,9 +1,23 @@
+# bits: 4096 - default for community.cypto.x509_certificate
+# type: RSA  - default for community.cypto.x509_certificate
+# group_vars:all:ca_base_path: /home/ubuntu/certificate_authority
+# group_vars:all:ca_key_name:  ca-certificate.key
+# group_vars:all:ca_cert_name: ca-certificate.pem
+# role defaults: country: US
+# role defaults: state: Virginia
+# role defaults: locality:  Lovettsville
+# role defaults: organization: Sierra Lane
+# role defaults: organizational_unit: Infrastructure Services
+# role defaults: common_name: My CA
+---
 - name: Create certificate_authority directory, if it doesn't exist
   ansible.builtin.file:
     path: "{{ ca_base_path }}"
     state: directory
+    owner: root
+    group: root
+    mode: '0700'
 
-# community.crypto.openssl_privatekey defaults to 4096 bits and RSA
 - name: Create private key with password protection
   community.crypto.openssl_privatekey:
     path: "{{ ca_base_path }}/{{ ca_key_name }}"
@@ -11,24 +25,23 @@
 - name: Create certificate signing request (CSR) for CA certificate
   community.crypto.openssl_csr_pipe:
     privatekey_path: "{{ ca_base_path }}/{{ ca_key_name }}"
-    ### Optional keys
+    ### (optional) Subject keys
     country_name: "{{ country }}"
     state_or_province_name: "{{ state }}"
     locality_name: "{{ locality }}"
     organization_name: "{{ organization }}"
     organizational_unit_name: "{{ organizational_unit }}"
-    ### End Optional keys
+    ### End (optional) Subject keys
     common_name: "{{ common_name }}"
-    use_common_name_for_san: false  # since we do not specify SANs, don't use CN as a SAN
+    use_common_name_for_san: false
     basic_constraints:
       - 'CA:TRUE'
     basic_constraints_critical: true
-    ### Python 3.13 specific keyUsage keys
     key_usage:
-      - keyCertSign
       - digitalSignature
+      - keyCertSign
+      - cRLSign                  # Vault specific key requirement
     key_usage_critical: true
-    ### End Python 3.13 specific keys
   register: ca_csr
 
 - name: Create self-signed CA certificate from CSR
@@ -37,3 +50,14 @@
     csr_content: "{{ ca_csr.csr }}"
     privatekey_path: "{{ ca_base_path }}/{{ ca_key_name }}"
     provider: selfsigned
+
+- name: install new CA locally
+  ansible.builtin.copy:
+    src: "{{ ca_base_path }}/{{ ca_cert_name }}"
+    dest: /usr/local/share/ca-certificates/ca.crt
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: incorporate new CA into system
+  ansible.builtin.shell: update-ca-certificates

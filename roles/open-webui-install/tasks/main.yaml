@@ -1,0 +1,33 @@
+- name: install required packages for  Open WebUI
+  ansible.builtin.apt:
+    pkg:
+      - python3-pip
+      - python3-venv
+    state: present
+    update_cache: yes
+
+- name: Create Open-WebUI directory
+  ansible.builtin.file:
+    path: /home/ubuntu/open-webui
+    state: directory
+  become_user: ubuntu
+
+- name: Create a virtual environment, and Install Open WebUI in it
+  ansible.builtin.pip:
+    name: open-webui
+    virtualenv: /home/ubuntu/open-webui/venv
+    virtualenv_command: python3 -m venv
+    virtualenv_site_packages: no
+    state: present
+  become_user: ubuntu
+
+- name: Create systemd service for Open WebUI
+  ansible.builtin.copy:
+    src: open-webui.service
+    dest: /etc/systemd/system/open-webui.service
+
+- name: Enable and start Open WebUI service
+  ansible.builtin.systemd:
+    name: open-webui
+    enabled: yes
+    state: started

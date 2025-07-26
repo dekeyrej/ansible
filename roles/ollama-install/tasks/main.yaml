@@ -1,0 +1,29 @@
+- name: install required packages for  Ollama
+  ansible.builtin.apt:
+    pkg:
+      - curl
+    state: present
+    update_cache: yes
+
+- name: Install Ollama
+  ansible.builtin.shell: |
+    curl -fsSL https://ollama.com/install.sh | sh
+  become_user: ubuntu
+
+- name: Update NVidia drivers
+  ansible.builtin.apt:
+    pkg:
+      - nvidia-driver-575
+    state: present
+    update_cache: yes
+
+- name: Enable and start Ollama service
+  ansible.builtin.systemd:
+    name: ollama
+    enabled: yes
+    state: restarted
+
+- name: Install Ollama models
+  ansible.builtin.shell: |
+    ollama pull codellama:7b
+  become_user: ubuntu

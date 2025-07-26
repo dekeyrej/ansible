@@ -1,3 +1,5 @@
+local_repo_base_path: /home/ubuntu/repos
+local_repo_owner: ubuntu
 repositories:
   - { name: ansible ,            repo: 'git@github.com:dekeyrej/ansible.git'}
   - { name: matrixclient ,       repo: 'git@github.com:dekeyrej/matrixclient.git'}

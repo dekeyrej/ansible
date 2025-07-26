@@ -1,0 +1,29 @@
+---
+- name: check ansible is where it should be
+  ansible.builtin.stat:
+    path: /home/ubuntu/repos/ansible
+  register: ansible_repo
+
+- name: Ensure ansible repo is present
+  ansible.builtin.assert:
+    that:
+      - ansible_repo.stat.exists
+    fail_msg: "Ansible repository not found at /home/ubuntu/repos/ansible"
+
+- name: copy in vault.password
+  ansible.builtin.copy:
+    src: vault.password                                # encrypted vault password file
+    dest: /home/ubuntu/repos/ansible/vault.password
+    owner: ubuntu
+    group: ubuntu
+    mode: '0600'
+  when: ansible_repo.stat.exists
+
+- name: copy in manwe.sh
+  ansible.builtin.copy:
+    src: manwe.sh
+    dest: /home/ubuntu/repos/ansible/manwe.sh
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+  when: ansible_repo.stat.exists

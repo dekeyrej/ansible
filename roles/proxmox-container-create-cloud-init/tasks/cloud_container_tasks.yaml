@@ -73,6 +73,13 @@
   ansible.builtin.set_fact:
     resolved_vmid: "{{ hostvars[item]['vmid'] | default(vminfo.proxmox_vms[0].vmid | int) }}"
 
+- name: Append GPU config to container config
+  blockinfile:
+    path: "/etc/pve/lxc/{{ resolved_vmid }}.conf"
+    block: "{{ gpu_config_additions }}"
+    marker: "# {mark} GPU config additions"
+  when: gpu_access
+
 - name: mount the LXC container's rootfs
   ansible.builtin.shell: pct mount {{ resolved_vmid }}
 

@@ -1,0 +1,77 @@
+---
+- name: Provision Proxmox VM hosts for Bombadil
+  hosts: localhost   # executed on Manwë
+  vars:
+    host_group: sidequest
+    pool: Mirkwood
+    balloon: 4096
+    memory: 16384
+    diskincrement: +21.5G
+    protection: false
+  roles:
+    - role: proxmox-vm-create
+    - role: known-hosts-clear
+
+# wait for the VM to settle...
+- name: Wait for VM to become reachable
+  hosts: bombadil
+  gather_facts: no
+  tasks:
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 5      # Initial delay before polling
+        sleep: 5      # Time between retries
+
+- name: Setup Bombadil - Part 1 (root stuff)
+  hosts: sidequest
+  become: yes
+  vars:
+    ca_key_name: ca.key
+    ca_cert_name: ca.pem
+    ca_host: bombadil
+    packages: [buildah, vault]
+    new_ca: true
+  roles:
+    # Make this machine it's own CA
+    - role: certificate-authority-create
+    - role: certificate-authority-copy-to-host
+    # Install vault package
+    - role: apt-vault-add-source
+    - role: apt-update-all
+    - role: apt-add-packages
+    # Generate TLS certificates for Vault
+    - role: certificate-authority-generate-certs
+      vars:
+        server_key_path: /opt/vault/tls/vault.key
+        server_cert_path: /opt/vault/tls/vault.crt
+        owner: vault
+        group: vault
+        mode: '0600'
+    - role: vault-configure
+    - role: vault-initialize
+    # Install microk8s, including use of new CA
+    - role: microk8s-install
+    - role: microk8s-configure
+    - role: python-deadsnakes-install
+      vars:
+        python_version: 3.13
+
+- name: Setup Bombadil - Part 2 - (ubuntu stuff)
+  hosts: bombadil
+  become: no
+  roles:
+    # Configure Vault for KubeVault
+    - role: vault-configure-for-kubevault
+      vars:
+        kubeapiaddress: https://192.168.86.7:16443
+        vault_address: https://127.0.0.1:8200
+        role: demo
+        policy: my-app-policy
+        transit_key: aes256-key
+    - role: git-global-configure
+    - role: git-clone-repositories
+      vars:
+        repositories:
+          - name: secretmanager      
+            repo: 'https://github.com/dekeyrej/secretmanager.git'
