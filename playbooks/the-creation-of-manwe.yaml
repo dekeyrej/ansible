@@ -3,7 +3,8 @@
 # and fetches GitHub repositories
 
 - name: create Proxmox Container (Manwë)
-  hosts: localhost   # executed on Ilúvatar
+  hosts: iluvatar   # executed on Ilúvatar
+  tags: manwe:provision
   vars:
     host_group: valar
     pool: Lothlorien
@@ -15,7 +16,8 @@
 # wait for the container to settle...
 - name: Wait for Container to become reachable
   hosts: manwe
-  gather_facts: no
+  tags: manwe:provision
+  gather_facts: false
   tasks:
     - name: Wait for SSH to come up
       ansible.builtin.wait_for_connection:
@@ -25,7 +27,8 @@
       
 - name: Setup Manwë - Part 1 - Update and Install
   hosts: manwe
-  become: yes
+  tags: manwe:setup1
+  become: true
   roles:
     - role: apt-update-all
     - role: apt-add-source-nodejs
@@ -40,7 +43,8 @@
 
 - name: Setup Manwë - Part 2 - create ssh keys and git config
   hosts: manwe
-  become: no
+  tags: manwe:setup2
+  become: false
   roles:
     - role: host-ssh-keys-set               # Sets ssh-keys to pre-GitHub-registered keys
     - role: git-global-configure

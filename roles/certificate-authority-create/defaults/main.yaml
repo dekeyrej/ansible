@@ -1,8 +1,8 @@
 # bits: 4096 - default for community.cypto.x509_certificate
 # type: RSA  - default for community.cypto.x509_certificate
-# group_vars:all:ca_base_path: /home/ubuntu/certificate_authority
-# group_vars:all:ca_key_name:  ca-certificate.key
-# group_vars:all:ca_cert_name: ca-certificate.pem
+ca_base_path: /home/ubuntu/certificate_authority
+ca_key_name:  ca-certificate.key
+ca_cert_name: ca-certificate.pem
 country: US
 state: Virginia
 locality:  Lovettsville
