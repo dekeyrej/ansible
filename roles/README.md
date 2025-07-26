@@ -13,6 +13,12 @@ This repository contains modular Ansible roles for orchestrating my thematic hom
 
 For a full breakdown of each role, including usage notes and dependencies, see the [Extended Role Table](./Extended_README.md).
 
+```mermaid
+graph TD
+  README.md --> Extended_README.md
+  Extended_README.md --> Monolithic_role_list.md
+```
+
 ---
 
 ### 🛠️ Core System Setup
