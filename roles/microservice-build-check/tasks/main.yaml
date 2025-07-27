@@ -1,0 +1,19 @@
+- name: Get latest workflow run
+  uri:
+    url: "https://api.github.com/repos/{{ github_owner }}/{{ github_repo }}/actions/runs?branch=main"
+    method: GET
+    headers:
+      Authorization: "token {{ github_token }}"
+      Accept: "application/vnd.github+json"
+  register: workflow_runs
+
+- name: Fail if latest build is not successful
+  fail:
+    msg: "Microservicematrix build failed or not completed yet."
+  when: >
+    workflow_runs.json.workflow_runs[0].status != "completed" or
+    workflow_runs.json.workflow_runs[0].conclusion != "success"
+
+- name: It passed?
+  debug:
+    var: workflow_runs.json.workflow_runs[0].conclusion

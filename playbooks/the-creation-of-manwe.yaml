@@ -4,7 +4,7 @@
 
 - name: create Proxmox Container (Manwë)
   hosts: iluvatar   # executed on Ilúvatar
-  tags: manwe:provision
+  connection: local
   vars:
     host_group: valar
     pool: Lothlorien
@@ -50,3 +50,4 @@
     - role: git-global-configure
     - role: git-clone-repositories          # Receives the Song of Creation from Ilúvatar
     - role: book-of-creation-delivery
+    - role: microservice-build-trigger-all

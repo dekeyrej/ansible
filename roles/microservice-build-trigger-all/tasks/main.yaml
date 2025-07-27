@@ -1,0 +1,33 @@
+- name: Copy new ca.crt to microservicematrix utilities
+  copy:
+    src: "/usr/local/share/ca-certificates/ca.crt"
+    dest: "~/repos/microservicematrix/utilities/ca.crt"
+    remote_src: true
+    mode: '0644'
+
+- name: Git add and commit ca.crt
+  shell: |
+    git add .
+    git commit -m "Updating ca.crt" || echo "Nothing to commit"
+  args:
+    chdir: "~/repos/microservicematrix"
+
+- name: Git push to origin main
+  command: git push origin main
+  args:
+    chdir: "~/repos/microservicematrix"
+
+- name: Trigger GitHub Actions build with DEBUG_FORCE_APPS
+  uri:
+    url: "https://api.github.com/repos/{{ github_owner }}/{{ github_repo }}/dispatches"
+    method: POST
+    headers:
+      Accept: "application/vnd.github+json"
+      Authorization: "token {{ github_token }}"
+    body_format: json
+    body:
+      event_type: "rebuild-all"
+      client_payload:
+        DEBUG_FORCE_APPS: "true"
+    status_code: 204
+  # delegate_to: localhost

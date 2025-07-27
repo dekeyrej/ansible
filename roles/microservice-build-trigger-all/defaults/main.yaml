@@ -1,0 +1,6 @@
+github_owner: dekeyrej
+github_repo: microservicematrix
+dispatch_event_type: "trigger-build"
+dispatch_payload:
+  ref: "main"
+  custom_key: "custom_value"

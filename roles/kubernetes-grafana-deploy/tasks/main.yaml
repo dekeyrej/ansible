@@ -15,22 +15,20 @@
   retries: 30
   delay: 5
 
-- name: cp out of pod
-  kubernetes.core.k8s_cp:
+- name: Check if grafana.db exists inside the pod yet
+  kubernetes.core.k8s_exec:
     namespace: iot
     pod: "{{ pod_list.resources[0].metadata.name }}"
-    remote_path: /var/lib/grafana/grafana.db
-    local_path: "{{ playbook_dir }}/grafana.db"
-    state: from_pod
-  when: fresh
-            
-- name: cp in to pod
-  kubernetes.core.k8s_cp:
+    command: test -f /var/lib/grafana/grafana.db
+  register: grafana_db_check
+  failed_when: false
+
+- name: Copy grafana.db to backup location
+  kubernetes.core.k8s_exec:
     namespace: iot
     pod: "{{ pod_list.resources[0].metadata.name }}"
-    local_path: "{{ playbook_dir }}/grafana.db"
-    remote_path: /var/lib/grafana/backup/
-    state: to_pod
+    command: cp /var/lib/grafana/grafana.db /var/lib/grafana/backup/grafana.db
+  when: grafana_db_check.rc == 0
 
 - name: delete step1 deployment manifest
   kubernetes.core.k8s:

@@ -1,0 +1,13 @@
+- name: Trigger GitHub Actions build with DEBUG_FORCE_APPS
+  uri:
+    url: "https://api.github.com/repos/{{ github_owner }}/{{ github_repo }}/dispatches"
+    method: POST
+    headers:
+      Accept: "application/vnd.github+json"
+      Authorization: "token {{ github_token }}"
+    body_format: json
+    body:
+      event_type: "trigger-build"
+      client_payload:
+        DEBUG_FORCE_APPS: "false"
+    status_code: 204

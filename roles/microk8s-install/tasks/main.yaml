@@ -24,13 +24,13 @@
 
 - name: Copy ca.crt to /var/snap/microk8s/current/certs/cadir/
   ansible.builtin.copy:
-    src: /usr/local/share/ca-certificates/ca.crt
+    src: "{{ ca_base_path }}/{{ ca_cert_name }}"
     dest: /var/snap/microk8s/current/certs/cadir/ca.crt
   when: new_ca == true
 
 - name: Copy ca.key to /var/snap/microk8s/current/certs/cadir/
   ansible.builtin.copy:
-    src: /usr/local/share/ca-certificates/ca.key
+    src: "{{ ca_base_path }}/{{ ca_key_name }}"
     dest: /var/snap/microk8s/current/certs/cadir/ca.key
   when: new_ca == true
 

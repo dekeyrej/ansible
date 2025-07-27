@@ -4,7 +4,7 @@
 
 #=== Create Proxmox container for MagicMirror2 ===
 - name: Create Proxmox container
-  hosts: localhost   # executed on Manwë
+  hosts: iluvatar   # executed on Manwë
   vars:
     host_group: watchers
     pool: Lothlorien
@@ -31,7 +31,7 @@
   become: yes
   tags: install
   roles:
-    - role: apt-nodejs-add-source
+    - role: apt-add-source-nodejs
     - role: apt-update-all
     - role: apt-add-packages
       vars:

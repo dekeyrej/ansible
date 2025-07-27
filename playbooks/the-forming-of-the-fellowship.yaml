@@ -4,7 +4,8 @@
 # Assumes: CA is created, Vault is initialized, and Proxmox VMs are provisioned (all in 00_proxmox.yaml)
 #=== Provision VMs to be microceph/microk8s cluster nodes ===#
 - name: Provision Proxmox VM hosts for Kubernetes cluster
-  hosts: localhost   # executed on Manwë
+  hosts: iluvatar   # executed on Manwë
+  tags: fellowship:provision
   vars:
     host_group: fellowship
     pool: Lothlorien
@@ -19,6 +20,7 @@
 # wait for the VMs to settle...
 - name: Wait for Container to become reachable
   hosts: fellowship
+  tags: fellowship:provision
   gather_facts: no
   tasks:
     - name: Wait for SSH to come up
@@ -36,6 +38,7 @@
 
 - name: Prepare nodes - Part 1 (create microceph cluster and install microk8s)
   hosts: fellowship
+  tags: fellowship:install
   become: yes
   vars_files:
     - ceph_disk_list.yaml
@@ -51,6 +54,7 @@
                            
 - name: Prepare nodes - Part 2 (create microk8s cluster)
   hosts: friends
+  tags: fellowship:assemble
   serial: 1
   become: yes
   roles:
@@ -58,12 +62,14 @@
 
 - name: Prepare nodes - Part 3 (configure microk8s cluster)
   hosts: fellowship
+  tags: fellowship:configure
   become: yes
   roles:
     - role: microk8s-configure   # add task to add IP SANs for kubeapi.local, 192.168.86.90 to the server.crt on each node!
 
 - name: Deploy cluster services (add-ons, pull kubeconfig, redis)
   hosts: aragorn
+  tags: fellowship:services
   become: no
   roles:
     - role: microk8s-enable-addons       # affected by group_vars-all-ceph_enabled == true
@@ -73,20 +79,24 @@
     
 - name: Configure vault support kubernetes authentication and transit secrets
   hosts: localhost
+  tags: fellowship:kubevault
   become: no
   roles:
     - role: vault-configure-for-kubevault
 
 - name: Build recryptonator image
   hosts: celebrimbor
+  tags: fellowship:recryptonatorbuild
   become: no
   roles:
     - role: kubernetes-recryptonator-build
 
 - name: Deploy application microservices, API and webdisplay
   hosts: aragorn
+  tags: fellowship:deploy
   become: no
   roles:
+    - role: microservice-build-check
     - role: kubernetes-encryptonator-build
     - role: kubernetes-secrets-bootstrap
     - role: kubernetes-manifests-sync

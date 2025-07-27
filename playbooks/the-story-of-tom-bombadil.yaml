@@ -1,6 +1,6 @@
 ---
 - name: Provision Proxmox VM hosts for Bombadil
-  hosts: localhost   # executed on Manwë
+  hosts: iluvatar   # executed on Manwë
   vars:
     host_group: sidequest
     pool: Mirkwood

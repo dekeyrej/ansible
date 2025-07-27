@@ -1,0 +1,49 @@
+manifests:
+  kvupdater:
+    - https://github.com/dekeyrej/kv-updater/blob/main/kv-updater.yaml
+  apiserver:
+    - https://github.com/dekeyrej/apiserver/blob/main/apiserver-deployment.yaml
+    - https://github.com/dekeyrej/apiserver/blob/main/apiserver-service.yaml
+    - https://github.com/dekeyrej/apiserver/blob/main/apiserver-ingress.yaml
+  microservices:
+    - https://github.com/dekeyrej/microservicematrix/blob/main/yaml/aqi.yaml
+    - https://github.com/dekeyrej/microservicematrix/blob/main/yaml/events.yaml
+    - https://github.com/dekeyrej/microservicematrix/blob/main/yaml/github.yaml
+    - https://github.com/dekeyrej/microservicematrix/blob/main/yaml/mlb.yaml
+    - https://github.com/dekeyrej/microservicematrix/blob/main/yaml/moon.yaml
+    - https://github.com/dekeyrej/microservicematrix/blob/main/yaml/mycal.yaml
+    - https://github.com/dekeyrej/microservicematrix/blob/main/yaml/nfl.yaml
+    - https://github.com/dekeyrej/microservicematrix/blob/main/yaml/weather.yaml
+  webdisplay:
+    - https://github.com/dekeyrej/nodewebdisplay/blob/main/webdisplay-deployment.yaml
+    - https://github.com/dekeyrej/nodewebdisplay/blob/main/webdisplay-service.yaml
+    - https://github.com/dekeyrej/nodewebdisplay/blob/main/webdisplay-ingress.yaml
+  iot:
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/iot.yaml
+  mosquitto:
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/mosquitto/mosquitto-config.yaml
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/mosquitto/mosquitto-deployment.yaml
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/mosquitto/mosquitto-service.yaml
+  influxdb:
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/influxdb/influxdb-config.yaml
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/influxdb/influxdb-secrets.yaml
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/influxdb/influxdb-data.yaml
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/influxdb/influxdb-deployment.yaml
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/influxdb/influxdb-service.yaml
+  telegraf:
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/telegraf/telegraf-config.yaml
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/telegraf/telegraf-secrets.yaml
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/telegraf/telegraf-deployment.yaml
+  grafana-common:
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/grafana/grafana-config.yaml
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/grafana/grafana-data.yaml
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/grafana/grafana-datasources.yaml
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/grafana/grafana-dashboards.yaml
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/grafana/grafana-dashboard.yaml
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/grafana/grafana-service.yaml
+  grafana-step1:
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/grafana/grafana-deployment-step1.yaml
+  grafana-step2:
+    - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/grafana/grafana-deployment.yaml
+  recryptonator:
+    - https://github.com/dekeyrej/secretmanager/blob/main/examples/recryptonator/recryptonator-cronjob.yaml

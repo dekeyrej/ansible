@@ -30,7 +30,7 @@
 
 - name: copy in ca.crt
   ansible.builtin.copy:
-    src: /home/ubuntu/ca.crt
+    src: /usr/local/share/ca-certificates/ca.crt
     dest: "{{ base_dir }}"
 
 #=== edit the individual fetched files, as required ===#

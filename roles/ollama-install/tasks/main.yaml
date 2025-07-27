@@ -14,7 +14,7 @@
   ansible.builtin.apt:
     pkg:
       - nvidia-container-toolkit
-      # - nvidia-driver-575
+      - nvidia-driver-575
     state: present
     update_cache: yes
 

@@ -1,6 +1,7 @@
 ---
 - name: Provision Proxmox VM host for Celebrimbor
-  hosts: localhost   # executed on Manwë
+  hosts: iluvatar   # executed on Manwë
+  tags: builder:provision
   vars:
     host_group: builder
     pool: Lothlorien
@@ -15,6 +16,7 @@
 # wait for the container(s) to settle...
 - name: Wait for VM to become reachable
   hosts: celebrimbor
+  tags: builder:provision
   gather_facts: no
   tasks:
     - name: Wait for SSH to come up
@@ -25,6 +27,7 @@
 
 - name: Setup Celebrimbor
   hosts: celebrimbor
+  tags: builder:setup
   become: yes
   roles:
     - role: certificate-authority-copy-to-host

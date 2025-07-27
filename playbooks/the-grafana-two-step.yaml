@@ -1,0 +1,5 @@
+- name: Execut the Grafana Two-Step
+  hosts: aragorn
+  become: no
+  roles:
+    - role: kubernetes-grafana-deploy
