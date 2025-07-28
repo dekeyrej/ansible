@@ -35,7 +35,7 @@
     - role: apt-update-all
     - role: apt-add-packages
       vars:
-        packages: [buildah, podman, podman-docker, skopeo]
+        packages: [qemu-guest-agent, buildah, podman, podman-docker, skopeo]
     - role: kubernetes-kubectl-install
   tasks:
     - name: inject github token into ubuntu's .bashrc
