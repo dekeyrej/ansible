@@ -1,19 +1,30 @@
-- name: Get latest workflow run
-  uri:
-    url: "https://api.github.com/repos/{{ github_owner }}/{{ github_repo }}/actions/runs?branch=main"
-    method: GET
-    headers:
-      Authorization: "token {{ github_token }}"
-      Accept: "application/vnd.github+json"
-  register: workflow_runs
+- name: read rebuild intent
+  ansible.builtin.slurp: /home/repos/microservicematrix/.rebuild_intent
+  delegate_to: localhost
+  register: raw_intent
 
-- name: Fail if latest build is not successful
-  fail:
-    msg: "Microservicematrix build failed or not completed yet."
-  when: >
-    workflow_runs.json.workflow_runs[0].status != "completed" or
-    workflow_runs.json.workflow_runs[0].conclusion != "success"
+- name: parse intent
+  ansible.builtin.set_fact:
+    rebuild: "{{ raw_intent.content | b64decode | from_yaml }}"
 
-- name: It passed?
-  debug:
-    var: workflow_runs.json.workflow_runs[0].conclusion
+- block:
+  - name: Get latest workflow run
+    ansible.builtin.uri:
+      url: "https://api.github.com/repos/{{ github_owner }}/{{ github_repo }}/actions/runs?branch=main"
+      method: GET
+      headers:
+        Authorization: "token {{ github_token }}"
+        Accept: "application/vnd.github+json"
+    register: workflow_runs
+
+  - name: Fail if latest build is not successful
+    ansible.builtin.fail:
+      msg: "Microservicematrix build failed or not completed yet."
+    when: >
+      workflow_runs.json.workflow_runs[0].status != "completed" or
+      workflow_runs.json.workflow_runs[0].conclusion != "success"
+
+  - name: It passed?
+    ansible.builtin.debug:
+      var: workflow_runs.json.workflow_runs[0].conclusion
+  when: rebuild

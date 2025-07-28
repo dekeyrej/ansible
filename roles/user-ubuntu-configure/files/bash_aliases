@@ -1,0 +1,4 @@
+alias ap='ansible-playbook'
+alias h='history'
+alias pct='ssh iluvatar pct'
+alias qm='ssh iluvatar qm'

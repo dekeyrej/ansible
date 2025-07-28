@@ -1,0 +1,5 @@
+- name: test user-ubuntu-configure role
+  hosts: manwe
+  connection: local
+  roles:
+    - role: user-ubuntu-configure

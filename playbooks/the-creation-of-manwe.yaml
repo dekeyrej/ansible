@@ -46,6 +46,7 @@
   tags: manwe:setup2
   become: false
   roles:
+    - role: user-ubuntu-configure
     - role: host-ssh-keys-set               # Sets ssh-keys to pre-GitHub-registered keys
     - role: git-global-configure
     - role: git-clone-repositories          # Receives the Song of Creation from Ilúvatar

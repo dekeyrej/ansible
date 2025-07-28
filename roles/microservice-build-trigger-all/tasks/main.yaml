@@ -1,33 +1,54 @@
-- name: Copy new ca.crt to microservicematrix utilities
-  copy:
-    src: "/usr/local/share/ca-certificates/ca.crt"
-    dest: "~/repos/microservicematrix/utilities/ca.crt"
-    remote_src: true
-    mode: '0644'
+- name: Get SHA256 of deployed CA certificate
+  ansible.builtin.command: sha256sum /home/ubuntu/certificate_authority/ca-certificate.pem
+  register: deployed_cert_hash
+  changed_when: false
 
-- name: Git add and commit ca.crt
-  shell: |
-    git add .
-    git commit -m "Updating ca.crt" || echo "Nothing to commit"
-  args:
-    chdir: "~/repos/microservicematrix"
+- name: Get SHA256 of reference CA certificate
+  ansible.builtin.command: sha256sum /home/repos/microservicematrix/examples/ca.crt
+  register: reference_cert_hash
+  changed_when: false
 
-- name: Git push to origin main
-  command: git push origin main
-  args:
-    chdir: "~/repos/microservicematrix"
+- name: Set rebuild flag based on hash comparison
+  ansible.builtin.set_fact:
+    rebuild: "{{ deployed_cert_hash.stdout.split()[0] != reference_cert_hash.stdout.split()[0] }}"
 
-- name: Trigger GitHub Actions build with DEBUG_FORCE_APPS
-  uri:
-    url: "https://api.github.com/repos/{{ github_owner }}/{{ github_repo }}/dispatches"
-    method: POST
-    headers:
-      Accept: "application/vnd.github+json"
-      Authorization: "token {{ github_token }}"
-    body_format: json
-    body:
-      event_type: "rebuild-all"
-      client_payload:
-        DEBUG_FORCE_APPS: "true"
-    status_code: 204
-  # delegate_to: localhost
+- name: record rebuild intent
+  ansible.builtin.copy:
+    dest: /home/repos/microservicematrix/.rebuild_intent
+    content: |
+      rebuild_required: {{ rebuild }}
+
+- block:
+  - name: Copy new ca.crt to microservicematrix utilities
+    ansible.builtin.copy:
+      src: "/usr/local/share/ca-certificates/ca.crt"
+      dest: "~/repos/microservicematrix/utilities/ca.crt"
+      remote_src: true
+      mode: '0644'
+
+  - name: Git add and commit ca.crt
+    ansible.builtin.shell: |
+      git add .
+      git commit -m "Updating ca.crt" || echo "Nothing to commit"
+    args:
+      chdir: "~/repos/microservicematrix"
+
+  - name: Git push to origin main
+    ansible.builtin.command: git push origin main
+    args:
+      chdir: "~/repos/microservicematrix"
+
+  - name: Trigger GitHub Actions build with DEBUG_FORCE_APPS
+    ansible.builtin.uri:
+      url: "https://api.github.com/repos/{{ github_owner }}/{{ github_repo }}/dispatches"
+      method: POST
+      headers:
+        Accept: "application/vnd.github+json"
+        Authorization: "token {{ github_token }}"
+      body_format: json
+      body:
+        event_type: "rebuild-all"
+        client_payload:
+          DEBUG_FORCE_APPS: "true"
+      status_code: 204
+  when: rebuild

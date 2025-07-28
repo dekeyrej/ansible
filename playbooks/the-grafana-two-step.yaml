@@ -1,4 +1,4 @@
-- name: Execut the Grafana Two-Step
+- name: Execute the Grafana Two-Step
   hosts: aragorn
   become: no
   roles:

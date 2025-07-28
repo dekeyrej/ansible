@@ -9,6 +9,7 @@
 # role defaults: organization: Sierra Lane
 # role defaults: organizational_unit: Infrastructure Services
 # role defaults: common_name: My CA
+# role defaults: force: false
 ---
 - name: Create certificate_authority directory, if it doesn't exist
   ansible.builtin.file:
@@ -18,38 +19,50 @@
     group: root
     mode: '0700'
 
-- name: Create private key with password protection
-  community.crypto.openssl_privatekey:
-    path: "{{ ca_base_path }}/{{ ca_key_name }}"
+- name: copy archived cert, key, and metedata into directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ ca_base_path }}"
+  loop:
+    - ca-certificate.pem
+    - ca-certificate.key
+    - ca-certificate.pem.meta.yaml
+  when: not force
 
-- name: Create certificate signing request (CSR) for CA certificate
-  community.crypto.openssl_csr_pipe:
-    privatekey_path: "{{ ca_base_path }}/{{ ca_key_name }}"
-    ### (optional) Subject keys
-    country_name: "{{ country }}"
-    state_or_province_name: "{{ state }}"
-    locality_name: "{{ locality }}"
-    organization_name: "{{ organization }}"
-    organizational_unit_name: "{{ organizational_unit }}"
-    ### End (optional) Subject keys
-    common_name: "{{ common_name }}"
-    use_common_name_for_san: false
-    basic_constraints:
-      - 'CA:TRUE'
-    basic_constraints_critical: true
-    key_usage:
-      - digitalSignature
-      - keyCertSign
-      - cRLSign                  # Vault specific key requirement
-    key_usage_critical: true
-  register: ca_csr
+- block:
+  - name: Create private key with password protection
+    community.crypto.openssl_privatekey:
+      path: "{{ ca_base_path }}/{{ ca_key_name }}"
 
-- name: Create self-signed CA certificate from CSR
-  community.crypto.x509_certificate:
-    path: "{{ ca_base_path }}/{{ ca_cert_name }}"
-    csr_content: "{{ ca_csr.csr }}"
-    privatekey_path: "{{ ca_base_path }}/{{ ca_key_name }}"
-    provider: selfsigned
+  - name: Create certificate signing request (CSR) for CA certificate
+    community.crypto.openssl_csr_pipe:
+      privatekey_path: "{{ ca_base_path }}/{{ ca_key_name }}"
+      ### (optional) Subject keys
+      country_name: "{{ country }}"
+      state_or_province_name: "{{ state }}"
+      locality_name: "{{ locality }}"
+      organization_name: "{{ organization }}"
+      organizational_unit_name: "{{ organizational_unit }}"
+      ### End (optional) Subject keys
+      common_name: "{{ common_name }}"
+      use_common_name_for_san: false
+      basic_constraints:
+        - 'CA:TRUE'
+      basic_constraints_critical: true
+      key_usage:
+        - digitalSignature
+        - keyCertSign
+        - cRLSign                  # Vault specific key requirement
+      key_usage_critical: true
+    register: ca_csr
+
+  - name: Create self-signed CA certificate from CSR
+    community.crypto.x509_certificate:
+      path: "{{ ca_base_path }}/{{ ca_cert_name }}"
+      csr_content: "{{ ca_csr.csr }}"
+      privatekey_path: "{{ ca_base_path }}/{{ ca_key_name }}"
+      provider: selfsigned
+  when: force
 
 - name: install new CA locally
   ansible.builtin.copy:

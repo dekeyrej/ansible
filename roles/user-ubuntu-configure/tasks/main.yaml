@@ -1,0 +1,36 @@
+- name: check if .bash_aliases exists
+  stat:
+    path: /home/ubuntu/.bash_aliases
+  register: aliases_stat
+
+- name: copy bash_aliases ~/.bash_alliases, if it doesn't exists
+  copy:
+    src: bash_aliases
+    dest: /home/ubuntu/.bash_aliases
+  when: not aliases_stat.stat.exists
+
+- name: check if .bash_arda exists
+  stat:
+    path: /home/ubuntu/.bash_arda
+  register: arda_stat
+
+- name: create ~/.bash_arda if it doesn't exist
+  vars:
+    arda: |
+      export VAULT_ADDR={{ vault_addr }}
+      export GITHUB_TOKEN={{ github_token }}
+  copy:
+    content: "{{ arda }}"
+    dest: /home/ubuntu/.bash_arda
+  when: not arda_stat.stat.exists
+
+- name: append a block of content to ~/.bashrc
+  blockinfile:
+    path: /home/ubuntu/.bashrc
+    insertbefore: EOF
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: Arda environment"
+    block: |
+      # load a couple of Arda specific environment variables
+      if [ -f ~/.bash_arda ]; then
+          . ~/.bash_arda
+      fi
