@@ -1,0 +1,14 @@
+role_name: kubernetes-kubegres-deploy
+status: 💤 Dormant
+short_description: Deploys PostgreSQL via Kubegres
+description: Deploys PostgreSQL via Kubegres
+long_description: Creates kubegres namespace, and applies secrets, configuration statefulset and service manifests
+dependencies:
+called_by:
+topic: Kubernetes & MicroK8s
+subtopic: Workloads
+tags: 
+  - db
+  - k8s
+tested: ✅
+idempotent: ✅

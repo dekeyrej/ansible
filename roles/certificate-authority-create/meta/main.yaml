@@ -1,0 +1,15 @@
+role_name: certificate-authority-create
+status: ✅ Active 
+short_description: Generate ca-certificate and private key
+description: Initializes RFC 5280 CA
+long_description: Python 3.13+ requires an RFC 5280 compliant CA to access TLS resources.  This role fulfills this requirement.
+dependencies: 
+called_by:
+  - the-creation-of-manwe
+topic: Certificate Authority & Secrets
+subtopic:
+tags: 
+  - ca
+  - security
+tested: ✅
+idempotent: ✅

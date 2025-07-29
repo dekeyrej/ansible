@@ -1,0 +1,16 @@
+role_name: certificate-authority-generate-certs
+status: ✅ Active 
+short_description: Generates server TLS certificate
+description: Generates and installs TLS certficate with IP SANs
+long_description: Generates an RFC 2818 compliant TLS certificate and private key for a server, and installs them at the specified location, and with the specified owner, group, and permissions.
+dependencies: 
+  - certificate-authority-create
+called_by:
+  - the-delving-of-moria
+topic: Certificate Authority & Secrets
+subtopic: 
+tags: 
+  - ca
+  - tls
+tested: ✅
+idempotent: ✅

@@ -1,0 +1,12 @@
+role_name: apt-update-all
+status: Unknown
+short_description: No description provided
+description: No description provided
+long_description: No long description provided
+dependencies: []
+called_by: []
+topic: ''
+subtopic: ''
+tags: []
+tested: false
+idempotent: false

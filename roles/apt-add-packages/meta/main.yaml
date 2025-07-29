@@ -1,0 +1,14 @@
+role_name: apt-add-packages
+status: ✅ Active 
+short_description: Wraps ansible.builtin.apt into a role
+description: Installs system packages
+long_description: I really liked how tidy roles made my playbooks, so I took a simple call and wrapped it into a role
+dependencies:
+called_by:
+topic: Core System Setup
+subtopic:
+tags: 
+  - apt
+  - core
+tested: ✅
+idempotent: ✅

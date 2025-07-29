@@ -1,0 +1,14 @@
+role_name: proxmox-node-setup
+status: ❌ Deprecated
+short_description: Prepares PVE node for ansible control
+description: replaced by `creation.sh`
+long_description: no longer in use
+dependencies:
+called_by:
+topic: Experimental & Deprecated
+subtopic:
+tags: 
+  - infra
+  - proxmox
+tested: ✅
+idempotent: ✅

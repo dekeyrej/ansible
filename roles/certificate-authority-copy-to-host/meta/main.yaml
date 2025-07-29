@@ -1,0 +1,18 @@
+role_name: certificate-authority-copy-to-host
+status: ✅ Active 
+short_description: Install CA into trust store
+description: Distributes CA files
+long_description: Copies ca-certificate.pem from Manwë to /usr/local/share/ca-certificates, and runs `update-ca-certificates`. Required for any host requiring access to Moria (HashiCorp Vault container)
+dependencies: 
+  - certificate-authority-create
+called_by:
+  - the-delving-of-moria
+  - the-forming-of-the-fellowship
+  - the-birth-of-celebrimbor
+topic: Certificate Authority & Secrets
+subtopic:
+tags: 
+  - ca
+  - security
+tested: ✅
+idempotent: ✅
