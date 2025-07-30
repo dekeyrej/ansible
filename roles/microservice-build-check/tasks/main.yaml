@@ -1,5 +1,6 @@
 - name: read rebuild intent
-  ansible.builtin.slurp: /home/repos/microservicematrix/.rebuild_intent
+  ansible.builtin.slurp: 
+    src: /home/ubuntu/repos/microservicematrix/.rebuild_intent
   delegate_to: localhost
   register: raw_intent
 

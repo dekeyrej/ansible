@@ -13,7 +13,7 @@ def get_ansible_roles(ansible_project_path):
     for role_name in os.listdir(roles_path):
         role_dir = os.path.join(roles_path, role_name)
         if os.path.isdir(role_dir):
-            meta_file = os.path.join(role_dir, 'meta', 'main.yaml')
+            meta_file = os.path.join(role_dir, 'meta', 'data.yaml')
             if os.path.exists(meta_file):
                 with open(meta_file, 'r') as f:
                     meta_data = yaml.safe_load(f)

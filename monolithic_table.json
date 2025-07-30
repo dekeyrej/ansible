@@ -1,0 +1,191 @@
+{
+  "certificate-authority-copy-to-host": {
+    "Role Name": "`certificate-authority-copy-to-host`",
+    "Description": "Copies CA files to target hosts.",
+    "Called In": [
+      "the-forming-of-the-fellowship",
+      "the-delving-of-moria"
+    ],
+    "Depends On": [
+      "certificate-authority-create"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "certificate-authority-generate-certs": {
+    "Role Name": "`certificate-authority-generate-certs`",
+    "Description": "Issues RFC 2818 compliant certs and keys from the CA with IP SANs.",
+    "Called In": [
+      "the-forming-of-the-fellowship",
+      "the-delving-of-moria"
+    ],
+    "Depends On": [
+      "certificate-authority-create"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "will overwrite key/crt"
+  },
+  "ghcr-secret-create": {
+    "Role Name": "`ghcr-secret-create`",
+    "Description": "Creates Docker registry secrets for GitHub Container Registry.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "microk8s-install"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "kubernetes-secrets-bootstrap": {
+    "Role Name": "`kubernetes-secrets-bootstrap`",
+    "Description": "Bootstraps secrets for Kubernetes workloads.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "vault-configure-for-kubevault",
+      "kubernetes-fetch-config"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "intentionally overwrites existing secret"
+  },
+  "kubernetes-fetch-config": {
+    "Role Name": "`kubernetes-fetch-config`",
+    "Description": "Retrieves kubeconfig files from cluster nodes.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "microk8s-configure"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "No"
+  },
+  "kubernetes-microservices-deploy": {
+    "Role Name": "`kubernetes-microservices-deploy`",
+    "Description": "Deploys kv-updater, apiserver, microservices and webdisplay to Kubernetes.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "microk8s-enable-addons",
+      "kubernetes-manifests-sync"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "kubernetes-mqtt-telegraf-influxdb-deploy": {
+    "Role Name": "`kubernetes-mqtt-telegraf-influxdb-deploy`",
+    "Description": "Deploys IOT backend services to Kubernetes.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "microk8s-enable-addons",
+      "kubernetes-manifests-sync"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "kubernetes-grafana-deploy": {
+    "Role Name": "`kubernetes-grafana-deploy`",
+    "Description": "Deploys IOT frontend grafana service to Kubernetes.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "microk8s-enable-addons",
+      "kubernetes-manifests-sync"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "No*"
+  },
+  "magic-mirror-install": {
+    "Role Name": "`magic-mirror-install`",
+    "Description": "Installs MagicMirror\u00b2 on target hosts.",
+    "Called In": [
+      "the-coming-of-stormcrow"
+    ],
+    "Depends On": [
+      "apt-nodejs-add-source"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "No"
+  },
+  "magic-mirror-update": {
+    "Role Name": "`magic-mirror-update`",
+    "Description": "Updates MagicMirror\u00b2 modules and config.",
+    "Called In": [
+      "the-coming-of-stormcrow"
+    ],
+    "Depends On": [
+      "magic-mirror-install"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "No"
+  },
+  "microk8s-assemble-cluster": {
+    "Role Name": "`microk8s-assemble-cluster`",
+    "Description": "Assembles a MicroK8s cluster from nodes.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "microk8s-install"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "fails on existing cluster"
+  },
+  "microk8s-configure": {
+    "Role Name": "`microk8s-configure`",
+    "Description": "Applies post-install configuration to MicroK8s.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "microk8s-assemble-cluster"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "No"
+  },
+  "nodejs-pm2-install": {
+    "Role Name": "`nodejs-pm2-install`",
+    "Description": "Installs PM2 process manager for Node.js apps.",
+    "Called In": [
+      "the-coming-of-stormcrow"
+    ],
+    "Depends On": [
+      "apt-nodejs-add-source"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "proxmox-container-create-cloud-init": {
+    "Role Name": "`proxmox-container-create-cloud-init`",
+    "Description": "Creates cloud-init enabled containers (ubuntu user).",
+    "Called In": [
+      "the-creation-of-manwe",
+      "the-delving-of-moria",
+      "the-coming-of-stormcrow"
+    ],
+    "Depends On": [
+      "proxmox-node-setup"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "vault-configure-for-kubevault": {
+    "Role Name": "`vault-configure-for-kubevault`",
+    "Description": "Prepares Vault for Kubernetes authentication and Transit encrypt/decypt as a Service supporting my KubeVault pattern from SecretManager.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "vault-initialize",
+      "microk8s-install"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "vault-auth secret"
+  }
+}

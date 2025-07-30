@@ -1,0 +1,4 @@
+- name: kick off microservicematrix builds in 'smart' mode
+  hosts: manwe
+  roles:
+    - role: microservice-build-trigger-selective
