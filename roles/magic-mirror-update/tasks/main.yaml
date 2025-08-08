@@ -2,16 +2,16 @@
 - name: pull updates to MagicMirror base
   ansible.builtin.shell:
     cmd: git pull
-    chdir: MagicMirror
+    chdir: /root/MagicMirror
 
 - name: install updates to MagicMirror2 base
   ansible.builtin.shell: 
     cmd: npm run install-mm 
-    chdir: MagicMirror/
+    chdir: /root/MagicMirror
 
 - name: Update modules
   include_tasks: update_modules.yaml
   loop: "{{ mmmodules }}"
 
 - name: use pm2 to restart server
-  ansible.builtin.shell: pm2 restart mmso.sh
+  ansible.builtin.shell: pm2 restart mmso

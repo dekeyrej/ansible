@@ -1,4 +1,77 @@
 {
+  "apt-add-packages": {
+    "Role Name": "`apt-add-packages`",
+    "Description": "Installs a list of system packages via APT. (Wraps ansible.builtin.apt in role)",
+    "Called In": [
+      "Several"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "apt-add-source-nodejs": {
+    "Role Name": "`apt-add-source-nodejs`",
+    "Description": "Adds Node.js APT source for version-controlled installs.",
+    "Called In": [
+      "the-coming-of-stormcrow",
+      "the-creation-of-manwe"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "apt-add-source-vault": {
+    "Role Name": "`apt-add-source-vault`",
+    "Description": "Adds HashiCorp Vault APT source.",
+    "Called In": [
+      "the-delving-of-moria"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "apt-update-all": {
+    "Role Name": "`apt-update-all`",
+    "Description": "Updates all APT package lists and upgrades installed packages.",
+    "Called In": [
+      "Several"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "book-of-creation-delivery": {
+    "Role Name": "`book-of-creation-delivery`",
+    "Description": "Places `vault.password` in the root of the ansible repository.",
+    "Called In": [
+      "the creation-of-manwe"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "un-tested",
+    "Idempotent": "Partial"
+  },
+  "certificate-authority-create": {
+    "Role Name": "`certificate-authority-create`",
+    "Description": "Initializes a new RFC 5280 compliant certificate authority.",
+    "Called In": [
+      "the-creation-of-manwe"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
   "certificate-authority-copy-to-host": {
     "Role Name": "`certificate-authority-copy-to-host`",
     "Description": "Copies CA files to target hosts.",
@@ -37,6 +110,66 @@
     "Tested": "Tested",
     "Idempotent": "Yes"
   },
+  "git-global-configure": {
+    "Role Name": "`git-global-configure`",
+    "Description": "Configures user's global git config (user.name, user.email).",
+    "Called In": [
+      "the-creation-of-manwe"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "host-ssh-keys-create": {
+    "Role Name": "`host-ssh-keys-create`",
+    "Description": "Creates ssh-keys for user, if they don't exist.",
+    "Called In": [
+      "the-creation-of-manwe"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "host-ssh-keys-set": {
+    "Role Name": "`host-ssh-keys-set`",
+    "Description": "Sets ssh-keys for user, if they don't exist.",
+    "Called In": [
+      "the-creation-of-manwe"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "kubernetes-kubectl-install": {
+    "Role Name": "`kubernetes-kubectl-install`",
+    "Description": "Installs latest kubectl binary.",
+    "Called In": [
+      "the-creation-of-manwe"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "No"
+  },
+  "kubernetes-encryptonator-build": {
+    "Role Name": "`kubernetes-encryptonator-build`",
+    "Description": "Builds executable used in `kubernetes-secrets-bootstrap`",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
   "kubernetes-secrets-bootstrap": {
     "Role Name": "`kubernetes-secrets-bootstrap`",
     "Description": "Bootstraps secrets for Kubernetes workloads.",
@@ -61,6 +194,42 @@
     ],
     "Tested": "Tested",
     "Idempotent": "No"
+  },
+  "kubernetes-kubegres-deploy": {
+    "Role Name": "`kubernetes-kubegres-deploy`",
+    "Description": "Deploys Kubegres for PostgreSQL HA in Kubernetes.",
+    "Called In": [
+      "''"
+    ],
+    "Depends On": [
+      "microk8s-enable-addons"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "kubernetes-redis-deploy": {
+    "Role Name": "`kubernetes-redis-deploy`",
+    "Description": "Deploys Redis workloads to Kubernetes. Note: group_vars/all/ceph_enabled.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "microk8s-enable-addons"
+    ],
+    "Tested": "''",
+    "Idempotent": "Yes"
+  },
+  "kubernetes-manifests-sync": {
+    "Role Name": "`kubernetes-manifests-sync`",
+    "Description": "Syncs manifests for components from across all of the source repos.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
   },
   "kubernetes-microservices-deploy": {
     "Role Name": "`kubernetes-microservices-deploy`",
@@ -101,6 +270,42 @@
     "Tested": "Tested",
     "Idempotent": "No*"
   },
+  "kubernetes-recryptonator-build": {
+    "Role Name": "`kubernetes-recryptonator-build`",
+    "Description": "Builds image for recryptonator, and pushed it to ghcr.io.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "No"
+  },
+  "kubernetes-recryptonator-deploy": {
+    "Role Name": "`kubernetes-recryptonator-deploy`",
+    "Description": "Deploys recryptonator image into Kubernetes cluster as a CronJob to rotate the Vault Transit key.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "kubernetes-tcp-ingresses-create": {
+    "Role Name": "`kubernetes-tcp-ingresses-create`",
+    "Description": "Creates TCP ingress rules for Kubernetes services.",
+    "Called In": [
+      "''"
+    ],
+    "Depends On": [
+      "microk8s-enable-addons"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
   "magic-mirror-install": {
     "Role Name": "`magic-mirror-install`",
     "Description": "Installs MagicMirror\u00b2 on target hosts.",
@@ -124,6 +329,42 @@
     ],
     "Tested": "Tested",
     "Idempotent": "No"
+  },
+  "matrix-database-create": {
+    "Role Name": "`matrix-database-create`",
+    "Description": "Creates the Postgres 'state' database for my matrix microservices.",
+    "Called In": [
+      "''"
+    ],
+    "Depends On": [
+      "kubernetes-kubegres-deploy"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "fails on existing database"
+  },
+  "microk8s": {
+    "Role Name": "`microk8s`",
+    "Description": "Meta-role for MicroK8s orchestration.",
+    "Called In": [
+      "''"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "No"
+  },
+  "microk8s-install": {
+    "Role Name": "`microk8s-install`",
+    "Description": "Installs MicroK8s on target hosts.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
   },
   "microk8s-assemble-cluster": {
     "Role Name": "`microk8s-assemble-cluster`",
@@ -149,6 +390,30 @@
     "Tested": "Tested",
     "Idempotent": "No"
   },
+  "microk8s-enable-addons": {
+    "Role Name": "`microk8s-enable-addons`",
+    "Description": "Enables MicroK8s addons (e.g. DNS, ingress). Note: group_vars/all/ceph_enabled.",
+    "Called In": [
+      "the-forming-of-the-fellowship"
+    ],
+    "Depends On": [
+      "microk8s-configure"
+    ],
+    "Tested": "''",
+    "Idempotent": "Yes"
+  },
+  "multipass": {
+    "Role Name": "`multipass`",
+    "Description": "Provisions Multipass VMs.",
+    "Called In": [
+      "not currently in use"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "''"
+  },
   "nodejs-pm2-install": {
     "Role Name": "`nodejs-pm2-install`",
     "Description": "Installs PM2 process manager for Node.js apps.",
@@ -157,6 +422,42 @@
     ],
     "Depends On": [
       "apt-nodejs-add-source"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "ollama-install": {
+    "Role Name": "`ollama-install`",
+    "Description": "Installs ollama and associated NVidia packages.",
+    "Called In": [
+      "the-vision-in-lothlorien"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "open-webui-install": {
+    "Role Name": "`open-webui-install`",
+    "Description": "Installs Open-WebUI LLM frontend.",
+    "Called In": [
+      "the-vision-in-lothlorien"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "proxmox-node-setup": {
+    "Role Name": "`proxmox-node-setup`",
+    "Description": "Prepares Proxmox nodes for automation.",
+    "Called In": [
+      "(deprecated - functions moved to creation.sh)"
+    ],
+    "Depends On": [
+      "''"
     ],
     "Tested": "Tested",
     "Idempotent": "Yes"
@@ -171,6 +472,78 @@
     ],
     "Depends On": [
       "proxmox-node-setup"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "proxmox-container-create": {
+    "Role Name": "`proxmox-container-create`",
+    "Description": "Creates LXC containers in Proxmox based on Proxmox container templates (root user only). (deprecated - replaced by `proxmox-container-create-cloud-init`)",
+    "Called In": [
+      "''"
+    ],
+    "Depends On": [
+      "proxmox-node-setup"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "proxmox-vm-create": {
+    "Role Name": "`proxmox-vm-create`",
+    "Description": "Creates virtual machines in Proxmox.",
+    "Called In": [
+      "Several"
+    ],
+    "Depends On": [
+      "''"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "proxmox-vm-create-template": {
+    "Role Name": "`proxmox-vm-create-template`",
+    "Description": "Creates reusable VM templates.",
+    "Called In": [
+      "''"
+    ],
+    "Depends On": [
+      "proxmox-node-setup"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "proxmox-vm-create-from-template": {
+    "Role Name": "`proxmox-vm-create-from-template`",
+    "Description": "Creates VMs from existing templates.",
+    "Called In": [
+      "''"
+    ],
+    "Depends On": [
+      "proxmox-vm-create-template"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "Yes"
+  },
+  "vault-configure": {
+    "Role Name": "`vault-configure`",
+    "Description": "Configures Vault policies, auth methods, auto-unseal, and secrets engines.",
+    "Called In": [
+      "the-delving-of-moria"
+    ],
+    "Depends On": [
+      "apt-vault-add-source"
+    ],
+    "Tested": "Tested",
+    "Idempotent": "''"
+  },
+  "vault-initialize": {
+    "Role Name": "`vault-initialize`",
+    "Description": "Initializes Vault and stores recovery keys.",
+    "Called In": [
+      "the-delving-of-moria"
+    ],
+    "Depends On": [
+      "vault-configure"
     ],
     "Tested": "Tested",
     "Idempotent": "Yes"
