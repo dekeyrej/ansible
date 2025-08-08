@@ -2,7 +2,6 @@ repo_base_path: /home/ubuntu/repos/encryptonator
 
 manifests:
   encryptonator:
-    - https://github.com/dekeyrej/secretmanager/blob/main/examples/encryptonator/encryptonator.py
-    - https://github.com/dekeyrej/secretmanager/blob/main/examples/vault_ssl_support/check_and_append_cacert.py
-    - https://github.com/dekeyrej/secretmanager/blob/main/secretmanager/secretmanager.py
+    - https://github.com/dekeyrej/secretmanager/blob/main/tools/encryptonator.py
+    - https://github.com/dekeyrej/secretmanager/blob/main/tools/check_and_append_cacert.py
     - https://github.com/dekeyrej/secretmanager/blob/main/requirements.txt

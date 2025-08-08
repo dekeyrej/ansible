@@ -1,7 +1,6 @@
 manifests:
   recryptonator:
-    - https://github.com/dekeyrej/secretmanager/blob/main/examples/recryptonator/recryptonator.py
-    - https://github.com/dekeyrej/secretmanager/blob/main/examples/recryptonator/Dockerfile
-    - https://github.com/dekeyrej/secretmanager/blob/main/examples/vault_ssl_support/check_and_append_cacert.py
-    - https://github.com/dekeyrej/secretmanager/blob/main/secretmanager/secretmanager.py
+    - https://github.com/dekeyrej/secretmanager/blob/main/tools/recryptonator.py
+    - https://github.com/dekeyrej/secretmanager/blob/main/Dockerfile
+    - https://github.com/dekeyrej/secretmanager/blob/main/tools/check_and_append_cacert.py
     - https://github.com/dekeyrej/secretmanager/blob/main/requirements.txt

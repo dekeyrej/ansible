@@ -34,16 +34,16 @@
     dest: "{{ base_dir }}"
 
 #=== edit the individual fetched files, as required ===#
-- name: edit recryptonator - remove 'sys.append.path...'
-  ansible.builtin.lineinfile:
-    path: "{{ base_dir }}/recryptonator.py"
-    regexp: '^sys.path.append'
-    state: absent
+# - name: edit recryptonator - remove 'sys.append.path...'
+#   ansible.builtin.lineinfile:
+#     path: "{{ base_dir }}/recryptonator.py"
+#     regexp: '^sys.path.append'
+#     state: absent
 
-- name: edit check_and_append_cacert.py - remove 'examples/vault_ssl_support/'
+- name: edit check_and_append_cacert.py - remove 'tools/certs/'
   ansible.builtin.replace:
     path: "{{ base_dir }}/check_and_append_cacert.py"
-    regexp: 'examples/vault_ssl_support/'
+    regexp: 'tools/certs/'
     replace: ''
 
 - name: edit Dockerfile - remove 'examples/vault_ssl_support/'
@@ -58,11 +58,11 @@
     regexp: 'examples/recryptonator/'
     replace: ''
 
-- name: edit Dockerfile - remove 'secretmanager/'
-  ansible.builtin.replace:
-    path: "{{ base_dir }}/Dockerfile"
-    regexp: 'secretmanager/'
-    replace: ''
+# - name: edit Dockerfile - remove 'secretmanager/'
+#   ansible.builtin.replace:
+#     path: "{{ base_dir }}/Dockerfile"
+#     regexp: 'secretmanager/'
+#     replace: ''
 
 #=== do buildah stuff using defaults ===#
 - name: assemble image name

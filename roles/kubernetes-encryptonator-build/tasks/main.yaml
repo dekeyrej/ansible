@@ -35,28 +35,28 @@
     dest: "{{ repo_base_path }}"
 
 #=== Edit the files as necessary to make this standalone ===#
-- name: edit encryptonator.py - remove 'sys.append.path...'
-  ansible.builtin.lineinfile:
-    path: "{{ repo_base_path }}/encryptonator.py"
-    regexp: '^sys.path.append'
-    state: absent
+# - name: edit encryptonator.py - remove 'sys.append.path...'
+#   ansible.builtin.lineinfile:
+#     path: "{{ repo_base_path }}/encryptonator.py"
+#     regexp: '^sys.path.append'
+#     state: absent
 
-- name: edit encryptonator.py - remove 'file_path'
-  ansible.builtin.lineinfile:
-    path: "{{ repo_base_path }}/encryptonator.py"
-    regexp: '^file_path'
-    state: absent
+# - name: edit encryptonator.py - remove 'file_path'
+#   ansible.builtin.lineinfile:
+#     path: "{{ repo_base_path }}/encryptonator.py"
+#     regexp: '^file_path'
+#     state: absent
 
-- name: edit encryptonator.py - change "ca.crt" to True
-  ansible.builtin.replace:
-    path: "{{ repo_base_path }}/encryptonator.py"
-    regexp:  '"ca.crt"'
-    replace: 'True    '
+# - name: edit encryptonator.py - change "ca.crt" to True
+#   ansible.builtin.replace:
+#     path: "{{ repo_base_path }}/encryptonator.py"
+#     regexp:  '"ca.crt"'
+#     replace: 'True    '
 
-- name: edit check_and_append_cacert.py - remove 'examples/vault_ssl_support/'
+- name: edit check_and_append_cacert.py - remove 'tools/certs/'
   ansible.builtin.replace:
     path: "{{ repo_base_path }}/check_and_append_cacert.py"
-    regexp: 'examples/vault_ssl_support/'
+    regexp: 'tools/certs/'
     replace: ''
 
 #=== check and setup venv as required ===#
@@ -71,6 +71,7 @@
       python3 -m venv venv
       source {{ repo_base_path }}/venv/bin/activate
       pip install -r requirements.txt
+      pip install dekeyrej-secretmanager
       pip install pyinstaller
       python check_and_append_cacert.py
     chdir: "{{ repo_base_path }}"
