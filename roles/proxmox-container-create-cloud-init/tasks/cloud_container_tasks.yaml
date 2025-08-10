@@ -1,10 +1,10 @@
 ---
-- name: "Assemble 'ip_info' for hostname: {{ item }}"
-  ansible.builtin.set_fact:
-    ip_info: >-
-      {{ (hostvars[item]['ansible_host'] + '/24,gw=' + gateway)
-         if 'ansible_host' in hostvars[item]
-         else 'dhcp' }}
+# - name: "Assemble 'ip_info' for hostname: {{ item }}"
+#   ansible.builtin.set_fact:
+#     ip_info: >-
+#       {{ (hostvars[item]['ansible_host'] + '/24,gw=' + gateway)
+#          if 'ansible_host' in hostvars[item]
+#          else 'dhcp' }}
 
 - name: Create Proxmox-VE Container with vmid
   community.general.proxmox:
@@ -21,7 +21,8 @@
     #   storage: "{{ diskpool }}"
     #   size: "{{ rootsize }}"
     netif:
-      net0: "name=eth0,bridge={{ bridge }},ip={{ ip_info }}"
+      net0: "name=eth0,bridge={{ bridge }},type=veth"
+      # net0: "name=eth0,bridge={{ bridge }},ip={{ ip_info }}"
     unprivileged: "{{ unprivileged }}" 
     onboot: "{{ onboot }}"
     pool: "{{ pool }}"
@@ -46,7 +47,8 @@
     #   storage: "{{ diskpool }}"
     #   size: "{{ rootsize }}"
     netif:
-      net0: "name=eth0,bridge={{ bridge }},ip={{ ip_info }}"
+      net0: "name=eth0,bridge={{ bridge }},type=veth"
+      # net0: "name=eth0,bridge={{ bridge }},ip={{ ip_info }}"
     unprivileged: "{{ unprivileged }}" 
     onboot: "{{ onboot }}"
     pool: "{{ pool }}"
@@ -97,6 +99,14 @@
     owner: 100000
     group: 100000
 
+- name: copy 00-eth0.network to container's mounted rootfs
+  ansible.builtin.template:
+    src: 00-eth0.network.j2
+    dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/etc/systemd/network/00-eth0.network"
+    owner: 100000
+    group: 100000
+  when: 'ansible_host' in hostvars[item]
+
 - name: copy user-data to container's mounted rootfs
   ansible.builtin.template:
     src: user-data.j2
@@ -104,7 +114,7 @@
     owner: 100000
     group: 100000
 
-- name: copy meta-data to container's mounted rootfs
+- name: copy 90_nocloud.cfg to container's mounted rootfs
   ansible.builtin.copy:
     src: 90_nocloud.cfg
     dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/etc/cloud/cloud.cfg.d/90_nocloud.cfg"

@@ -1,7 +1,10 @@
 - name: Remove stale SSH keys
   ansible.builtin.shell: ssh-keygen -R {{ item }}
+  delegate_to: localhost
   loop: "{{ groups[host_group] }}"
+
   
 - name: Remove stale SSH keys
   ansible.builtin.shell: ssh-keygen -R {{ hostvars[item].ansible_host | default('') }}
+  delegate_to: localhost
   loop: "{{ groups[host_group] }}"
