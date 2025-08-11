@@ -1,36 +1,14 @@
 - name: Create Proxmox container
   hosts: iluvatar   # executed on Manwë
   vars:
-    host_group: test
+    host_group: mixedkvm
     pool: Mirkwood
   tags: provision
   roles:
     - role: known-hosts-clear
-    - role: proxmox-container-create-cloud-init
-      vars:
-        # ostype: debian
-        # template: local:vztmpl/debian-13-latest_13.0_amd64.tar.xz
-        # base_url: https://images.linuxcontainers.org/images/debian/trixie/amd64/cloud/
-        # target: debian-13-latest_13.0_amd64.tar.xz
-    
-    
-    
-    
-    
-    # - role: proxmox-vm-create-9
+    # - role: proxmox-container-create-cloud-init
     #   vars:
-    #     osname: debian
-    #     # fetch_image
-    #     base_url: https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2
-    #     target: debian-13-genericcloud-amd64.qcow2
-    #     work_dir: /tmp/debian_diskimage_version_tracking
-    #     rootdisksize: 20G
-    #     diskimg: "{{ image_path }}/{{ target }}"
-        
-    
-
-# extracting archive '/var/lib/vz/template/cache/debian-13-latest_13.0_amd64.tar.xz'
-# Total bytes read: 573102080 (547MiB, 505MiB/s)
-# Detected container architecture: amd64
-# unable to open file '/etc/network/interfaces.tmp.503403' - No such file or directory
-# TASK ERROR: unable to create CT 108 - error in setup task PVE::LXC::Setup::post_create_hook
+    #     ostype: debian
+    #     base_url: https://images.linuxcontainers.org/images/debian/trixie/amd64/cloud/
+    #     target: debian-13-latest_13.0_amd64.tar.xz
+    - role: proxmox-vm-create

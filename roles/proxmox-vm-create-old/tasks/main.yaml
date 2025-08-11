@@ -1,6 +1,6 @@
 ---
-# - name: Fetch VM image if needed
-#   include_tasks: fetch_vm_image_tasks.yaml
+- name: Fetch VM image if needed
+  include_tasks: fetch_vm_image_tasks.yaml
 
 - name: Build the VM(s)
   include_tasks: vm_tasks.yaml

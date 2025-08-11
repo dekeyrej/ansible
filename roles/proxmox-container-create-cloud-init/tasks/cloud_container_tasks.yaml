@@ -85,41 +85,58 @@
 - name: mount the LXC container's rootfs
   ansible.builtin.shell: pct mount {{ resolved_vmid }}
 
+- name: Set owner_value based on 'unprivileged'
+  ansible.builtin.set_fact:
+    owner_value: >-
+      {{ 100000 if unprivileged else 0 }}
+
+- name: Set group_value based on 'unprivileged'
+  ansible.builtin.set_fact:
+    group_value: >-
+      {{ 100000 if unprivileged else 0 }}
+
 - name: create directory for cloud-init seed data
   ansible.builtin.file:
     path: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net"
     state: directory
-    owner: 100000                         # this chown/chgrp is necessary for unpriviledged containers.
-    group: 100000
+    owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
+    group: "{{ group_value }}"
 
 - name: copy meta-data to container's mounted rootfs
   ansible.builtin.template:
     src: meta-data.j2
     dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net/meta-data"
-    owner: 100000
-    group: 100000
+    owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
+    group: "{{ group_value }}"
 
 - name: copy 00-eth0.network to container's mounted rootfs
   ansible.builtin.template:
     src: 00-eth0.network.j2
     dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/etc/systemd/network/00-eth0.network"
-    owner: 100000
-    group: 100000
-  when: 'ansible_host' in hostvars[item]
+    owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
+    group: "{{ group_value }}"
+  when:  hostvars[item]['ansible_host'] is defined
+
+- name: copy network-config to container's mounted rootfs
+  ansible.builtin.template:
+    src: network-config.j2
+    dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net/network-config"
+    owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
+    group: "{{ group_value }}"
 
 - name: copy user-data to container's mounted rootfs
   ansible.builtin.template:
     src: user-data.j2
     dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net/user-data"
-    owner: 100000
-    group: 100000
+    owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
+    group: "{{ group_value }}"
 
 - name: copy 90_nocloud.cfg to container's mounted rootfs
   ansible.builtin.copy:
     src: 90_nocloud.cfg
     dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/etc/cloud/cloud.cfg.d/90_nocloud.cfg"
-    owner: 100000
-    group: 100000
+    owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
+    group: "{{ group_value }}"
 
 - name: delete cloud-init.disabled
   ansible.builtin.file:

@@ -1,14 +1,2 @@
 instance-id: ansible-lxc-{{ ostype }}
 local-hostname: {{ item }}
-network:
-  version: 2
-  ethernets:
-    eth0:
-      dhcp4: false
-      addresses:
-        - "{{ hostvars[item]['ansible_host'] }}/24"
-      gateway4: 192.168.86.1
-      nameservers:
-        addresses:
-          - 192.168.86.1
-          - 8.8.8.8

@@ -39,20 +39,19 @@
     api_host: "{{ api_host }}"
     vmid: "{{ hostvars[item]['vmid'] }}"
     disk: "{{ bootdiskname }}"
-    format: "{{ imageformat }}"
     storage: "{{ diskpool }}"
     import_from: "{{ diskimg }}"
 
-# - name: "Check vm disk size for VM {{ item }}, VMID: {{ hostvars[item]['vmid'] }}"
-#   community.general.proxmox_vm_info:
-#     api_user: "{{ api_user }}"
-#     api_password: "{{ api_password }}"
-#     api_host: "{{ api_host }}"
-#     vmid: "{{ hostvars[item]['vmid'] }}"
-#   register: vm_info
-#   until: vm_info.proxmox_vms is defined and vm_info.proxmox_vms[0].maxdisk | int > 0
-#   retries: 5
-#   delay: 2
+- name: "Check vm disk size for VM {{ item }}, VMID: {{ hostvars[item]['vmid'] }}"
+  community.general.proxmox_vm_info:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ api_host }}"
+    vmid: "{{ hostvars[item]['vmid'] }}"
+  register: vm_info
+  until: vm_info.proxmox_vms is defined and vm_info.proxmox_vms[0].maxdisk | int > 0
+  retries: 5
+  delay: 2
   
 - name: "Resize boot disk for VM {{ item }}, VMID: {{ hostvars[item]['vmid'] }}"
   community.general.proxmox_disk:
@@ -61,8 +60,7 @@
     api_host: "{{ api_host }}"
     vmid: "{{ hostvars[item]['vmid'] }}"
     disk: "{{ bootdiskname }}"
-    # size: "{{ diskincrement }}"
-    size: "{{ rootdisksize }}"
+    size: "{{ diskincrement }}"
     state: resized
-  # when: vm_info.proxmox_vms[0].maxdisk | int < 5000000000  # 5GB - base image  is about 3.5G
+  when: vm_info.proxmox_vms[0].maxdisk | int < 5000000000  # 5GB - base image  is about 3.5G
 

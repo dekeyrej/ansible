@@ -25,16 +25,16 @@
 - name: Save current container version
   copy:
     content: "{{ latest_dir }}"
-    dest: "{{ work_dir }}/current_{{ ostype }}_container"
+    dest: "{{ work_dir }}/current_{{ osname }}_container"
 
 - name: Check if latest_container exists
   stat:
-    path: "{{ work_dir }}/latest_{{ ostype }}_container"
+    path: "{{ work_dir }}/latest_{{ osname }}_container"
   register: latest_container_file
 
 - name: Read latest_container, if it exists
   slurp:
-    src: "{{ work_dir }}/latest_{{ ostype }}_container"
+    src: "{{ work_dir }}/latest_{{ osname }}_container"
   register: latest_container_content
   when: latest_container_file.stat.exists
 
@@ -58,5 +58,5 @@
 - name: Update latest_container
   copy:
     content: "{{ latest_dir }}"
-    dest: "{{ work_dir }}/latest_{{ ostype }}_container"
+    dest: "{{ work_dir }}/latest_{{ osname }}_container"
   when: not image_is_current | default(false)

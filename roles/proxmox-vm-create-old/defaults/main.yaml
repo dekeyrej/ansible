@@ -2,7 +2,6 @@
 # vars: api_user:      (from encrypted variables)
 # vars: api_password:  (from encrypted variables)
 # vars: sha:           (from encrypted variables)
-user: ubuntu
 api_host: "{{ inventory_hostname }}"
 node: "{{ inventory_hostname }}"
 pool: Mirkwood
@@ -19,11 +18,8 @@ netinf: "{{ nettype }},bridge={{ bridge }}"
 scsinf: virtio-scsi-pci
 diskpool: nvme_pool
 diskimg: /root/noble-server-cloudimg-amd64.img
-imageformat: qcow2
 bootdiskname: scsi0
-# diskincrement: +146.5G    # base image is ~ 3.5G - this is the amount to ADD to the boot disk
-rootdisksize: 150G
-osname: ubuntu
+diskincrement: +146.5G    # base image is ~ 3.5G - this is the amount to ADD to the boot disk
 ostype: l26
 bootorder: "{{ bootdiskname }}"
 agent: enabled=1

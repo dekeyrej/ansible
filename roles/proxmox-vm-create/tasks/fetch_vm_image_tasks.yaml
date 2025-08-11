@@ -1,50 +1,62 @@
 # roles/fetch_vm_image/tasks/main.yml
-- name: Get latest file date from ubuntu site
+
+- name: Download image only if remote is newer
   shell: |
-    curl -I {{ base_url }} | grep Last-Modified
-  register: dircomp
-  changed_when: false
+    curl -z {{ diskimg }} -L -o {{ diskimg }} {{ base_url }}
+  register: curl_result
+  changed_when: "'200 OK' in curl_result.stdout or '302 Found' in curl_result.stdout"
 
-- name: create tmp directory
-  ansible.builtin.file:
-    path: "{{ work_dir }}"
-    state: directory
+- name: Show image update status
+  debug:
+    msg: "Image was updated from remote source."
+  when: curl_result.changed
 
-- name: Save current diskimage version
-  copy:
-    content: "{{ dircomp.stdout }}"
-    dest: "{{ work_dir }}/current_image"
+# - name: "Get latest file date from {{ osname }} site"
+#   shell: |
+#     curl -IL {{ base_url }} | grep Last-Modified
+#   register: dircomp
+#   changed_when: false
 
-- name: Compare with last_image
-  stat:
-    path: "{{ work_dir }}/last_image"
-  register: latest_image_file
+# - name: create tmp directory
+#   ansible.builtin.file:
+#     path: "{{ work_dir }}"
+#     state: directory
 
-- name: Read last_image if it exists
-  slurp:
-    src: "{{ work_dir }}/last_image"
-  register: latest_image_content
-  when: latest_image_file.stat.exists
+# - name: Save current diskimage version
+#   copy:
+#     content: "{{ dircomp.stdout }}"
+#     dest: "{{ work_dir }}/current_{{ osname }}_image"
 
-- name: Set image_is_current fact
-  set_fact:
-    image_is_current: "{{ latest_image_content.content | b64decode == dircomp.stdout }}"
-  when: latest_image_file.stat.exists
+# - name: Compare with last_image
+#   stat:
+#     path: "{{ work_dir }}/last_{{ osname }}_image"
+#   register: latest_image_file
 
-- name: Remove old image if new one is available
-  file:
-    path: "{{ image_path }}/{{ target }}"
-    state: absent
-  when: not image_is_current | default(false)
+# - name: Read last_image if it exists
+#   slurp:
+#     src: "{{ work_dir }}/last_{{ osname }}_image"
+#   register: latest_image_content
+#   when: latest_image_file.stat.exists
 
-- name: Download new image
-  get_url:
-    url: "{{ base_url }}"
-    dest: "{{ image_path }}/{{ target }}"
-  when: not image_is_current | default(false)
+# - name: Set image_is_current fact
+#   set_fact:
+#     image_is_current: "{{ latest_image_content.content | b64decode == dircomp.stdout }}"
+#   when: latest_image_file.stat.exists
 
-- name: Update last_image
-  copy:
-    content: "{{ dircomp.stdout }}"
-    dest: "{{ work_dir }}/last_image"
-  when: not image_is_current | default(false)
+# - name: Remove old image if new one is available
+#   file:
+#     path: "{{ diskimg }}"
+#     state: absent
+#   when: not image_is_current | default(false)
+
+# - name: Download new image
+#   get_url:
+#     url: "{{ base_url }}"
+#     dest: "{{ diskimg }}"
+#   when: not image_is_current | default(false)
+
+# - name: Update last_image
+#   copy:
+#     content: "{{ dircomp.stdout }}"
+#     dest: "{{ work_dir }}/last_{{ osname }}_image"
+#   when: not image_is_current | default(false)

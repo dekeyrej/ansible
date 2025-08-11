@@ -6,27 +6,48 @@ node: iluvatar                              # proxmox node and api_host
 # hostname as {{ item }}                     from inventory REQUIRED
 # vmid     as {{ hostvars[item]['vmid'] }}   from inventory _otherwise_ next available
 # ip       as hostvars[item]['ansible_host'] from inventory _otherwise_ DHCP
-template: local:vztmpl/ubuntu-24.04-latest_24.04-2_amd64.tar.xz
-ostype: ubuntu
+
+images:
+  ubuntu:
+    baseurl: https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud
+    target: ubuntu-24.04-latest_24.04-2_amd64.tar.xz
+  debian:
+    baseurl: https://images.linuxcontainers.org/images/debian/trixie/amd64/cloud/
+    target: debian-13-latest_13.0_amd64.tar.xz
+
+user: ubuntu
+## distribution
+ostype: ubuntu   # or debian
+# osname: "{{ ostype }}"   # for consistency across lxc/kvm image fetching
+## virtual hardware specs
 cores: 2
 cpuunits: 100
 cpulimit: 2
 memory: 2048
 swap: 0
+## network
 bridge: vmbr0
 gateway: 192.168.86.1
+dns_servers: 192.168.86.1 8.8.8.8
+## root disk
 diskpool: ssd_pool
 rootsize: 10
+## options (not sure why there is not one for 'protection'?)
 unprivileged: true
 onboot: true
+## resource pool
 pool: Mirkwood
-# image_fetch.yaml
+###  variable image parameters
 base_url: https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud
-filecomp: rootfs.tar.xz
 target: ubuntu-24.04-latest_24.04-2_amd64.tar.xz
+###
+## fixed image fetching parameters - should align with container template
+filecomp: rootfs.tar.xz
 image_path: /var/lib/vz/template/cache
 work_dir: /tmp/container_version_tracking
-# new gpu_access variables
+## container template
+template: "local:vztmpl/{{ target }}"
+## gpu_access variables
 gpu_access: false  # set to true if you want to enable GPU access
 gpu_config_additions: |
   lxc.cgroup2.devices.allow: c 195:* rwm

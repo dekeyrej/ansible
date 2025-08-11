@@ -1,0 +1,16 @@
+network:
+  version: 2
+  ethernets:
+    eth0:
+{% if hostvars[item]['ansible_host'] is defined %}
+      dhcp4: false
+      addresses:
+        - "{{ hostvars[item]['ansible_host'] }}/24"
+      gateway4: {{ gateway }}
+      nameservers:
+        addresses:
+          - {{ dns_servers[0] }}
+          - {{ dns_servers[1] }}
+{% else %}
+      dhcp4: true
+{% endif %}

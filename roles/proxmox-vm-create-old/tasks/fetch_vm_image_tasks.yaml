@@ -13,16 +13,16 @@
 - name: Save current diskimage version
   copy:
     content: "{{ dircomp.stdout }}"
-    dest: "{{ work_dir }}/current_{{ osname }}_image"
+    dest: "{{ work_dir }}/current_image"
 
 - name: Compare with last_image
   stat:
-    path: "{{ work_dir }}/last_{{ osname }}_image"
+    path: "{{ work_dir }}/last_image"
   register: latest_image_file
 
 - name: Read last_image if it exists
   slurp:
-    src: "{{ work_dir }}/last_{{ osname }}_image"
+    src: "{{ work_dir }}/last_image"
   register: latest_image_content
   when: latest_image_file.stat.exists
 
@@ -46,5 +46,5 @@
 - name: Update last_image
   copy:
     content: "{{ dircomp.stdout }}"
-    dest: "{{ work_dir }}/last_{{ osname }}_image"
+    dest: "{{ work_dir }}/last_image"
   when: not image_is_current | default(false)

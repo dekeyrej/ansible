@@ -1,17 +1,5 @@
 ---
-- name: Fetch VM image if needed
-  include_tasks: fetch_vm_image_tasks.yaml
-
-- name: Build the VM(s)
+- name: Build and Start the VM(s)
   include_tasks: vm_tasks.yaml
   loop: "{{ groups[host_group] }}"
 
-- name: Start the VM(s)
-  community.general.proxmox_kvm:
-    api_user: "{{ api_user }}"
-    api_password: "{{ api_password }}"
-    api_host: "{{ api_host }}"
-    node: "{{ node }}"
-    vmid: "{{ hostvars[item]['vmid'] }}"
-    state: started
-  loop: "{{ groups[host_group] }}"

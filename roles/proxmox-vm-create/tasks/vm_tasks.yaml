@@ -1,14 +1,35 @@
 ---
-- name: "Create userconfig-vmid for VM {{ hostvars[item]['vmid'] }}"
-  ansible.builtin.template:
-    src: cloud-init.yaml.j2
-    dest: "/var/lib/vz/snippets/userconfig-{{ hostvars[item]['vmid'] }}.yaml"
+- name: set diskimg based on hostvars[item]['os']
+  ansible.builtin.set_fact:
+    diskimg: "{{ image_path }}{{ images[hostvars[item]['os']]['target'] }}"
+
+- name: set base_url based on hostvars[item]['os']
+  ansible.builtin.set_fact:
+    base_url: "{{ images[hostvars[item]['os']]['baseurl'] }}{{ images[hostvars[item]['os']]['target'] }}"
+
+- name: Download image only if remote is newer
+  shell: |
+    curl -z {{ diskimg }} -L -o {{ diskimg }} {{ base_url }}
+  register: curl_result
+  changed_when: "'200 OK' in curl_result.stdout or '302 Found' in curl_result.stdout"
+
+- name: Show image update status
+  debug:
+    msg: "Image was updated from remote source."
+  when: curl_result.changed
+
+- name: "Assemble 'ip_info' for hostname: {{ item }}"
+  ansible.builtin.set_fact:
+    ip_info: >-
+      {{ (hostvars[item]['ansible_host'] + '/24,gw=' + gateway)
+         if 'ansible_host' in hostvars[item]
+         else 'dhcp' }}
 
 - name: "Create VM {{ item }}, VMID: {{ hostvars[item]['vmid'] }}"
   community.general.proxmox_kvm:
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
-    api_host: "{{ api_host }}"
+    api_host: "{{ node }}"
     name: "{{ item }}"
     node: "{{ node }}"
     vmid: "{{ hostvars[item]['vmid'] }}"
@@ -19,11 +40,11 @@
     cpu: "cputype={{ cputype }}"
     ide:
       ide2: "{{ diskpool }}:cloudinit"
-    cicustom: "user=local:snippets/userconfig-{{ hostvars[item]['vmid'] }}.yaml"
+    # cicustom: "user=local:snippets/userconfig-{{ hostvars[item]['vmid'] }}.yaml"
     net:
       net0: "{{ netinf }}"
     ipconfig:
-      ipconfig0: "ip={{ hostvars[item]['ansible_host'] }}/24,gw={{ gateway }}"
+      ipconfig0: "ip={{ ip_info }}"
     scsihw: "{{ scsinf }}"
     ostype: "{{ ostype }}"
     boot: "order={{ bootdiskname }}"
@@ -31,36 +52,94 @@
     pool: "{{ pool }}"
     protection: "{{ protection }}"
     state: present
+  when: hostvars[item]['vmid'] is defined
 
-- name: "Add boot disk from image for VM {{ item }}, VMID: {{ hostvars[item]['vmid'] }}"
+- name: "Create VM {{ item }}"
+  community.general.proxmox_kvm:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ node }}"
+    name: "{{ item }}"
+    node: "{{ node }}"
+    balloon: "{{ balloon }}"
+    memory: "{{ memory }}"
+    cores: "{{ cores }}"
+    cpulimit: "{{ cpulimit }}"
+    cpu: "cputype={{ cputype }}"
+    ide:
+      ide2: "{{ diskpool }}:cloudinit"
+    # cicustom: "user=local:snippets/userconfig-{{ hostvars[item]['vmid'] }}.yaml"
+    net:
+      net0: "{{ netinf }}"
+    ipconfig:
+      ipconfig0: "ip={{ ip_info }}"
+    scsihw: "{{ scsinf }}"
+    ostype: "{{ ostype }}"
+    boot: "order={{ bootdiskname }}"
+    agent: "{{ agent }}"
+    pool: "{{ pool }}"
+    protection: "{{ protection }}"
+    state: present
+  when: hostvars[item]['vmid'] is not defined
+
+- name: try to get the vmid for the hostname
+  community.general.proxmox_vm_info:
+    api_host: "{{ node }}"
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    node: "{{ node }}"
+    type: qemu
+    name: "{{ item }}"
+    config: current
+  register: vminfo
+  until: vminfo.proxmox_vms[0].vmid is defined
+ 
+- name: Set the resolved vmid
+  ansible.builtin.set_fact:
+    resolved_vmid: "{{ hostvars[item]['vmid'] | default(vminfo.proxmox_vms[0].vmid | int) }}"
+
+- name: "Create userconfig-vmid for VM {{ resolved_vmid }}"
+  ansible.builtin.template:
+    src: cloud-init.yaml.j2
+    dest: "/var/lib/vz/snippets/userconfig-{{ resolved_vmid }}.yaml"
+
+- name: "Add cicustom for {{ item }}, VMID: {{ resolved_vmid }}"
+  community.general.proxmox_kvm:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ node }}"
+    node: "{{ node }}"
+    name: "{{ item }}"
+    vmid: "{{ resolved_vmid }}"
+    cicustom: "user=local:snippets/userconfig-{{ resolved_vmid }}.yaml"
+    update: true
+
+- name: "Add boot disk from image for VM {{ item }}, VMID: {{ resolved_vmid }}"
   community.general.proxmox_disk:
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
-    api_host: "{{ api_host }}"
-    vmid: "{{ hostvars[item]['vmid'] }}"
+    api_host: "{{ node }}"
+    vmid: "{{ resolved_vmid }}"
     disk: "{{ bootdiskname }}"
+    # format: "{{ imageformat }}"
     storage: "{{ diskpool }}"
     import_from: "{{ diskimg }}"
-
-- name: "Check vm disk size for VM {{ item }}, VMID: {{ hostvars[item]['vmid'] }}"
-  community.general.proxmox_vm_info:
-    api_user: "{{ api_user }}"
-    api_password: "{{ api_password }}"
-    api_host: "{{ api_host }}"
-    vmid: "{{ hostvars[item]['vmid'] }}"
-  register: vm_info
-  until: vm_info.proxmox_vms is defined and vm_info.proxmox_vms[0].maxdisk | int > 0
-  retries: 5
-  delay: 2
   
-- name: "Resize boot disk for VM {{ item }}, VMID: {{ hostvars[item]['vmid'] }}"
+- name: "Resize boot disk for VM {{ item }}, VMID: {{ resolved_vmid }}"
   community.general.proxmox_disk:
     api_user: "{{ api_user }}"
     api_password: "{{ api_password }}"
-    api_host: "{{ api_host }}"
-    vmid: "{{ hostvars[item]['vmid'] }}"
+    api_host: "{{ node }}"
+    vmid: "{{ resolved_vmid }}"
     disk: "{{ bootdiskname }}"
-    size: "{{ diskincrement }}"
+    size: "{{ rootdisksize }}"
     state: resized
-  when: vm_info.proxmox_vms[0].maxdisk | int < 5000000000  # 5GB - base image  is about 3.5G
 
+- name: Start the VM(s)
+  community.general.proxmox_kvm:
+    api_user: "{{ api_user }}"
+    api_password: "{{ api_password }}"
+    api_host: "{{ node }}"
+    node: "{{ node }}"
+    vmid: "{{ resolved_vmid }}"
+    state: started
