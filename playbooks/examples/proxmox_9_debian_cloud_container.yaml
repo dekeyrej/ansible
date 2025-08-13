@@ -1,14 +1,14 @@
 - name: Create Proxmox container
   hosts: iluvatar   # executed on Manwë
   vars:
-    host_group: mixedkvm
+    host_group: lxc
     pool: Mirkwood
   tags: provision
   roles:
     - role: known-hosts-clear
-    # - role: proxmox-container-create-cloud-init
+    - role: proxmox-container-create-cloud-init
     #   vars:
     #     ostype: debian
     #     base_url: https://images.linuxcontainers.org/images/debian/trixie/amd64/cloud/
     #     target: debian-13-latest_13.0_amd64.tar.xz
-    - role: proxmox-vm-create
+    # - role: proxmox-vm-create

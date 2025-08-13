@@ -6,7 +6,6 @@
   tags: vault:provision
   vars:
     host_group: vault
-    pool: Lothlorien
   roles:
     - role: proxmox-container-create-cloud-init
     - role: known-hosts-clear

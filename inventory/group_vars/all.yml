@@ -1,3 +1,5 @@
+ansible_user: ubuntu
+ansible_python_interpreter: /usr/bin/python3
 ca_base_path: /home/ubuntu/certificate_authority
 ca_key_name: ca-certificate.key
 ca_cert_name: ca-certificate.pem

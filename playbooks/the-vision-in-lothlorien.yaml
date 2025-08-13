@@ -5,13 +5,6 @@
     host_group: seers
   roles:
     - role: proxmox-container-create-cloud-init
-      vars:
-        pool: Lothlorien
-        memory: 16384
-        diskpool: nvme_pool
-        rootsize: 100
-        protection: true
-        gpu_access: true
     - role: known-hosts-clear
 
 # wait for the Galadriel to wake...

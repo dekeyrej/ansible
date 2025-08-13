@@ -1,0 +1,14 @@
+## virtual hardware specs
+cores: 4
+cpulimit: 4
+memory: 16384
+## root disk
+diskpool: nvme_pool
+rootsize: 100
+## options (not sure why there is not one for 'protection'?)
+unprivileged: true
+onboot: true
+## GPU
+gpu_access: true
+## resource pool
+pool: Lothlorien

@@ -5,6 +5,9 @@
 #       {{ (hostvars[item]['ansible_host'] + '/24,gw=' + gateway)
 #          if 'ansible_host' in hostvars[item]
 #          else 'dhcp' }}
+- name: "Set base_url and diskimg based for {{ item }}"
+  ansible.builtin.set_fact:
+    template: "{{ template_base }}{{ images[hostvars[item]['os']]['target'] }}"
 
 - name: Create Proxmox-VE Container with vmid
   community.general.proxmox:
@@ -15,7 +18,7 @@
     vmid: "{{ hostvars[item]['vmid'] }}"
     hostname: "{{ item }}"
     ostemplate: "{{ template }}"
-    ostype: "{{ ostype }}"
+    ostype: "{{ hostvars[item]['os'] }}"
     disk: "{{ diskpool }}:{{ rootsize }}"
     # disk_volume:    # requires community.general 9.2.0 or greater
     #   storage: "{{ diskpool }}"
@@ -41,7 +44,7 @@
     node: "{{ node }}"
     hostname: "{{ item }}"
     ostemplate: "{{ template }}"
-    ostype: "{{ ostype }}"
+    ostype: "{{ hostvars[item]['os'] }}"
     disk: "{{ diskpool }}:{{rootsize}}"
     # disk_volume:    # requires community.general 9.2.0 or greater
     #   storage: "{{ diskpool }}"

@@ -1,5 +1,10 @@
----
-- name: Build and Start the VM(s)
-  include_tasks: vm_tasks.yaml
-  loop: "{{ groups[host_group] }}"
+# roles/proxmox-vm-create/tasks/main.yaml
+- name: Fetch Latest images
+  ansible.builtin.include_tasks:
+    file: fetch-vm-images.yaml
+  loop: "{{ images.keys() | list }}"
 
+- name: Build and Start the VM(s)
+  ansible.builtin.include_tasks:
+    file: vm-tasks.yaml
+  loop: "{{ groups[host_group] }}"

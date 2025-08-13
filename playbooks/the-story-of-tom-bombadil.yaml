@@ -3,15 +3,10 @@
   hosts: iluvatar   # executed on Manwë
   vars:
     host_group: sidequest
-    pool: Mirkwood
-    balloon: 4096
-    memory: 16384
-    diskincrement: +21.5G
-    protection: false
   roles:
-    - role: proxmox-vm-create
     - role: known-hosts-clear
-
+    - role: proxmox-vm-create
+    
 # wait for the VM to settle...
 - name: Wait for VM to become reachable
   hosts: bombadil

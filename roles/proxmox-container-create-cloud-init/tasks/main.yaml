@@ -2,9 +2,10 @@
 - name: Fetch latest container image
   ansible.builtin.include_tasks:
     file: fetch_image_tasks.yaml
+  loop: "{{ images.keys() | list }}"
 
 - name: Loop through target containers
-  include_tasks: 
+  ansible.builtin.include_tasks: 
     file: cloud_container_tasks.yaml
   loop: "{{ groups[host_group] }}"
   loop_control:

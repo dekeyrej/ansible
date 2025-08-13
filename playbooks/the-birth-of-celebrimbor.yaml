@@ -4,11 +4,6 @@
   tags: builder:provision
   vars:
     host_group: builder
-    pool: Lothlorien
-    balloon: 4096
-    memory: 16384
-    diskincrement: +46.5G
-    protection: true
   roles:
     - role: proxmox-vm-create
     - role: known-hosts-clear

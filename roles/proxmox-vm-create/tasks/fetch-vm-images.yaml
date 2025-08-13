@@ -1,4 +1,9 @@
-# roles/fetch_vm_image/tasks/main.yml
+# roles/proxmox-=vm-create/tasks/fetch-vm-images.yml
+- name: "Set base_url and diskimg based for {{ item }}"
+  ansible.builtin.set_fact:
+    # target: "{{ images[item]['target'] }}"
+    diskimg: "{{ image_path }}{{ images[item]['target'] }}"
+    base_url: "{{ images[item]['baseurl'] }}{{ images[item]['target']}}"
 
 - name: Download image only if remote is newer
   shell: |
@@ -8,7 +13,7 @@
 
 - name: Show image update status
   debug:
-    msg: "Image was updated from remote source."
+    msg: "{{ item }} image was updated from remote source."
   when: curl_result.changed
 
 # - name: "Get latest file date from {{ osname }} site"

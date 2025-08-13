@@ -7,7 +7,6 @@
   hosts: iluvatar   # executed on Manwë
   vars:
     host_group: watchers
-    pool: Lothlorien
   tags: provision
   roles:
     - role: proxmox-container-create-cloud-init

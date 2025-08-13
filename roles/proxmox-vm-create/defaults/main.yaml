@@ -1,4 +1,4 @@
----
+# roles/proxmox-vm-create/defaults/main.yaml
 node: iluvatar     # Ilúvatar
 # vars: api_user:                            from (encrypted) variables
 # vars: api_password:                        from (encrypted) variables

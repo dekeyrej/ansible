@@ -9,7 +9,7 @@ node: iluvatar                              # proxmox node and api_host
 
 images:
   ubuntu:
-    baseurl: https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud
+    baseurl: https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud/
     target: ubuntu-24.04-latest_24.04-2_amd64.tar.xz
   debian:
     baseurl: https://images.linuxcontainers.org/images/debian/trixie/amd64/cloud/
@@ -38,15 +38,15 @@ onboot: true
 ## resource pool
 pool: Mirkwood
 ###  variable image parameters
-base_url: https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud
-target: ubuntu-24.04-latest_24.04-2_amd64.tar.xz
+# base_url: https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud
+# target: ubuntu-24.04-latest_24.04-2_amd64.tar.xz
 ###
 ## fixed image fetching parameters - should align with container template
 filecomp: rootfs.tar.xz
 image_path: /var/lib/vz/template/cache
 work_dir: /tmp/container_version_tracking
 ## container template
-template: "local:vztmpl/{{ target }}"
+template_base: local:vztmpl/
 ## gpu_access variables
 gpu_access: false  # set to true if you want to enable GPU access
 gpu_config_additions: |

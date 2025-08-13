@@ -1,22 +1,7 @@
----
-- name: set diskimg based on hostvars[item]['os']
+# roles/proxmox-vm-create/tasks/vm-tasks.yaml
+- name: set diskimage based on hostvars[item]['os']
   ansible.builtin.set_fact:
     diskimg: "{{ image_path }}{{ images[hostvars[item]['os']]['target'] }}"
-
-- name: set base_url based on hostvars[item]['os']
-  ansible.builtin.set_fact:
-    base_url: "{{ images[hostvars[item]['os']]['baseurl'] }}{{ images[hostvars[item]['os']]['target'] }}"
-
-- name: Download image only if remote is newer
-  shell: |
-    curl -z {{ diskimg }} -L -o {{ diskimg }} {{ base_url }}
-  register: curl_result
-  changed_when: "'200 OK' in curl_result.stdout or '302 Found' in curl_result.stdout"
-
-- name: Show image update status
-  debug:
-    msg: "Image was updated from remote source."
-  when: curl_result.changed
 
 - name: "Assemble 'ip_info' for hostname: {{ item }}"
   ansible.builtin.set_fact:

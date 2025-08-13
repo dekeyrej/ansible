@@ -7,8 +7,6 @@
   connection: local
   vars:
     host_group: valar
-    pool: Lothlorien
-    rootsize: 50
   roles:
     - role: proxmox-container-create-cloud-init
     - role: known-hosts-clear

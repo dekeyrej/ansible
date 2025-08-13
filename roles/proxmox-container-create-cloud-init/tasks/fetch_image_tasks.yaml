@@ -1,7 +1,12 @@
 # roles/fetch_container_image/tasks/main.yml
+- name: "Set base_url and diskimg based for {{ item }}"
+  ansible.builtin.set_fact:
+    diskimg: "{{ image_path }}{{ images[item]['target'] }}"
+    base_url: "{{ images[item]['baseurl'] }}{{ images[item]['target']}}"
+
 - name: Fetch LXC image index page
   uri:
-    url: "{{ base_url }}/"
+    url: "{{ images[item]['baseurl'] }}"
     return_content: yes
   register: lxc_index
 
@@ -17,46 +22,57 @@
   set_fact:
     latest_dir: "{{ sorted_dirs[-1] }}"
 
-- name: create tmp directory, if it doesn't exist
-  ansible.builtin.file:
-    path: "{{ work_dir }}"
-    state: directory
+- name: Download image only if remote is newer
+  shell: |
+    curl -z {{ diskimg }} -L -o {{ diskimg }} {{ base_url }}{{ latest_dir }}/{{ filecomp }}
+  register: curl_result
+  changed_when: "'200 OK' in curl_result.stdout or '302 Found' in curl_result.stdout"
 
-- name: Save current container version
-  copy:
-    content: "{{ latest_dir }}"
-    dest: "{{ work_dir }}/current_{{ osname }}_container"
+- name: Show image update status
+  debug:
+    msg: "{{ item }} image was updated from remote source."
+  when: curl_result.changed
 
-- name: Check if latest_container exists
-  stat:
-    path: "{{ work_dir }}/latest_{{ osname }}_container"
-  register: latest_container_file
+# - name: create tmp directory, if it doesn't exist
+#   ansible.builtin.file:
+#     path: "{{ work_dir }}"
+#     state: directory
 
-- name: Read latest_container, if it exists
-  slurp:
-    src: "{{ work_dir }}/latest_{{ osname }}_container"
-  register: latest_container_content
-  when: latest_container_file.stat.exists
+# - name: Save current container version
+#   copy:
+#     content: "{{ latest_dir }}"
+#     dest: "{{ work_dir }}/current_{{ osname }}_container"
 
-- name: Set image_is_current fact
-  set_fact:
-    image_is_current: "{{ latest_container_content.content | b64decode == latest_dir }}"
-  when: latest_container_file.stat.exists
+# - name: Check if latest_container exists
+#   stat:
+#     path: "{{ work_dir }}/latest_{{ osname }}_container"
+#   register: latest_container_file
 
-- name: Remove old image if new one is available
-  file:
-    path: "{{ image_path }}/{{ target }}"
-    state: absent
-  when: not image_is_current | default(false)
+# - name: Read latest_container, if it exists
+#   slurp:
+#     src: "{{ work_dir }}/latest_{{ osname }}_container"
+#   register: latest_container_content
+#   when: latest_container_file.stat.exists
 
-- name: Download new image
-  get_url:
-    url: "{{ base_url }}/{{ latest_dir }}/{{ filecomp }}"
-    dest: "{{ image_path }}/{{ target }}"
-  when: not image_is_current | default(false)
+# - name: Set image_is_current fact
+#   set_fact:
+#     image_is_current: "{{ latest_container_content.content | b64decode == latest_dir }}"
+#   when: latest_container_file.stat.exists
 
-- name: Update latest_container
-  copy:
-    content: "{{ latest_dir }}"
-    dest: "{{ work_dir }}/latest_{{ osname }}_container"
-  when: not image_is_current | default(false)
+# - name: Remove old image if new one is available
+#   file:
+#     path: "{{ image_path }}/{{ target }}"
+#     state: absent
+#   when: not image_is_current | default(false)
+
+# - name: Download new image
+#   get_url:
+#     url: "{{ base_url }}/{{ latest_dir }}/{{ filecomp }}"
+#     dest: "{{ image_path }}/{{ target }}"
+#   when: not image_is_current | default(false)
+
+# - name: Update latest_container
+#   copy:
+#     content: "{{ latest_dir }}"
+#     dest: "{{ work_dir }}/latest_{{ osname }}_container"
+#   when: not image_is_current | default(false)
