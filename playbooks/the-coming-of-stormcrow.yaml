@@ -9,8 +9,8 @@
     host_group: watchers
   tags: provision
   roles:
-    - role: proxmox-container-create-cloud-init
     - role: known-hosts-clear
+    - role: proxmox-provision
 
 # wait for the container to settle...
 - name: Wait for Container to become reachable

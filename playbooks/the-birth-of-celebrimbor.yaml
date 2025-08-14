@@ -5,8 +5,8 @@
   vars:
     host_group: builder
   roles:
-    - role: proxmox-vm-create
     - role: known-hosts-clear
+    - role: proxmox-provision
 
 # wait for the container(s) to settle...
 - name: Wait for VM to become reachable

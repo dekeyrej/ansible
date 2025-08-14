@@ -4,8 +4,8 @@
   vars:
     host_group: seers
   roles:
-    - role: proxmox-container-create-cloud-init
     - role: known-hosts-clear
+    - role: proxmox-provision
 
 # wait for the Galadriel to wake...
 - name: Wait for Container to become reachable

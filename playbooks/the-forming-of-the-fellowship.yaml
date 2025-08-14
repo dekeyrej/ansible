@@ -9,8 +9,8 @@
   vars:
     host_group: fellowship
   roles:
-    - role: proxmox-vm-create
     - role: known-hosts-clear
+    - role: proxmox-provision
 
 # wait for the VMs to settle...
 - name: Wait for Container to become reachable

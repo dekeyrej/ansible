@@ -5,7 +5,7 @@
     host_group: sidequest
   roles:
     - role: known-hosts-clear
-    - role: proxmox-vm-create
+    - role: proxmox-provision
     
 # wait for the VM to settle...
 - name: Wait for VM to become reachable
