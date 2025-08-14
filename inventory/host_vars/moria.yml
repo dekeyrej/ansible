@@ -1,6 +1,6 @@
 ## root disk
 diskpool: ssd_pool
-rootsize: 10
+lxcrootsize: 10
 ## options (not sure why there is not one for 'protection'?)
 unprivileged: true
 onboot: true

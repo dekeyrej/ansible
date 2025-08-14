@@ -2,11 +2,11 @@
 cores: 4
 cpulimit: 4
 cputype: host
-balloon: 2048
-memory: 8192
+vmballoon: 2048
+vmmemory: 8192
 ## root disk
 diskpool: nvme_pool
-rootdisksize: 50G
+vmrootdisksize: 50G
 ## options
 agent: enabled=1
 protection: true

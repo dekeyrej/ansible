@@ -1,10 +1,10 @@
 ## virtual hardware specs
 cores: 8
 cpulimit: 8
-memory: 16384
+lxcmemory: 16384
 ## root disk
 diskpool: nvme_pool
-rootsize: 50
+lxcrootsize: 50
 ## options (not sure why there is not one for 'protection'?)
 unprivileged: true
 onboot: true
