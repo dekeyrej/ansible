@@ -24,7 +24,7 @@
 
 - name: Download image only if remote is newer
   shell: |
-    curl -z {{ diskimg }} -L -o {{ diskimg }} {{ base_url }}{{ latest_dir }}/{{ filecomp }}
+    curl -z {{ diskimg }} -L -o {{ diskimg }} {{ lxcimages[item]['baseurl'] }}{{ latest_dir }}/{{ filecomp }}
   register: curl_result
   changed_when: "'200 OK' in curl_result.stdout or '302 Found' in curl_result.stdout"
 

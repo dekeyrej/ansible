@@ -28,8 +28,8 @@
     # cicustom: "user=local:snippets/userconfig-{{ hostvars[item]['vmid'] }}.yaml"
     net:
       net0: "{{ netinf }}"
-    # ipconfig:
-    #   ipconfig0: "ip={{ ip_info }}"
+    ipconfig:
+      ipconfig0: "ip={{ ip_info }}"
     scsihw: "{{ scsinf }}"
     ostype: "{{ vmostype }}"
     boot: "order={{ bootdiskname }}"
@@ -56,8 +56,8 @@
     # cicustom: "user=local:snippets/userconfig-{{ hostvars[item]['vmid'] }}.yaml"
     net:
       net0: "{{ netinf }}"
-    # ipconfig:
-    #   ipconfig0: "ip={{ ip_info }}"
+    ipconfig:
+      ipconfig0: "ip={{ ip_info }}"
     scsihw: "{{ scsinf }}"
     ostype: "{{ vmostype }}"
     boot: "order={{ bootdiskname }}"

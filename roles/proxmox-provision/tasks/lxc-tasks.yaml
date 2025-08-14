@@ -2,6 +2,7 @@
 - name: "Set base_url and diskimg based for {{ item }}"
   ansible.builtin.set_fact:
     template: "{{ template_base }}{{ lxcimages[hostvars[item]['os']]['target'] }}"
+    ostype: "{{ hostvars[item]['os'] }}"
 
 - name: Create Proxmox-VE Container with vmid
   community.general.proxmox:
@@ -12,7 +13,7 @@
     vmid: "{{ hostvars[item]['vmid'] }}"
     hostname: "{{ item }}"
     ostemplate: "{{ template }}"
-    ostype: "{{ hostvars[item]['os'] }}"
+    ostype: "{{ ostype }}"
     disk: "{{ diskpool }}:{{ lxcrootsize }}"
     # disk_volume:    # requires community.general 9.2.0 or greater
     #   storage: "{{ diskpool }}"
@@ -38,7 +39,7 @@
     node: "{{ node }}"
     hostname: "{{ item }}"
     ostemplate: "{{ template }}"
-    ostype: "{{ hostvars[item]['os'] }}"
+    ostype: "{{ ostype }}"
     disk: "{{ diskpool }}:{{ lxcrootsize }}"
     # disk_volume:    # requires community.general 9.2.0 or greater
     #   storage: "{{ diskpool }}"
