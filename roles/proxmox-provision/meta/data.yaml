@@ -1,0 +1,12 @@
+role_name: proxmox-provision
+status: Experimental
+short_description: One role to create Ubuntu or Debian LXC Containers or KVM VMs
+description: No description provided
+long_description: The consolidation of all of the previous proxmox provisioning roles.  This role takes an inventory host group where the hosts are annotated with a 'type' of kvm or lxc, an 'os' of ubuntu or debian, and optionally an ip-based ansible_host, and a specified vmid.
+dependencies: [ none ]
+called_by: [ all ]
+topic: 'Provision'
+subtopic: 'Proxmox'
+tags: [kvm lxc]
+tested: false
+idempotent: false
