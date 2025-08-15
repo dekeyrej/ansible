@@ -1,8 +1,21 @@
 # roles/proxmox-provision/tasks/lxc-tasks.yaml
+- name: apply overrides from hostvars, if they exist
+  ansible.builtin.set_fact:
+    lxcostype: "{{ hostvars[item]['os'] }}"
+    cores: "{{ hostvars[item]['cores'] | default(cores, true) | int }}"             # common
+    cpulimit: "{{ hostvars[item]['cpulimit'] | default(cpulimit, true)  | int }}"   # common
+    lxcmemory: "{{ hostvars[item]['lxcmemory'] | default(lxcmemory, true)  | int }}"
+    lxcswap: "{{ hostvars[item]['lxcswap'] | default(lxcswap, true) | int }}"
+    diskpool: "{{ hostvars[item]['diskpool'] | default(diskpool, true) }}"          # common
+    lxcrootsize: "{{ hostvars[item]['lxcrootsize'] | default(lxcrootsize, true) | int }}"
+    unprivileged: "{{ hostvars[item]['unprivileged'] | default(agent, unprivileged) }}"
+    onboot: "{{ hostvars[item]['onboot'] | default(onboot, true) }}"
+    pool: "{{ hostvars[item]['pool'] | default(pool, true) }}"                      # common
+    gpu_access: "{{ hostvars[item]['gpu_access'] | default(gpu_access, true) }}"
+
 - name: "Set base_url and diskimg based for {{ item }}"
   ansible.builtin.set_fact:
     template: "{{ template_base }}{{ lxcimages[hostvars[item]['os']]['target'] }}"
-    ostype: "{{ hostvars[item]['os'] }}"
 
 - name: Create Proxmox-VE Container with vmid
   community.general.proxmox:
@@ -13,7 +26,7 @@
     vmid: "{{ hostvars[item]['vmid'] }}"
     hostname: "{{ item }}"
     ostemplate: "{{ template }}"
-    ostype: "{{ ostype }}"
+    ostype: "{{ lxcostype }}"
     disk: "{{ diskpool }}:{{ lxcrootsize }}"
     # disk_volume:    # requires community.general 9.2.0 or greater
     #   storage: "{{ diskpool }}"
@@ -39,7 +52,7 @@
     node: "{{ node }}"
     hostname: "{{ item }}"
     ostemplate: "{{ template }}"
-    ostype: "{{ ostype }}"
+    ostype: "{{ lxcostype }}"
     disk: "{{ diskpool }}:{{ lxcrootsize }}"
     # disk_volume:    # requires community.general 9.2.0 or greater
     #   storage: "{{ diskpool }}"

@@ -1,0 +1,14 @@
+## virtual hardware specs
+cores: 8
+cpulimit: 8
+cputype: host
+vmballoon: 4096
+vmmemory: 16384
+## root disk
+diskpool: ssd_pool
+vmrootdisksize: 50G
+## options
+agent: enabled=1
+protection: false
+##resource pool
+pool: Mirkwood

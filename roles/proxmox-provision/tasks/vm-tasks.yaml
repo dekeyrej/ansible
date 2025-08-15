@@ -1,4 +1,17 @@
 # roles/proxmox-provision/tasks/vm-tasks.yaml
+- name: apply overrides from hostvars, if they exist
+  ansible.builtin.set_fact:
+    cores: "{{ hostvars[item]['cores'] | default(cores, true) | int }}"             # common
+    cpulimit: "{{ hostvars[item]['cpulimit'] | default(cpulimit, true)  | int }}"   # common
+    cputype: "{{ hostvars[item]['cputype'] | default(cputype, true)  }}"
+    vmballoon: "{{ hostvars[item]['vmballoon'] | default(vmballoon, true) | int }}"
+    vmmemory: "{{ hostvars[item]['vmmemory'] | default(vmmemory, true)  | int }}"
+    diskpool: "{{ hostvars[item]['diskpool'] | default(diskpool, true) }}"          # common
+    vmrootdisksize: "{{ hostvars[item]['vmrootdisksize'] | default(vmrootdisksize, true) }}"
+    agent: "{{ hostvars[item]['agent'] | default(agent, true) }}"
+    protection: "{{ hostvars[item]['protection'] | default(protection, true) }}"
+    pool: "{{ hostvars[item]['pool'] | default(pool, true) }}"                      # common
+
 - name: set diskimage based on hostvars[item]['os']
   ansible.builtin.set_fact:
     diskimg: "{{ vmimage_path }}{{ vmimages[hostvars[item]['os']]['target'] }}"
