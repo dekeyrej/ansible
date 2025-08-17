@@ -1,51 +1,19 @@
 ---
-- block:
-  - name: python3-kubernetes
-    ansible.builtin.apt:
-      pkg: python3-kubernetes
-      
-  - name: create redis namespace
-    kubernetes.core.k8s:
-      state: present
-      definition:
-        apiVersion: v1
-        kind: Namespace
-        metadata:
-          name: redis
-
-  - name: copy redis files to tmp
-    ansible.builtin.copy:
-      src: redis-config.yaml
-      dest: /tmp/redis-config.yaml
-
-  - name: Set storage class for hostpath
-    set_fact:
-      redis_storage_class: microk8s-hostpath
-
-- name: Set storage class for ceph-rbd
+- name: python3-kubernetes
+  ansible.builtin.apt:
+    pkg: python3-kubernetes
+  become: yes
+    
+- name: Set storage redis class to ceph-rbd, if enabled
   set_fact:
     redis_storage_class: ceph-rbd
   when: ceph_enabled
 
-- block:
-  - name: template redis statefulset file
-    ansible.builtin.template:
-      src: redis-statefulset.yaml.j2
-      dest: /tmp/redis-statefulset.yaml
-
-  - name: template redis service file
-    ansible.builtin.template:
-      src: redis-service.yaml.j2
-      dest: /tmp/redis-service.yaml
-
-  - name: create redis 
-    kubernetes.core.k8s:
-      state: present
-      src: /tmp/{{ item }}
-    loop: "{{ apply_files }}"
-
-  - name: cleanup redis files
-    ansible.builtin.file:
-      path: /tmp/{{ item }}
-      state: absent
-    loop: "{{ apply_files }}"
+- name: Apply files/templates
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup(item.type, item.file) }}"
+  loop: "{{ k8s_manifest_list }}"
+  loop_control:
+    label: "{{ item.name | default(item.file) }}"
+  when: item.enabled | default(true)

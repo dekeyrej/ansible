@@ -1,1 +1,7 @@
-redis_storage_class: ceph-rbd
+redis_storage_class: microk8s-hostpath
+k8s_manifest_list:
+  - { name: 'namespace',   type: 'file',     file: 'redis-namespace.yaml',      enabled: true }
+  - { name: 'config',      type: 'file',     file: 'redis-config.yaml',         enabled: true }
+  - { name: 'statefulset', type: 'template', file: 'redis-statefulset.yaml.j2', enabled: true }
+  - { name: 'service',     type: 'file',     file: 'redis-service.yaml',        enabled: true }
+  - { name: 'lb-service',  type: 'template', file: 'redis-lb-service.yaml.j2',  enabled: false }   ## only enabled for apiserver development
