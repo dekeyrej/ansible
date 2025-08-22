@@ -78,11 +78,11 @@ encrypted_keys: [password, apikey]
 |------|-------------|
 | `--dry-run` | Show changes without writing to file |
 | `--vault-password-file` | Path to vault password file (default: `vault.password`) |
-| `--keys` | Override `encrypted_keys` list from YAML |
+| `--keys` | Merge with `encrypted_keys` list from YAML |
 
 ### **Clarify the `--keys` Behavior**
 
-> ⚠️ Note: `--keys` currently overrides the `encrypted_keys` list during encryption, but does not update the YAML to reflect this. Future versions may append the overridden keys to the output.
+> ⚠️ Note: `--keys` are merged with any existing `encrypted_keys` list during encryption.
 
 ### Usage:
 ```bash
