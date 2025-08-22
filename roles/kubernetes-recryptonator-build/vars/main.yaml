@@ -1,6 +1,0 @@
-manifests:
-  recryptonator:
-    - https://github.com/dekeyrej/secretmanager/blob/main/tools/recryptonator.py
-    - https://github.com/dekeyrej/secretmanager/blob/main/Dockerfile
-    - https://github.com/dekeyrej/secretmanager/blob/main/tools/check_and_append_cacert.py
-    - https://github.com/dekeyrej/secretmanager/blob/main/requirements.txt

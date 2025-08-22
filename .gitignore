@@ -13,3 +13,5 @@ old_README.md
 synced_manifests/
 .vscode/
 venv/
+*.egg-info/
+build/

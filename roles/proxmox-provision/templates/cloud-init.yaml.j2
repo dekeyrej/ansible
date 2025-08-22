@@ -9,4 +9,6 @@ users:
     shell: /bin/bash
     lock_passwd: true
     ssh_authorized_keys: 
-      {{ sha }}
+{% for key in sha %}
+      - ssh-rsa {{ key }}
+{% endfor %}

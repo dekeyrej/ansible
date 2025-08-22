@@ -6,7 +6,7 @@ vmballoon: 4096
 vmmemory: 16384
 ## root disk
 diskpool: ssd_pool
-vmrootdisksize: 50G
+rootsize: 50
 ## options
 agent: enabled=1
 protection: false

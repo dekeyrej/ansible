@@ -1,6 +1,7 @@
 ---
 - name: Provision Proxmox VM hosts for Bombadil
   hosts: iluvatar   # executed on Manwë
+  tags: provision
   vars:
     host_group: sidequest
   roles:
@@ -10,6 +11,7 @@
 # wait for the VM to settle...
 - name: Wait for VM to become reachable
   hosts: bombadil
+  tags: provision
   gather_facts: no
   tasks:
     - name: Wait for SSH to come up
@@ -20,19 +22,20 @@
 
 - name: Setup Bombadil - Part 1 (root stuff)
   hosts: sidequest
+  tags: setup1
   become: yes
   vars:
-    ca_key_name: ca.key
-    ca_cert_name: ca.pem
+    # ca_key_name: ca.key
+    # ca_cert_name: ca.pem
     ca_host: bombadil
-    packages: [buildah, vault]
+    packages: [ buildah, vault, qemu-guest-agent ]
     new_ca: true
   roles:
     # Make this machine it's own CA
     - role: certificate-authority-create
     - role: certificate-authority-copy-to-host
     # Install vault package
-    - role: apt-vault-add-source
+    - role: apt-add-source-vault
     - role: apt-update-all
     - role: apt-add-packages
     # Generate TLS certificates for Vault
@@ -54,8 +57,10 @@
 
 - name: Setup Bombadil - Part 2 - (ubuntu stuff)
   hosts: bombadil
+  tags: setup2
   become: no
   roles:
+    - role: ghcr-secret-create
     # Configure Vault for KubeVault
     - role: vault-configure-for-kubevault
       vars:
@@ -70,3 +75,18 @@
         repositories:
           - name: secretmanager      
             repo: 'https://github.com/dekeyrej/secretmanager.git'
+          - name: microservicematrix
+            repo: 'https://github.com/dekeyrej/microservicematrix.git'
+          - name: apiserver
+            repo: 'https://github.com/dekeyrej/apiserver.git'
+          - name: kv-updater
+            repo: 'https://github.com/dekeyrej/kv-updater.git'
+    - role: kubernetes-redis-deploy
+
+- name: leftover setup server_cert_path
+  hosts: bombadil
+  tags: setup3
+  become: no
+  roles:
+    - role: kubernetes-encryptonator-build
+    - role: kubernetes-secrets-bootstrap 

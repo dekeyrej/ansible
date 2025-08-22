@@ -4,10 +4,10 @@
     cores: "{{ hostvars[item]['cores'] | default(cores, true) | int }}"             # common
     cpulimit: "{{ hostvars[item]['cpulimit'] | default(cpulimit, true)  | int }}"   # common
     cputype: "{{ hostvars[item]['cputype'] | default(cputype, true)  }}"
-    vmballoon: "{{ hostvars[item]['vmballoon'] | default(vmballoon, true) | int }}"
-    vmmemory: "{{ hostvars[item]['vmmemory'] | default(vmmemory, true)  | int }}"
+    memory: "{{ hostvars[item]['memory'] | default(memory, true) | int }}"
+    maxmemory: "{{ hostvars[item]['maxmemory'] | default(maxmemory, true)  | int }}"
     diskpool: "{{ hostvars[item]['diskpool'] | default(diskpool, true) }}"          # common
-    vmrootdisksize: "{{ hostvars[item]['vmrootdisksize'] | default(vmrootdisksize, true) }}"
+    rootsize: "{{ hostvars[item]['rootsize'] | default(rootsize, true) }}"          # common
     agent: "{{ hostvars[item]['agent'] | default(agent, true) }}"
     protection: "{{ hostvars[item]['protection'] | default(protection, true) }}"
     pool: "{{ hostvars[item]['pool'] | default(pool, true) }}"                      # common
@@ -31,8 +31,8 @@
     name: "{{ item }}"
     node: "{{ node }}"
     vmid: "{{ hostvars[item]['vmid'] }}"
-    balloon: "{{ vmballoon }}"
-    memory: "{{ vmmemory }}"
+    balloon: "{{ memory }}"
+    memory: "{{ maxmemory }}"
     cores: "{{ cores }}"
     cpulimit: "{{ cpulimit }}"
     cpu: "cputype={{ cputype }}"
@@ -59,8 +59,8 @@
     api_host: "{{ node }}"
     name: "{{ item }}"
     node: "{{ node }}"
-    balloon: "{{ vmballoon }}"
-    memory: "{{ vmmemory }}"
+    balloon: "{{ memory }}"
+    memory: "{{ maxmemory }}"
     cores: "{{ cores }}"
     cpulimit: "{{ cpulimit }}"
     cpu: "cputype={{ cputype }}"
@@ -114,8 +114,8 @@
 
 - name: "Add boot disk from image for VM {{ item }}, VMID: {{ resolved_vmid }}"
   community.general.proxmox_disk:
-    api_user: "{{ api_user }}"
-    api_password: "{{ api_password }}"
+    api_user: "{{ root_api_user }}"            # this one task requires root@pam access
+    api_password: "{{ root_api_password }}"
     api_host: "{{ node }}"
     vmid: "{{ resolved_vmid }}"
     disk: "{{ bootdiskname }}"
@@ -129,7 +129,7 @@
     api_host: "{{ node }}"
     vmid: "{{ resolved_vmid }}"
     disk: "{{ bootdiskname }}"
-    size: "{{ vmrootdisksize }}"
+    size: "{{ rootsize }}G"
     state: resized
 
 - name: Start the VM(s)

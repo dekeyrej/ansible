@@ -1,26 +1,28 @@
 # roles/proxmox-provision/defaults/main.yaml
 node: iluvatar                              # proxmox node and api_host
-# api_user:                                  from (encrypted) variables  vm tasks require root@pam
-# api_password:                              from (encrypted) variables
-# sshkey:                                    from (encrypted) variables  
+# api_user: joe@pve                          from vars/main.yaml                      
+# api_password: (encrypted)                  from vars/main.yaml
+# root_api_user: root@pam                    from vars/main.yaml - "Add boot disk from image for VM" task requires root@pam access
+# root_api_password: (encrypted)             from vars/main.yaml - "Add boot disk from image for VM" task requires root@pam access
+# sha:                                       from vars/main.yaml - list of public keys with key type, and meta-data removed
 # (required) host_group: an inventory group, role will create a vm or container for each
-# hostname as {{ item }}                     from inventory REQUIRED
-# vmid     as {{ hostvars[item]['vmid'] }}   from inventory _otherwise_ next available
+# hostname as item                           from inventory REQUIRED
+# vmid     as hostvars[item]['vmid']         from inventory _otherwise_ next available
 # ip       as hostvars[item]['ansible_host'] from inventory _otherwise_ DHCP
+# type                                       from inventory REQUIRED kvm or lxc
+# os                                         from inventory REQUIRED ubuntu or debian
 
 user: ubuntu
 ## distribution
 vmostype: l26
-lxcostype: ubuntu   # or debian
 ## virtual hardware specs
 cores: 2
 cpuunits: 100
 cpulimit: 2
 cputype: host                                         # vm only
-lxcmemory: 2048
-lxcswap: 0
-vmballoon: 1024
-vmmemory: 2048
+memory: 2048
+swap: 0                                               # lxc only
+maxmemory: 2048                                       # vm only
 ## network
 bridge: vmbr0
 gateway: 192.168.86.1
@@ -28,12 +30,10 @@ dns_servers: 192.168.86.1 8.8.8.8
 nettype: virtio                                       # vm only
 netinf: "{{ nettype }},bridge={{ bridge }}"           # vm only
 ## root disk
-scsinf: virtio-scsi-pci                               # vm only
 diskpool: ssd_pool
-lxcrootsize: 10
-vmrootdisksize: 20G
-bootdiskname: scsi0
-bootorder: "{{ bootdiskname }}"
+rootsize: 10
+scsinf: virtio-scsi-pci                               # vm only
+bootdiskname: scsi0                                   # vm only
 ## vm options
 agent: enabled=0
 protection: false
@@ -53,9 +53,7 @@ vmimages:
     target: debian-13-genericcloud-amd64.qcow2
 vmimage_path: /root/
 ###
-
 ### lxc images
-##  variable lxc image parameters
 lxcimages:
   ubuntu:
     baseurl: https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud/
@@ -63,13 +61,11 @@ lxcimages:
   debian:
     baseurl: https://images.linuxcontainers.org/images/debian/trixie/amd64/cloud/
     target: debian-13-latest_13.0_amd64.tar.xz
-##
-## fixed lxc image fetching parameters - should align with container template
 filecomp: rootfs.tar.xz
 lxcimage_path: /var/lib/vz/template/cache/
 template_base: local:vztmpl/
-##
 ###
+
 ## lxc gpu_access variables
 gpu_access: false  # set to true if you want to enable GPU access
 gpu_config_additions: |

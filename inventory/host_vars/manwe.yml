@@ -4,7 +4,7 @@ cpulimit: 8
 lxcmemory: 16384
 ## root disk
 diskpool: nvme_pool
-lxcrootsize: 50
+rootsize: 50
 ## options (not sure why there is not one for 'protection'?)
 unprivileged: true
 onboot: true

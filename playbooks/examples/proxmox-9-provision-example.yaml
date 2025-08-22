@@ -1,7 +1,7 @@
 - name: Create Proxmox containers or virtual machines
   hosts: iluvatar   # executed on Manwë
   vars:
-    host_group: brown                # 'testmatrix' for minimized version on 16 test cases
+    host_group: testmatrix                # 'testmatrix' for minimized version on 16 test cases
   roles:
     - role: known-hosts-clear
     - role: proxmox-provision

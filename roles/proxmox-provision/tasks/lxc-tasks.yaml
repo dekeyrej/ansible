@@ -4,18 +4,18 @@
     lxcostype: "{{ hostvars[item]['os'] }}"
     cores: "{{ hostvars[item]['cores'] | default(cores, true) | int }}"             # common
     cpulimit: "{{ hostvars[item]['cpulimit'] | default(cpulimit, true)  | int }}"   # common
-    lxcmemory: "{{ hostvars[item]['lxcmemory'] | default(lxcmemory, true)  | int }}"
-    lxcswap: "{{ hostvars[item]['lxcswap'] | default(lxcswap, true) | int }}"
+    memory: "{{ hostvars[item]['memory'] | default(memory, true)  | int }}"
+    swap: "{{ hostvars[item]['swap'] | default(swap, true) | int }}"
     diskpool: "{{ hostvars[item]['diskpool'] | default(diskpool, true) }}"          # common
-    lxcrootsize: "{{ hostvars[item]['lxcrootsize'] | default(lxcrootsize, true) | int }}"
-    unprivileged: "{{ hostvars[item]['unprivileged'] | default(agent, unprivileged) }}"
+    rootsize: "{{ hostvars[item]['rootsize'] | default(rootsize, true) | int }}"
+    unprivileged: "{{ hostvars[item]['unprivileged'] | default(unprivileged, false) }}"
     onboot: "{{ hostvars[item]['onboot'] | default(onboot, true) }}"
     pool: "{{ hostvars[item]['pool'] | default(pool, true) }}"                      # common
     gpu_access: "{{ hostvars[item]['gpu_access'] | default(gpu_access, true) }}"
 
 - name: "Set base_url and diskimg based for {{ item }}"
   ansible.builtin.set_fact:
-    template: "{{ template_base }}{{ lxcimages[hostvars[item]['os']]['target'] }}"
+    template: "{{ template_base }}{{ lxcimages[lxcostype]['target'] }}"
 
 - name: Create Proxmox-VE Container with vmid
   community.general.proxmox:
@@ -27,7 +27,7 @@
     hostname: "{{ item }}"
     ostemplate: "{{ template }}"
     ostype: "{{ lxcostype }}"
-    disk: "{{ diskpool }}:{{ lxcrootsize }}"
+    disk: "{{ diskpool }}:{{ rootsize }}"
     # disk_volume:    # requires community.general 9.2.0 or greater
     #   storage: "{{ diskpool }}"
     #   size: "{{ rootsize }}"
@@ -38,8 +38,8 @@
     onboot: "{{ onboot }}"
     pool: "{{ pool }}"
     cores: "{{ cores }}"
-    memory: "{{ lxcmemory }}"
-    swap: "{{ lxcswap }}"
+    memory: "{{ memory }}"
+    swap: "{{ swap }}"
     # pubkey: "{{ sshkey }}"  this would be sshkeys applied to root
     state: present
   when: hostvars[item]['vmid'] is defined
@@ -53,7 +53,7 @@
     hostname: "{{ item }}"
     ostemplate: "{{ template }}"
     ostype: "{{ lxcostype }}"
-    disk: "{{ diskpool }}:{{ lxcrootsize }}"
+    disk: "{{ diskpool }}:{{ rootsize }}"
     # disk_volume:    # requires community.general 9.2.0 or greater
     #   storage: "{{ diskpool }}"
     #   size: "{{ rootsize }}"
@@ -64,8 +64,8 @@
     onboot: "{{ onboot }}"
     pool: "{{ pool }}"
     cores: "{{ cores }}"
-    memory: "{{ lxcmemory }}"
-    swap: "{{ lxcswap }}"
+    memory: "{{ memory }}"
+    swap: "{{ swap }}"
     # pubkey: "{{ sshkey }}"  this would be sshkeys applied to root
     state: present
   when: hostvars[item]['vmid'] is not defined
