@@ -12,9 +12,9 @@ def read_input_file(file_path):
     try:
         with open(file_path, 'r') as f:
             return yaml.load(f)
-    except yaml.YAMLError as e:
-        logging.error(f"Error loading YAML file: {e}, one or more values is (probably) already encrypted")
-        sys.exit(1)
+    # except yaml.YAMLError as e:
+    #     logging.error(f"Error loading YAML file: {e}, one or more values is (probably) already encrypted")
+    #     sys.exit(1)
     except FileNotFoundError:
         logging.error(f"File not found: {file_path}")
         sys.exit(1)

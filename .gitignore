@@ -15,3 +15,5 @@ synced_manifests/
 venv/
 *.egg-info/
 build/
+__pycache__
+.coverage

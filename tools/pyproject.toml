@@ -35,4 +35,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project.optional-dependencies]
-dev = ["pytest", "coverage", "ruff"]
+dev = [
+    "pytest", 
+    "pytest-cov", 
+    "coverage", 
+    "ruff"
+]
