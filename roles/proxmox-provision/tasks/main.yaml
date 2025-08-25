@@ -3,13 +3,14 @@
   ansible.builtin.include_tasks:
     file: fetch-vm-images.yaml
   loop: "{{ vmimages.keys() | list }}"
+  run_once: true
 
 - name: Fetch Latest LXC Images
   ansible.builtin.include_tasks:
     file: fetch-lxc-images.yaml
   loop: "{{ lxcimages.keys() | list }}"
+  run_once: true
 
 - name: Build and Start the VM(s)
   ansible.builtin.include_tasks:
     file: dispatch.yaml
-  loop: "{{ groups[host_group] }}"

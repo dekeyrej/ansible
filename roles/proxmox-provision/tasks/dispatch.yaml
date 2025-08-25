@@ -2,9 +2,9 @@
 - name: Build and Start the VM
   ansible.builtin.include_tasks:
     file: vm-tasks.yaml
-  when: hostvars[item]['type'] == 'kvm'
+  when: type == 'kvm'
 
 - name: Build and Start the Container
   ansible.builtin.include_tasks:
     file: lxc-tasks.yaml
-  when: hostvars[item]['type'] == 'lxc'
+  when: type == 'lxc'

@@ -1,0 +1,40 @@
+node: iluvatar                              # proxmox node and api_host (or bluep)
+
+vmimage_path: /root/
+lxcimage_path: /var/lib/vz/template/cache/
+
+images:
+  kvm:
+    ubuntu:
+      lts:
+        baseurl: https://cloud-images.ubuntu.com/noble/current/
+        target: noble-server-cloudimg-amd64.img
+      latest: 
+        baseurl: https://cloud-images.ubuntu.com/plucky/current/
+        target: plucky-server-cloudimg-amd64.img
+    debian:
+      lts:
+        baseurl: https://cloud.debian.org/images/cloud/bookworm/latest/
+        target: debian-12-genericcloud-amd64.qcow2
+      latest:
+        baseurl: https://cloud.debian.org/images/cloud/trixie/latest/
+        target: debian-13-genericcloud-amd64.qcow2
+  lxc:
+    ubuntu:
+      lts:
+        baseurl: https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud/
+        target: ubuntu-24.04-latest_amd64.tar.xz
+      latest:
+        baseurl: https://images.linuxcontainers.org/images/ubuntu/plucky/amd64/cloud/
+        target: ubuntu-25.04-latest_amd64.tar.xz
+    debian:
+      lts:
+        baseurl: https://images.linuxcontainers.org/images/debian/bookworm/amd64/cloud/
+        target: debian-12-latest_amd64.tar.xz
+      latest:
+        baseurl: https://images.linuxcontainers.org/images/debian/trixie/amd64/cloud/
+        target: debian-13-latest_amd64.tar.xz
+
+
+# filecomp: rootfs.tar.xz
+# template_base: local:vztmpl/

@@ -1,21 +1,26 @@
 # roles/proxmox-provision/defaults/main.yaml
-node: iluvatar                              # proxmox node and api_host
 # api_user: joe@pve                          from vars/main.yaml                      
 # api_password: (encrypted)                  from vars/main.yaml
 # root_api_user: root@pam                    from vars/main.yaml - "Add boot disk from image for VM" task requires root@pam access
 # root_api_password: (encrypted)             from vars/main.yaml - "Add boot disk from image for VM" task requires root@pam access
+# bluep_api_password:(encrypted)             from vars/main.yaml
+# bluep_root_api_password: (encrypted)       from vars/main.yaml
 # sha:                                       from vars/main.yaml - list of public keys with key type, and meta-data removed
-# (required) host_group: an inventory group, role will create a vm or container for each
-# hostname as item                           from inventory REQUIRED
-# vmid     as hostvars[item]['vmid']         from inventory _otherwise_ next available
-# ip       as hostvars[item]['ansible_host'] from inventory _otherwise_ DHCP
-# type                                       from inventory REQUIRED kvm or lxc
-# os                                         from inventory REQUIRED ubuntu or debian
+# hostname                                   from inventory REQUIRED
+# type                                       from inventory _otherwise_ 'lxc'    (or kvm)
+# os                                         from inventory _otherwise_ 'ubuntu' (or debian)
+# release                                    from inventory _otherwise_ 'lts'    (or latest)
+# vmid                                       from inventory _otherwise_ next available
+# static_ip                                  from inventory _otherwise_ DHCP
 
+node: iluvatar                              # proxmox node and api_host (or bluep)
 user: ubuntu
 ## distribution
+os: ubuntu
+release: lts
 vmostype: l26
 ## virtual hardware specs
+type: lxc
 cores: 2
 cpuunits: 100
 cpulimit: 2
@@ -67,11 +72,15 @@ template_base: local:vztmpl/
 ###
 
 ## lxc gpu_access variables
-gpu_access: false  # set to true if you want to enable GPU access
+gpu_access: false  # set to true if you want to enable GPU access - you'll want to check the major numbers, specifically 507.* and 510.*
 gpu_config_additions: |
   lxc.cgroup2.devices.allow: c 195:* rwm
+  # for Ilúvatar
   lxc.cgroup2.devices.allow: c 507:* rwm
   lxc.cgroup2.devices.allow: c 510:* rwm
+  # for bluep
+  # lxc.cgroup2.devices.allow: c 506:* rwm
+  # lxc.cgroup2.devices.allow: c 509:* rwm
 
   lxc.mount.entry: /dev/nvidia0 dev/nvidia0 none bind,optional,create=file
   lxc.mount.entry: /dev/nvidiactl dev/nvidiactl none bind,optional,create=file

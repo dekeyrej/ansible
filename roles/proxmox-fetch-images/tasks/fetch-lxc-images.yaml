@@ -1,0 +1,37 @@
+# roles/proxmox-provision/tasks/fetch-lxc-images.yml
+- name: Block of tasks to fetch updated lxc images
+  delegate_to: "{{ node }}"
+  block: 
+  - name: "Set base_url and diskimg based for {{ item }}"
+    ansible.builtin.set_fact:
+      diskimg: "{{ lxcimage_path }}{{ images['lxc'][item.os][item.release]['target'] }}"
+      # fetch_url: "{{ images['lxc'][item.os][item.release]['baseurl'] }}{{ images['lxc'][item.os][item.release]['target']}}"
+
+  - name: Fetch LXC image index page
+    uri:
+      url: "{{ images['lxc'][item.os][item.release]['baseurl'] }}"
+      return_content: yes
+    register: lxc_index
+
+  - name: Extract all directory names from HTML
+    set_fact:
+      dir_list: "{{ lxc_index.content | regex_findall('href=\\\"(\\d{8}_\\d{2}%3A\\d{2})/') }}"
+
+  - name: Decode and sort directory names
+    set_fact:
+      sorted_dirs: "{{ dir_list | map('urldecode') | sort }}"
+
+  - name: Set latest directory
+    set_fact:
+      latest_dir: "{{ sorted_dirs[-1] }}"
+
+  - name: Download image only if remote is newer
+    shell: |
+      curl -z {{ diskimg }} -L -o {{ diskimg }} {{ images['lxc'][item.os][item.release]['baseurl'] }}{{ latest_dir }}/rootfs.tar.xz
+    register: curl_result
+    changed_when: "'200 OK' in curl_result.stdout or '302 Found' in curl_result.stdout"
+
+  - name: Show image update status
+    debug:
+      msg: "lxc {{ item.os }} {{ item.release }} image was updated from remote source."
+    when: curl_result.changed

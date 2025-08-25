@@ -1,0 +1,43 @@
+# roles/proxmox-provision/tasks/main.yaml
+- name: Fetch images by type, distro, and release
+  ansible.builtin.include_tasks: fetch-image.yaml
+  loop: 
+    - {type: kvm, os: ubuntu, release: lts}
+    # - {type: kvm, os: ubuntu, release: latest}
+    # - {type: kvm, os: debian, release: lts}
+    # - {type: kvm, os: debian, release: latest}
+    # - {type: lxc, os: ubuntu, release: lts}
+    # - {type: lxc, os: ubuntu, release: latest}
+    # - {type: lxc, os: debian, release: lts}
+    # - {type: lxc, os: debian, release: latest}
+  loop_control:
+    label: "{{ item.type }} {{ item.os }} {{ item.release }}"
+
+- name: Show image update summary
+  ansible.builtin.debug:
+    msg: |
+      {% for update in image_updates | default([]) %}
+      - {{ update.type }} {{ update.os }} {{ update.release }} → updated at {{ update.timestamp }}
+      {% else %}
+      No images were updated.
+      {% endfor %}
+
+- name: Add changelog header
+  ansible.builtin.lineinfile:
+    path: /var/log/image-changelog.md
+    line: "## {{ ansible_date_time.date }} Image Updates"
+    create: yes
+    insertafter: EOF
+  become: yes
+  when: image_updates is defined
+
+- name: Append image updates to changelog
+  ansible.builtin.lineinfile:
+    path: /var/log/image-changelog.md
+    line: "- {{ item.timestamp }}: {{ item.type }} {{ item.os }} {{ item.release }} image updated"
+    create: yes
+    insertafter: EOF
+  loop: "{{ image_updates | default([]) }}"
+  become: yes
+  when: image_updates is defined
+

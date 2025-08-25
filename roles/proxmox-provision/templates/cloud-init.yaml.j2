@@ -1,5 +1,5 @@
 #cloud-config
-hostname: {{ item }}
+hostname: {{ inventory_hostname }}
 manage_etc_hosts: true
 users:
   - default
@@ -12,3 +12,7 @@ users:
 {% for key in sha %}
       - ssh-rsa {{ key }}
 {% endfor %}
+    package_update: true
+    package_upgrade: true
+    packages:
+      - qemu-guest-agent

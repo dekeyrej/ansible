@@ -27,7 +27,7 @@
     cores: "{{ cores }}"
     memory: "{{ memory }}"
     swap: "{{ swap }}"
-    pubkey: "{{ sshkey }}"
+    pubkey: "ssh-rsa {{ sshkey }}"
     state: present
   when: hostvars[item]['vmid'] is defined
 
@@ -51,7 +51,7 @@
     cores: "{{ cores }}"
     memory: "{{ memory }}"
     swap: "{{ swap }}"
-    pubkey: "{{ sshkey }}"
+    pubkey: "ssh-rsa {{ sshkey }}"
     state: present
   when: hostvars[item]['vmid'] is not defined
 

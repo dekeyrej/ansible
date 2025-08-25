@@ -1,0 +1,6 @@
+- name: Fetch updated kvm and lxc images
+  hosts: localhost
+  # vars:
+  #   node: iluvatar
+  roles:
+    - proxmox-fetch-images

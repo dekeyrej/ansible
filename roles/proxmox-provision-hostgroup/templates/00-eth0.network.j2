@@ -1,0 +1,8 @@
+[Match]
+Name=eth0
+
+[Network]
+DHCP=no
+Address={{ hostvars[item]['ansible_host'] }}/24
+Gateway={{ gateway }}
+DNS={{ dns_servers }}

@@ -1,0 +1,19 @@
+# roles/proxmox-provision/tasks/fetch-vm-images.yaml
+- name: Block of tasks to fetch updated lxc images
+  delegate_to: "{{ node }}"
+  block: 
+  - name: "Set base_url and diskimg based for kvm {{ item.os }} {{ item.release }}"
+    ansible.builtin.set_fact:
+      diskimg: "{{ vmimage_path }}{{ images['kvm'][item.os][item.release]['target'] }}"
+      fetch_url: "{{ images['kvm'][item.os][item.release]['baseurl'] }}{{ images['kvm'][item.os][item.release]['target']}}"
+
+  - name: Download image only if remote is newer
+    shell: |
+      curl -z {{ diskimg }} -L -o {{ diskimg }} {{ fetch_url }}
+    register: curl_result
+    changed_when: "'200 OK' in curl_result.stdout or '302 Found' in curl_result.stdout"
+
+  - name: Show image update status
+    debug:
+      msg: "kvm {{ item.os }} {{ item.release }} image was updated from remote source."
+    when: curl_result.changed

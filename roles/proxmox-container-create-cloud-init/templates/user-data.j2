@@ -10,7 +10,7 @@ users:
     lock_passwd: true
     ssh_authorized_keys:
 {% for key in sshkey %}
-      - {{ key }}
+      - ssh-rsa {{ key }}
 {% endfor %}
 package_update: true
 package_upgrade: true

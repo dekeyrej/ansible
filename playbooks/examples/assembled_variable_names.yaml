@@ -1,0 +1,17 @@
+- name: playground playbook
+  hosts: seers
+  vars:
+    - bluep_value: "123"
+    - iluvatar_value: "456"
+    - stems:
+      - bluep
+      - iluvatar
+  tasks:
+    - name: looping over stems
+      ansible.builtin.debug:
+        msg: "for stem: {{ item }}, variable {{ item }}_value: {{ vars[item ~ '_value'] }} "
+      loop: "{{ stems }}"
+
+    - name: how do variables layer?
+      ansible.builtin.debug:
+        msg: "Resource Pool: {{ pool }}"

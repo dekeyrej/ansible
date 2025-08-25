@@ -1,5 +1,5 @@
 #cloud-config
-hostname: {{ item }}
+hostname: {{ inventory_hostname }}
 manage_etc_hosts: true
 users:
   - default

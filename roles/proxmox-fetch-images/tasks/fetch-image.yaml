@@ -1,0 +1,92 @@
+# roles/proxmox-provision/tasks/fetch-image.yaml
+- name: Set image var
+  ansible.builtin.set_fact:
+    image: "{{ images[item.type][item.os][item.release] }}"
+  delegate_to: "{{ node }}"
+
+- name: Set vars based on image
+  ansible.builtin.set_fact:
+    diskimg: >-
+      {{
+        (vmimage_path if item.type == 'kvm' else lxcimage_path)
+        + image.target
+      }}
+    fetch_url: "{{ image.baseurl }}{{ image.target }}"
+  delegate_to: "{{ node }}"
+
+- name: KVM image tasks
+  block:
+    - name: Check if image exists
+      ansible.builtin.stat:
+        path: "{{ diskimg }}"
+      register: image_stat
+    
+    - name: Download image (conditional if exists)
+      ansible.builtin.shell: |
+        {% if image_stat.stat.exists %}
+        curl -z {{ diskimg }} -L -o {{ diskimg }} {{ fetch_url }}
+        {% else %}
+        curl -L -o {{ diskimg }} {{ fetch_url }}
+        {% endif %}
+      register: curl_result
+      changed_when: curl_result.rc == 0
+  delegate_to: "{{ node }}"
+  when: item.type == 'kvm'
+
+- name: LXC image tasks
+  block:
+    - name: Fetch LXC image index page
+      ansible.builtin.uri:
+        # url: "{{ images['lxc'][item.os][item.release]['baseurl'] }}"
+        url: "{{ image.baseurl }}"
+        return_content: yes
+      register: lxc_index
+
+    - name: Extract all directory names from HTML
+      ansible.builtin.set_fact:
+        dir_list: "{{ lxc_index.content | regex_findall('href=\\\"(\\d{8}_\\d{2}%3A\\d{2})/') }}"
+
+    - name: Decode and sort directory names
+      ansible.builtin.set_fact:
+        sorted_dirs: "{{ dir_list | map('urldecode') | sort }}"
+
+    - name: Set latest directory
+      ansible.builtin.set_fact:
+        latest_dir: "{{ sorted_dirs[-1] }}"
+
+    - name: Check if image exists
+      ansible.builtin.stat:
+        path: "{{ diskimg }}"
+      register: image_stat
+
+    - name: Download image (conditional if exists)
+      ansible.builtin.shell: |
+        {% if image_stat.stat.exists %}
+        curl -z {{ diskimg }} -L -o {{ diskimg }} {{ image.baseurl }}{{ latest_dir }}/rootfs.tar.xz
+        {% else %}
+        curl -L -o {{ diskimg }} {{ image.baseurl }}{{ latest_dir }}/rootfs.tar.xz
+        {% endif %}
+      register: curl_result
+      changed_when: curl_result.rc == 0
+
+  delegate_to: "{{ node }}"
+  when: item.type == 'lxc'
+
+- name: Show image update status
+  ansible.builtin.debug:
+    msg: "{{ item.type }} {{ item.os }} {{ item.release }} image was updated from remote source."
+  delegate_to: "{{ node }}"
+  when: curl_result.changed
+
+- name: Record image update event
+  ansible.builtin.set_fact:
+    image_updates: "{{ image_updates | default([]) + [ {
+      'type': item.type,
+      'os': item.os,
+      'release': item.release,
+      'status': 'updated',
+      'timestamp': ansible_date_time.iso8601
+    } ] }}"
+  when: curl_result.changed
+  delegate_to: localhost
+

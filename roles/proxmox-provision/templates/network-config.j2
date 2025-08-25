@@ -2,10 +2,10 @@ network:
   version: 2
   ethernets:
     eth0:
-{% if hostvars[item]['ansible_host'] is defined %}
+{% if static_ip is defined %}
       dhcp4: false
       addresses:
-        - "{{ hostvars[item]['ansible_host'] }}/24"
+        - "{{ static_ip }}/24"
       gateway4: {{ gateway }}
       nameservers:
         addresses:
