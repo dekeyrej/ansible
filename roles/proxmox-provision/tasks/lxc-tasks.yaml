@@ -1,33 +1,10 @@
 # roles/proxmox-provision/tasks/lxc-tasks.yaml
-# - name: apply overrides from hostvars, if they exist
-#   ansible.builtin.set_fact:
-#     os: "{{ os }}"
-#     cores: "{{ hostvars[item]['cores'] | default(cores, true) | int }}"             # common
-#     cpulimit: "{{ hostvars[item]['cpulimit'] | default(cpulimit, true)  | int }}"   # common
-#     memory: "{{ hostvars[item]['memory'] | default(memory, true)  | int }}"
-#     swap: "{{ hostvars[item]['swap'] | default(swap, true) | int }}"
-#     diskpool: "{{ hostvars[item]['diskpool'] | default(diskpool, true) }}"          # common
-#     rootsize: "{{ hostvars[item]['rootsize'] | default(rootsize, true) | int }}"
-#     unprivileged: "{{ hostvars[item]['unprivileged'] | default(unprivileged, false) }}"
-#     onboot: "{{ hostvars[item]['onboot'] | default(onboot, true) }}"
-#     pool: "{{ hostvars[item]['pool'] | default(pool, true) }}"                      # common
-#     gpu_access: "{{ hostvars[item]['gpu_access'] | default(gpu_access, true) }}"
-
 - name: Block delegated to localhost
   delegate_to: localhost
   block:
-  # - name: set ip_address if ansible_host is an IP Address, else dhcp
-  #   ansible.builtin.set_fact:
-  #     ip_address: >- 
-  #       {% if ansible_host is match("^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$") %}
-  #         {{ ansible_host }}
-  #       {% else %}
-  #         dhcp
-  #       {% endif %}
-
-  - name: "Set base_url and diskimg based for {{ inventory_hostname }}"
+  - name: "set template based on 'type', 'os' and 'release' for {{ inventory_hostname }}"
     ansible.builtin.set_fact:
-      template: "{{ template_base }}{{ lxcimages[os]['target'] }}"
+      template: "{{ template_base }}{{ images[type][os][release]['target'] }}"
 
   - name: Create Proxmox-VE Container with vmid
     community.general.proxmox:
@@ -80,6 +57,7 @@
       swap: "{{ swap }}"
       # pubkey: "{{ sshkey }}"  this would be sshkeys applied to root
       state: present
+    register: create_result
     when: vmid is not defined
 
   - name: try to get the vmid for the hostname

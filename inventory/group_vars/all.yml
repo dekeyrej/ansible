@@ -1,6 +1,138 @@
+# general ansible
 ansible_user: ubuntu
 ansible_python_interpreter: /usr/bin/python3
+# Certificate Authority
 ca_base_path: /home/ubuntu/certificate_authority
 ca_key_name: ca-certificate.key
 ca_cert_name: ca-certificate.pem
+# enable ceph for kubernetes
 ceph_enabled: false
+# HashiCorp Vault
+vault_addr: https://moria.local:8200
+# Proxmox-VE node
+node: iluvatar
+# use ansible-vault-keys decrypt/encrypt
+api_user: joe@pve
+root_api_user: root@pam
+api_password: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  66643832303863363736306563386537363166643830366339633530396261616530656134323736
+  6233653565363962663631343633353164393961396331350a656132353835343132633766623162
+  35333865336265393734633436613433333332626665396139353664643339666531366335613032
+  6137323632633161660a353664396262346566313264376634646536396530303962663663363632
+  6463
+bluep_api_password: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  30643736323866323561623237386635373038303639313736663338336636383236666432363061
+  6161376264333337376634636339343966393965656663390a356335616263636338363064306430
+  30643839396632326239663736303862613933383262376262333765333232623837636638353331
+  3663663931663663370a626566373931666137633939303866616661366535383561393831323935
+  3164
+root_api_password: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  64383635323532626139383337353362626332313164373836366439363739343066653430663164
+  6531313437326561363064626338376164323731396465660a613361323666616662333761363132
+  66383265346334353364303134386333353931666537313633393565646661666637666565666632
+  3564396165336236300a303934656334626139633766623435646565313565313937306536333964
+  3364
+bluep_root_api_password: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  30306566316639316637363637396634303665343630633962663365663036666633323065373034
+  3964666366336536643931393039336365353131643930320a326231393836396233303861373039
+  33396166663439653564623563663330633438306636363736626165323036633931326136623762
+  3263616662393534340a353833373861313733613561363666373262353738613766346162646166
+  3238
+sha:
+- AAAAB3NzaC1yc2EAAAADAQABAAABAQDQxLlV9aMavpxLyd++1M7el4iFY3p/g8Qg4GN/0HrHkpaFgXWkl+My0x+hjaPF4lXBAAgZrHkxREn5qVtzEM7EcrYDFhQNfd1NA+Jz+gUOW8W7nP3G9kV7WSriMrspeQfx7VNENAGRkWxXe4Bm8yGlOmk4MYaycD8osZfTPWwkhFyZLY3AFbE6J0AcuntZxJPm0j+JVDOmsUVJhc7/Q5Zp2t2FFla3UzRIlSwaqAF2yayjEl6IbS4K30Zmjo8UOQHO9FOIKuXPFx8Wrlc9kqps0t72kGcj5Y9mgduMjJTA+E0cRsti9TTO3bSmVjdJ85FgKSFw+a4iKwmlonDfNxJ1   # ubuntu@Rocket3
+- AAAAB3NzaC1yc2EAAAADAQABAAABAQDNm5dpcIOuD9VsRu4kGaXXDJQVDiEBeOZWVudRrVikLVc9R2kyu96e0XK2r1N2X7yHlQZxX4ngECk+VUazs27LpSNnzEVVjJRqXDcRky3CdEjo/Gf8NIZIL2fvvZE3mtgjXxqjhW+yT0EaVzlxo5cyCSPoKwkXWR8XvtA9uzA4yjhV/wo4wOyktUMjDqIigXJUcfz3vpNr6PIg5pOyfUEA5VdP/uXyIhTYrMkpiJ8/uI5B61OmwUk/leQWzzCpXohB9jpIV+rq6NVt5gJmOvcmpp98Gn0EK7cWmJ+XdsK+y42eF4L3fvUYEz1VBk0cfHX3HHweia8P806Cvzuk7rKD   # manwe@valar
+- AAAAB3NzaC1yc2EAAAADAQABAAABgQDca7c3InYvJObdnDDjZo0ICRQWFqGPFKNqSBsBVWdHRAdf4/0Vzx7pCvxAhotZB1LqED3YQ6GRBXo0wl20WWv8Sbc9yVapkkyXW7uLtiUBQDGDUopwiOJ7lYL2heq2Q/Ams7k/nKRyyH0fxLimD8AXf0S93usJgYKHUGBh0st9fLQDjI7aPTUgstLxH0SNMBRkqILEKCHjBsN7WQgt1VKTCU2Idyjt3wcaTOP0rSKxpk2S9vYK+jOw64jti3ftebnnFaKrItXnttBYsaD9PuYtrtH4d+hFI5UaGgBok8+hXH7ReaiSVaKQhq9w2EKlnTda6QYYEgTyNKa1oOEJUrHkTjxVgae3ja3+cXjKUo6Y3eiXgAhx3CKKcOAVWJ+zH/GByOyCmnXPvwc5FHbJliRra02+wW965eX2G2OjRJR75ALSLfq9VoFFwD0IBVNsHSCK7ZOWUW7/OBzXveizwub+TEGD2/szwHHRoUGCG+eoubTq5nAD8bGf86uDYau+Hns=   # joe@Rocket3
+- AAAAB3NzaC1yc2EAAAADAQABAAACAQDXHbi2Cs4eic4+DGk4+8qIVpt2yMnw9VKT+SAp8tw1pcmIDdy86dLX5avH1LDwUUOQQVi8IEeSGKBYZf2Xk24WHGYAd/icmA9r7iB1IGrwf743ozOutX/Uer6S8A3hU5v3felZbAvYLAZQArY8XouRja7KjXuRZdE0WkmD4CUOGmEMrd7r3SdNNyOVLVkbTC0RB0DtIRSAoQM2VX5WBzLnY1S9m543b+qqXJ25DYOBPi6ixaJJWxU3cImuvymEnVVVFJnq5YefGezOji/XNtQmocoNMKyI/00prKdWy37GsvcHhHS5VBpaWf9D1nYQz3w2xJKG7LU+cHkcFIoDH2XRxzNdk5vd1U/m80viL3ovhI/t7Wx4chv1BKN7HajQxrIK7jewafXy3XXGhpm15z6949XKh2a67+FmG/OkojYX378hCm5LqdbRPseCqQTpCb31ASvetTiM5tp4xPpYoyEN0zO6MmBy7Pr3TO1saXg6w8OgomwCiAZsrhFIVRW12lnmURMfqXlOvswZIJn4JuEOVKqxhesHZ5IJK1cggML7uImPDoQdGxun8lGfPc0MIUhDfg/2YOXGApv1gOTx91MQ7kRuaTJY/GqFFIE6XH6Ff+XSRv6QPp/5973Tek3qdxTWOQmYFGpf133egtWwUX8TOxIdnAzmieRD7HH9ot0+YQ==   # root@iluvatar
+# defaults for VMs and Containers
+user: ubuntu
+## distribution
+os: ubuntu
+release: lts
+vmostype: l26
+## virtual hardware specs
+type: lxc
+cores: 2
+cpuunits: 100
+cpulimit: 2
+cputype: host                                         # vm only
+memory: 2048
+swap: 0                                               # lxc only
+maxmemory: 2048                                       # vm only
+## network
+bridge: vmbr0
+gateway: 192.168.86.1
+dns_servers: 192.168.86.1 8.8.8.8
+nettype: virtio                                       # vm only
+netinf: "{{ nettype }},bridge={{ bridge }}"           # vm only
+## root disk
+diskpool: ssd_pool
+rootsize: 10
+scsinf: virtio-scsi-pci                               # vm only
+bootdiskname: scsi0                                   # vm only
+## vm options
+agent: enabled=0
+protection: false
+## lxc options (not sure why there is not one for 'protection'?)
+unprivileged: true
+onboot: false
+## resource pool
+pool: Mirkwood
+# defaults physical paths for image storage
+vmimage_path: /root/vmimages/
+lxcimage_path: /var/lib/vz/template/cache/
+# logical path for LXC templates
+template_base: local:vztmpl/
+# VM and LXC images
+images:
+  kvm:
+    ubuntu:
+      lts:
+        baseurl: https://cloud-images.ubuntu.com/noble/current/
+        target: noble-server-cloudimg-amd64.img
+      latest: 
+        baseurl: https://cloud-images.ubuntu.com/plucky/current/
+        target: plucky-server-cloudimg-amd64.img
+    debian:
+      lts:
+        baseurl: https://cloud.debian.org/images/cloud/bookworm/latest/
+        target: debian-12-genericcloud-amd64.qcow2
+      latest:
+        baseurl: https://cloud.debian.org/images/cloud/trixie/latest/
+        target: debian-13-genericcloud-amd64.qcow2
+  lxc:
+    ubuntu:
+      lts:
+        baseurl: https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud/
+        target: ubuntu-24.04-latest_amd64.tar.xz
+      latest:
+        baseurl: https://images.linuxcontainers.org/images/ubuntu/plucky/amd64/cloud/
+        target: ubuntu-25.04-latest_amd64.tar.xz
+    debian:
+      lts:
+        baseurl: https://images.linuxcontainers.org/images/debian/bookworm/amd64/cloud/
+        target: debian-12-latest_amd64.tar.xz
+      latest:
+        baseurl: https://images.linuxcontainers.org/images/debian/trixie/amd64/cloud/
+        target: debian-13-latest_amd64.tar.xz
+## lxc gpu_access variables
+gpu_access: false  # set to true if you want to enable GPU access - you'll want to check the major numbers, specifically 507.* and 510.*
+gpu_config_additions: |
+  lxc.cgroup2.devices.allow: c 195:* rwm
+  # for Ilúvatar
+  lxc.cgroup2.devices.allow: c 507:* rwm
+  lxc.cgroup2.devices.allow: c 510:* rwm
+  # for bluep
+  # lxc.cgroup2.devices.allow: c 506:* rwm
+  # lxc.cgroup2.devices.allow: c 509:* rwm
+
+  lxc.mount.entry: /dev/nvidia0 dev/nvidia0 none bind,optional,create=file
+  lxc.mount.entry: /dev/nvidiactl dev/nvidiactl none bind,optional,create=file
+  lxc.mount.entry: /dev/nvidia-uvm dev/nvidia-uvm none bind,optional,create=file
+  lxc.mount.entry: /dev/nvidia-uvm-tools dev/nvidia-uvm-tools none bind,optional,create=file
+  lxc.mount.entry: /dev/nvidia-caps dev/nvidia-caps none bind,optional,create=dir
+  lxc.mount.entry: /dev/nvidia-caps/nvidia-cap1 dev/nvidia-caps/nvidia-cap1 none bind,optional,create=file
+  lxc.mount.entry: /dev/nvidia-caps/nvidia-cap2 dev/nvidia-caps/nvidia-cap2 none bind,optional,create=file

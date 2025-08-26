@@ -5,7 +5,7 @@
 # root_api_password: (encrypted)             from vars/main.yaml - "Add boot disk from image for VM" task requires root@pam access
 # bluep_api_password:(encrypted)             from vars/main.yaml
 # bluep_root_api_password: (encrypted)       from vars/main.yaml
-# sha:                                       from vars/main.yaml - list of public keys with key type, and meta-data removed
+# sha: []                                    from vars/main.yaml - list of public keys with key type, and meta-data removed
 # hostname                                   from inventory REQUIRED
 # type                                       from inventory _otherwise_ 'lxc'    (or kvm)
 # os                                         from inventory _otherwise_ 'ubuntu' (or debian)
@@ -13,79 +13,37 @@
 # vmid                                       from inventory _otherwise_ next available
 # static_ip                                  from inventory _otherwise_ DHCP
 
-node: iluvatar                              # proxmox node and api_host (or bluep)
-user: ubuntu
-## distribution
-os: ubuntu
-release: lts
-vmostype: l26
-## virtual hardware specs
-type: lxc
-cores: 2
-cpuunits: 100
-cpulimit: 2
-cputype: host                                         # vm only
-memory: 2048
-swap: 0                                               # lxc only
-maxmemory: 2048                                       # vm only
-## network
-bridge: vmbr0
-gateway: 192.168.86.1
-dns_servers: 192.168.86.1 8.8.8.8
-nettype: virtio                                       # vm only
-netinf: "{{ nettype }},bridge={{ bridge }}"           # vm only
-## root disk
-diskpool: ssd_pool
-rootsize: 10
-scsinf: virtio-scsi-pci                               # vm only
-bootdiskname: scsi0                                   # vm only
-## vm options
-agent: enabled=0
-protection: false
-## lxc options (not sure why there is not one for 'protection'?)
-unprivileged: true
-onboot: false
-## resource pool
-pool: Mirkwood
-
-### vm images
-vmimages:
-  ubuntu:
-    baseurl: https://cloud-images.ubuntu.com/noble/current/
-    target: noble-server-cloudimg-amd64.img
-  debian:
-    baseurl: https://cloud.debian.org/images/cloud/trixie/latest/
-    target: debian-13-genericcloud-amd64.qcow2
-vmimage_path: /root/
-###
-### lxc images
-lxcimages:
-  ubuntu:
-    baseurl: https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud/
-    target: ubuntu-24.04-latest_24.04-2_amd64.tar.xz
-  debian:
-    baseurl: https://images.linuxcontainers.org/images/debian/trixie/amd64/cloud/
-    target: debian-13-latest_13.0_amd64.tar.xz
-filecomp: rootfs.tar.xz
-lxcimage_path: /var/lib/vz/template/cache/
-template_base: local:vztmpl/
-###
-
-## lxc gpu_access variables
-gpu_access: false  # set to true if you want to enable GPU access - you'll want to check the major numbers, specifically 507.* and 510.*
-gpu_config_additions: |
-  lxc.cgroup2.devices.allow: c 195:* rwm
-  # for Ilúvatar
-  lxc.cgroup2.devices.allow: c 507:* rwm
-  lxc.cgroup2.devices.allow: c 510:* rwm
-  # for bluep
-  # lxc.cgroup2.devices.allow: c 506:* rwm
-  # lxc.cgroup2.devices.allow: c 509:* rwm
-
-  lxc.mount.entry: /dev/nvidia0 dev/nvidia0 none bind,optional,create=file
-  lxc.mount.entry: /dev/nvidiactl dev/nvidiactl none bind,optional,create=file
-  lxc.mount.entry: /dev/nvidia-uvm dev/nvidia-uvm none bind,optional,create=file
-  lxc.mount.entry: /dev/nvidia-uvm-tools dev/nvidia-uvm-tools none bind,optional,create=file
-  lxc.mount.entry: /dev/nvidia-caps dev/nvidia-caps none bind,optional,create=dir
-  lxc.mount.entry: /dev/nvidia-caps/nvidia-cap1 dev/nvidia-caps/nvidia-cap1 none bind,optional,create=file
-  lxc.mount.entry: /dev/nvidia-caps/nvidia-cap2 dev/nvidia-caps/nvidia-cap2 none bind,optional,create=file
+# node                         # proxmox node and api_host (or bluep)
+# user
+# ## distribution
+# os
+# release: lts
+# vmostype: l26
+# ## virtual hardware specs
+# type: lxc
+# cores: 2
+# cpuunits: 100
+# cpulimit: 2
+# cputype: host                                         # vm only
+# memory: 2048
+# swap: 0                                               # lxc only
+# maxmemory: 2048                                       # vm only
+# ## network
+# bridge: vmbr0
+# gateway: 192.168.86.1
+# dns_servers: 192.168.86.1 8.8.8.8
+# nettype: virtio                                       # vm only
+# netinf: "{{ nettype }},bridge={{ bridge }}"           # vm only
+# ## root disk
+# diskpool: ssd_pool
+# rootsize: 10
+# scsinf: virtio-scsi-pci                               # vm only
+# bootdiskname: scsi0                                   # vm only
+# ## vm options
+# agent: enabled=0
+# protection: false
+# ## lxc options (not sure why there is not one for 'protection'?)
+# unprivileged: true
+# onboot: false
+# ## resource pool
+# pool: Mirkwood

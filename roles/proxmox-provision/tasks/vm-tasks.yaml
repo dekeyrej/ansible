@@ -1,19 +1,7 @@
 # roles/proxmox-provision/tasks/vm-tasks.yaml
-# - name: apply overrides from hostvars, if they exist
-#   ansible.builtin.set_fact:
-#     cores: "{{ hostvars[item]['cores'] | default(cores, true) | int }}"             # common
-#     cpulimit: "{{ hostvars[item]['cpulimit'] | default(cpulimit, true)  | int }}"   # common
-#     cputype: "{{ hostvars[item]['cputype'] | default(cputype, true)  }}"
-#     memory: "{{ hostvars[item]['memory'] | default(memory, true) | int }}"
-#     maxmemory: "{{ hostvars[item]['maxmemory'] | default(maxmemory, true)  | int }}"
-#     diskpool: "{{ hostvars[item]['diskpool'] | default(diskpool, true) }}"          # common
-#     rootsize: "{{ hostvars[item]['rootsize'] | default(rootsize, true) }}"          # common
-#     agent: "{{ hostvars[item]['agent'] | default(agent, true) }}"
-#     protection: "{{ hostvars[item]['protection'] | default(protection, true) }}"
-#     pool: "{{ hostvars[item]['pool'] | default(pool, true) }}"                      # common
-- name: set diskimage based on hostvars[item]['os']
+- name: "set diskimage based on 'type', 'os' and 'release' for {{ inventory_hostname }}"
   ansible.builtin.set_fact:
-    diskimg: "{{ vmimage_path }}{{ vmimages[os]['target'] }}"
+    diskimg: "{{ vmimage_path }}{{ images[type][os][release]['target'] }}"
 
 - name: "Assemble 'ip_info' for hostname: {{ inventory_hostname }}"
   ansible.builtin.set_fact:
@@ -26,7 +14,6 @@
         ) | trim
       }}
 
-
 - name: Block delegated to localhost
   delegate_to: localhost
   block:
@@ -36,6 +23,10 @@
       api_password: "{{ api_password }}"
       api_host: "{{ node }}"
       name: "{{ inventory_hostname }}"
+      citype: nocloud
+      ciupgrade: true
+      ciuser: ubuntu
+      sshkeys: "ssh-rsa {{ sha[1] }} manwe@valar"
       node: "{{ node }}"
       vmid: "{{ vmid }}"
       balloon: "{{ memory }}"
@@ -45,7 +36,6 @@
       cpu: "cputype={{ cputype }}"
       ide:
         ide2: "{{ diskpool }}:cloudinit"
-      # cicustom: "user=local:snippets/userconfig-{{ hostvars[item]['vmid'] }}.yaml"
       net:
         net0: "{{ netinf }}"
       ipconfig:
@@ -65,6 +55,10 @@
       api_password: "{{ api_password }}"
       api_host: "{{ node }}"
       name: "{{ inventory_hostname }}"
+      citype: nocloud
+      ciupgrade: true
+      ciuser: ubuntu
+      sshkeys: "ssh-rsa {{ sha[1] }} manwe@valar"
       node: "{{ node }}"
       balloon: "{{ memory }}"
       memory: "{{ maxmemory }}"
@@ -73,7 +67,6 @@
       cpu: "cputype={{ cputype }}"
       ide:
         ide2: "{{ diskpool }}:cloudinit"
-      # cicustom: "user=local:snippets/userconfig-{{ hostvars[item]['vmid'] }}.yaml"
       net:
         net0: "{{ netinf }}"
       ipconfig:
@@ -85,67 +78,27 @@
       pool: "{{ pool }}"
       protection: "{{ protection }}"
       state: present
+    register: create_result
     when: vmid is not defined
 
-  - name: try to get the vmid for the hostname
-    community.general.proxmox_vm_info:
-      api_host: "{{ node }}"
-      api_user: "{{ api_user }}"
-      api_password: "{{ api_password }}"
-      node: "{{ node }}"
-      type: qemu
-      name: "{{ inventory_hostname }}"
-      config: current
-    register: vminfo
-    until: vminfo.proxmox_vms[0].vmid is defined
-  
   - name: Set the resolved vmid
     ansible.builtin.set_fact:
-      resolved_vmid: "{{ vmid | default(vminfo.proxmox_vms[0].vmid | int) }}"
+      resolved_vmid: "{{ vmid | default(create_result.vmid | int) }}"
 
-- name: block delegated to PVE node
+- name: "Add boot disk from image for VM {{ inventory_hostname }}, VMID: {{ resolved_vmid }}"
+  community.general.proxmox_disk:
+    api_user: "{{ root_api_user }}"            # this one task requires root@pam access
+    api_password: "{{ root_api_password }}"    # this one task requires root@pam access
+    api_host: "{{ node }}"
+    vmid: "{{ resolved_vmid }}"
+    disk: "{{ bootdiskname }}"
+    storage: "{{ diskpool }}"
+    import_from: "{{ diskimg }}"
   delegate_to: "{{ node }}"
-  block:
-  - name: "Create userconfig-vmid for host {{ inventory_hostname }} VM {{ resolved_vmid }}"
-    ansible.builtin.template:
-      src: cloud-init.yaml.j2
-      dest: "/var/lib/vz/snippets/userconfig-{{ resolved_vmid }}.yaml"
-
-  # - name: "Add cicustom for {{ inventory_hostname }}, VMID: {{ resolved_vmid }}"
-  #   community.general.proxmox_kvm:
-  #     api_user: "{{ api_user }}"
-  #     api_password: "{{ api_password }}"
-  #     api_host: "{{ node }}"
-  #     node: "{{ node }}"
-  #     name: "{{ inventory_hostname }}"
-  #     vmid: "{{ resolved_vmid }}"
-  #     cicustom: "user=local:snippets/userconfig-{{ resolved_vmid }}.yaml"
-  #     update: true
-
-  - name: "Add boot disk from image for VM {{ inventory_hostname }}, VMID: {{ resolved_vmid }}"
-    community.general.proxmox_disk:
-      api_user: "{{ root_api_user }}"            # this one task requires root@pam access
-      api_password: "{{ root_api_password }}"    # this one task requires root@pam access
-      api_host: "{{ node }}"
-      vmid: "{{ resolved_vmid }}"
-      disk: "{{ bootdiskname }}"
-      storage: "{{ diskpool }}"
-      import_from: "{{ diskimg }}"
 
 - name: Block delegated to localhost
   delegate_to: localhost
   block:
-  - name: "Add cicustom for {{ inventory_hostname }}, VMID: {{ resolved_vmid }}"
-    community.general.proxmox_kvm:
-      api_user: "{{ api_user }}"
-      api_password: "{{ api_password }}"
-      api_host: "{{ node }}"
-      node: "{{ node }}"
-      name: "{{ inventory_hostname }}"
-      vmid: "{{ resolved_vmid }}"
-      cicustom: "user=local:snippets/userconfig-{{ resolved_vmid }}.yaml"
-      update: true
-
   - name: "Resize boot disk for VM {{ inventory_hostname }}, VMID: {{ resolved_vmid }}"
     community.general.proxmox_disk:
       api_user: "{{ api_user }}"

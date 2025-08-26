@@ -7,9 +7,10 @@
     node: "{{ node }}"
     clone: temp
     vmid: "{{ templatevmid }}"  # source (template) VMid
-    newid: "{{ hostvars[item]['vmid'] }}"
+    newid: "{{ hostvars[item]['vmid'] }}"   # if not specified, next available will be returned
     name: "{{ item }}"
     storage: "{{ diskpool }}"
+    full: true   # make a full clone, not a linked one
     pool: Sierra
     state: present
 

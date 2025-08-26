@@ -3,13 +3,13 @@
   ansible.builtin.include_tasks: fetch-image.yaml
   loop: 
     - {type: kvm, os: ubuntu, release: lts}
-    # - {type: kvm, os: ubuntu, release: latest}
-    # - {type: kvm, os: debian, release: lts}
-    # - {type: kvm, os: debian, release: latest}
-    # - {type: lxc, os: ubuntu, release: lts}
-    # - {type: lxc, os: ubuntu, release: latest}
-    # - {type: lxc, os: debian, release: lts}
-    # - {type: lxc, os: debian, release: latest}
+    - {type: kvm, os: ubuntu, release: latest}
+    - {type: kvm, os: debian, release: lts}
+    - {type: kvm, os: debian, release: latest}
+    - {type: lxc, os: ubuntu, release: lts}
+    - {type: lxc, os: ubuntu, release: latest}
+    - {type: lxc, os: debian, release: lts}
+    - {type: lxc, os: debian, release: latest}
   loop_control:
     label: "{{ item.type }} {{ item.os }} {{ item.release }}"
 

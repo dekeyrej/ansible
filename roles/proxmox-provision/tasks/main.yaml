@@ -1,16 +1,12 @@
 # roles/proxmox-provision/tasks/main.yaml
-- name: Fetch Latest VM Images
+- name: Build and Start the VM
   ansible.builtin.include_tasks:
-    file: fetch-vm-images.yaml
-  loop: "{{ vmimages.keys() | list }}"
-  run_once: true
+    file: vm-tasks.yaml
+  when: type == 'kvm'
 
-- name: Fetch Latest LXC Images
-  ansible.builtin.include_tasks:
-    file: fetch-lxc-images.yaml
-  loop: "{{ lxcimages.keys() | list }}"
-  run_once: true
+# or
 
-- name: Build and Start the VM(s)
+- name: Build and Start the Container
   ansible.builtin.include_tasks:
-    file: dispatch.yaml
+    file: lxc-tasks.yaml
+  when: type == 'lxc'
