@@ -1,22 +1,22 @@
 # roles/proxmox-provision/tasks/vm-tasks.yaml
-- name: "set diskimage based on 'type', 'os' and 'release' for {{ inventory_hostname }}"
-  ansible.builtin.set_fact:
-    diskimg: "{{ vmimage_path }}{{ images[type][os][release]['target'] }}"
-
-- name: "Assemble 'ip_info' for hostname: {{ inventory_hostname }}"
-  ansible.builtin.set_fact:
-    ip_info: >-
-      {{
-        (
-          static_ip + '/24,gw=' + gateway
-          if static_ip is defined
-          else 'dhcp'
-        ) | trim
-      }}
-
 - name: Block delegated to localhost
   delegate_to: localhost
   block:
+  - name: "set diskimage based on 'type', 'os' and 'release' for {{ inventory_hostname }}"
+    ansible.builtin.set_fact:
+      diskimg: "{{ vmimport_base }}{{ images[type][os][release]['target'] }}"
+
+  - name: "Assemble 'ip_info' for hostname: {{ inventory_hostname }}"
+    ansible.builtin.set_fact:
+      ip_info: >-
+        {{
+          (
+            static_ip + '/24,gw=' + gateway
+            if static_ip is defined
+            else 'dhcp'
+          ) | trim
+        }}
+
   - name: "Create VM {{ inventory_hostname }}, VMID: {{ vmid }}"
     community.general.proxmox_kvm:
       api_user: "{{ api_user }}"
@@ -26,7 +26,10 @@
       citype: nocloud
       ciupgrade: true
       ciuser: ubuntu
-      sshkeys: "ssh-rsa {{ sha[1] }} manwe@valar"
+      sshkeys: |
+        {% for key in sha %}
+        {{ key }}
+        {% endfor %}
       node: "{{ node }}"
       vmid: "{{ vmid }}"
       balloon: "{{ memory }}"
@@ -41,6 +44,8 @@
       ipconfig:
         ipconfig0: "ip={{ ip_info }}"
       scsihw: "{{ scsinf }}"
+      serial:
+        serial0: "socket"
       ostype: "{{ vmostype }}"
       boot: "order={{ bootdiskname }}"
       agent: "{{ agent }}"
@@ -58,7 +63,10 @@
       citype: nocloud
       ciupgrade: true
       ciuser: ubuntu
-      sshkeys: "ssh-rsa {{ sha[1] }} manwe@valar"
+      sshkeys: |
+        {% for key in sha %}
+        {{ key }}
+        {% endfor %}
       node: "{{ node }}"
       balloon: "{{ memory }}"
       memory: "{{ maxmemory }}"
@@ -72,6 +80,8 @@
       ipconfig:
         ipconfig0: "ip={{ ip_info }}"
       scsihw: "{{ scsinf }}"
+      serial:
+        serial0: "socket"
       ostype: "{{ vmostype }}"
       boot: "order={{ bootdiskname }}"
       agent: "{{ agent }}"
@@ -82,23 +92,26 @@
     when: vmid is not defined
 
   - name: Set the resolved vmid
-    ansible.builtin.set_fact:
-      resolved_vmid: "{{ vmid | default(create_result.vmid | int) }}"
+    ansible.builtin.set_fact: 
+      resolved_vmid: >-
+        {{
+          (
+            vmid
+            if vmid is defined
+            else create_result.vmid
+          ) | int
+        }}
 
-- name: "Add boot disk from image for VM {{ inventory_hostname }}, VMID: {{ resolved_vmid }}"
-  community.general.proxmox_disk:
-    api_user: "{{ root_api_user }}"            # this one task requires root@pam access
-    api_password: "{{ root_api_password }}"    # this one task requires root@pam access
-    api_host: "{{ node }}"
-    vmid: "{{ resolved_vmid }}"
-    disk: "{{ bootdiskname }}"
-    storage: "{{ diskpool }}"
-    import_from: "{{ diskimg }}"
-  delegate_to: "{{ node }}"
-
-- name: Block delegated to localhost
-  delegate_to: localhost
-  block:
+  - name: "Add boot disk from image for VM {{ inventory_hostname }}, VMID: {{ resolved_vmid }}"
+    community.general.proxmox_disk:
+      api_user: "{{ api_user }}"
+      api_password: "{{ api_password }}"
+      api_host: "{{ node }}"
+      vmid: "{{ resolved_vmid }}"
+      disk: "{{ bootdiskname }}"
+      storage: "{{ diskpool }}"
+      import_from: "{{ diskimg }}"
+    
   - name: "Resize boot disk for VM {{ inventory_hostname }}, VMID: {{ resolved_vmid }}"
     community.general.proxmox_disk:
       api_user: "{{ api_user }}"

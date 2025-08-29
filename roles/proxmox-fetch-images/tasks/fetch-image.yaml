@@ -11,7 +11,7 @@
         (vmimage_path if item.type == 'kvm' else lxcimage_path)
         + image.target
       }}
-    fetch_url: "{{ image.baseurl }}{{ image.target }}"
+    # fetch_url: "{{ image.baseurl }}{{ image.target }}"
   delegate_to: "{{ node }}"
 
 - name: KVM image tasks
@@ -24,9 +24,9 @@
     - name: Download image (conditional if exists)
       ansible.builtin.shell: |
         {% if image_stat.stat.exists %}
-        curl -z {{ diskimg }} -L -o {{ diskimg }} {{ fetch_url }}
+        curl -z {{ diskimg }} -L -o {{ diskimg }} {{ image.baseurl }}
         {% else %}
-        curl -L -o {{ diskimg }} {{ fetch_url }}
+        curl -L -o {{ diskimg }} {{ image.baseurl }}
         {% endif %}
       register: curl_result
       changed_when: curl_result.rc == 0
@@ -37,7 +37,6 @@
   block:
     - name: Fetch LXC image index page
       ansible.builtin.uri:
-        # url: "{{ images['lxc'][item.os][item.release]['baseurl'] }}"
         url: "{{ image.baseurl }}"
         return_content: yes
       register: lxc_index

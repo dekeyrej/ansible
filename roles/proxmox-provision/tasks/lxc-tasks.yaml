@@ -81,6 +81,7 @@
     block:
     - name: Append GPU config to container config
       blockinfile:
+        insertafter: EOF
         path: "/etc/pve/lxc/{{ resolved_vmid }}.conf"
         block: "{{ gpu_config_additions }}"
         marker: "# {mark} GPU config additions"
