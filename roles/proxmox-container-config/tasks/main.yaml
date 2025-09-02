@@ -1,0 +1,34 @@
+# roles/proxmox-container-config/tasks/main.yaml
+# requires vmid:
+# defaults standard != true
+- name: only do this if vmid is defined
+  block:
+  - name: copy standard_container_config.sh to node if standard
+    ansible.builtin.copy:
+      src: standard_container_config.sh
+      dest: /root/container_config.sh
+      owner: root
+      group: root
+      mode: '0700'
+    when: standard == true
+
+  - name: copy latest_container_config.sh to node if not standard
+    ansible.builtin.copy:
+      src: latest_container_config.sh
+      dest: /root/container_config.sh
+      owner: root
+      group: root
+      mode: '0700'
+    when: standard not defined or standard != true
+
+  - name: "Execute container_config.sh for VMID: {{ vmid }}"
+    ansible.builtin.shell:
+      cmd: |
+        pct push {{ vmid }} /root/container_config.sh /root/container_config.sh --perms 0700
+        pct exec {{ vmid }} /root/container_config.sh
+
+  - name: delete container_config.sh from node
+    ansible.builtin.file:
+      path: /root/container_config.sh
+      state: absent
+  when: vmid is defined

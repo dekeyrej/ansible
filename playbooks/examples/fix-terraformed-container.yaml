@@ -1,0 +1,6 @@
+# fix-terraformed-container.yaml
+# call with -e "vmid=<vmid> standard=<true|false>"
+- name: fix terraformed proxmox containers
+  hosts: iluvatar
+  roles:
+    - proxmox-container-config
