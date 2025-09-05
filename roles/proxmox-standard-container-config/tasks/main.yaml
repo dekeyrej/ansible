@@ -1,0 +1,61 @@
+# roles/proxmox-standard-container-config/tasks/main.yaml
+- name: run this only for type=lxc
+  block:
+
+  - name: check if host has been 'fixed'
+    vars:
+      ansible_user: root
+    ansible.builtin.stat:
+      path: /root/.is_fixed
+    register: result
+
+  - name: prepare host for non-root access, if it isn't
+    vars:
+      ansible_user: root
+    block:
+
+    - name: install sudo
+      ansible.builtin.apt:
+        pkg: sudo
+        update_cache: true
+
+    - name: allow users in group 'sudo' to run any command without password
+      ansible.builtin.copy:
+        src: 99-sudo-nopasswd
+        dest: /etc/sudoers.d/99-sudo-nopasswd
+        owner: root
+        group: root
+        mode: '0440'
+
+    - name: add user 'ubuntu', add to groups adm, sudo
+      ansible.builtin.user:
+        name: ubuntu
+        shell: /bin/bash
+        groups: adm, sudo
+        append: yes
+
+    - name: create .ssh directory for ubuntu
+      ansible.builtin.file:
+        path: /home/ubuntu/.ssh
+        owner: ubuntu
+        group: ubuntu
+        mode: '0700'
+        state: directory
+
+    - name: create authorized_keys
+      ansible.builtin.template:
+        src: authorized_keys.j2
+        dest: /home/ubuntu/.ssh/authorized_keys
+        force: false
+        owner: ubuntu
+        group: ubuntu
+        mode: '0600'
+
+    - name: create /root/.is-fixed
+      ansible.builtin.file:
+        path: /root/.is_fixed
+        state: touch
+
+    when: not result.stat.exists
+  
+  when: type == "lxc"

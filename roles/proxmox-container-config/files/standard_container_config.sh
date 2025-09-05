@@ -1,4 +1,7 @@
 #!/bin/bash
+apt update
+apt install -y sudo
+apt upgrade -y
 [ -f /etc/sudoers.d/99-sudo-nopasswd ] || echo '%sudo ALL=(ALL:ALL) NOPASSWD:ALL' > /etc/sudoers.d/99-sudo-nopasswd
 chmod 440 /etc/sudoers.d/99-sudo-nopasswd
 adduser --disabled-password --gecos "" ubuntu

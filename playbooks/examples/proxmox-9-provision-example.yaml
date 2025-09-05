@@ -1,5 +1,5 @@
 - name: Create Proxmox containers or virtual machines
-  hosts: test02   # executed on Manwë
+  hosts: lxctemplates   # executed on Manwë
   gather_facts: false
   # vars:
   #   api_password: "{{ bluep_api_password }}"

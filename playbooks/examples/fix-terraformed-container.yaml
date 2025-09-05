@@ -1,6 +1,13 @@
 # fix-terraformed-container.yaml
 # call with -e "vmid=<vmid> standard=<true|false>"
+# - name: fix terraformed proxmox containers
+#   hosts: iluvatar
+#   roles:
+#     - proxmox-container-config
+
+# walks group of all VMs and LXCs on a PVE Node
 - name: fix terraformed proxmox containers
-  hosts: iluvatar
+  hosts: bluepnode
+  gather_facts: false
   roles:
-    - proxmox-container-config
+    - proxmox-standard-container-config
