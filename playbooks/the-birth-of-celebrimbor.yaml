@@ -1,24 +1,24 @@
 ---
-- name: Provision Proxmox VM host for Celebrimbor
-  hosts: iluvatar   # executed on Manwë
-  tags: builder:provision
-  vars:
-    host_group: builder
-  roles:
-    - role: known-hosts-clear
-    - role: proxmox-provision
+# - name: Provision Proxmox VM host for Celebrimbor
+#   hosts: iluvatar   # executed on Manwë
+#   tags: builder:provision
+#   vars:
+#     host_group: builder
+#   roles:
+#     - role: known-hosts-clear
+#     - role: proxmox-provision
 
-# wait for the container(s) to settle...
-- name: Wait for VM to become reachable
-  hosts: celebrimbor
-  tags: builder:provision
-  gather_facts: no
-  tasks:
-    - name: Wait for SSH to come up
-      ansible.builtin.wait_for_connection:
-        timeout: 300  # Adjust as needed
-        delay: 10     # Initial delay before polling
-        sleep: 5      # Time between retries
+# # wait for the container(s) to settle...
+# - name: Wait for VM to become reachable
+#   hosts: celebrimbor
+#   tags: builder:provision
+#   gather_facts: no
+#   tasks:
+#     - name: Wait for SSH to come up
+#       ansible.builtin.wait_for_connection:
+#         timeout: 300  # Adjust as needed
+#         delay: 10     # Initial delay before polling
+#         sleep: 5      # Time between retries
 
 - name: Setup Celebrimbor
   hosts: celebrimbor
@@ -30,7 +30,15 @@
     - role: apt-update-all
     - role: apt-add-packages
       vars:
-        packages: [qemu-guest-agent, buildah, podman, podman-docker, skopeo]
+        packages: [qemu-guest-agent, buildah, podman, podman-docker, skopeo,
+                   golang-go, gcc, debootstrap, rsync, gpg, squashfs-tools, git, 
+                   make, build-essential, libwin-hivex-perl, wimtools, genisoimage,
+                   btrfs-progs, dosfstools, qemu-kvm]
+    - role: git-clone-repositories
+      vars:
+        repositories:
+        - { name: distrobuilder, repo: 'https://github.com/lxc/distrobuilder.git'}
+        - { name: images,        repo: 'git@github.com:dekeyrej/custom-container-images.git'}
     - role: kubernetes-kubectl-install
   tasks:
     - name: inject github token into ubuntu's .bashrc
@@ -39,3 +47,6 @@
         path: /home/ubuntu/.bashrc
         insertafter: EOF
         line: "export GITHUB_TOKEN={{ github_token }}"
+    # cd ~/repos/custom-container-images
+    # make
+    # add $HOME/go/bin to path

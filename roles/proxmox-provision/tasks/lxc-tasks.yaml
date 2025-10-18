@@ -80,10 +80,10 @@
     delegate_to: "{{ node }}"
     block:
     - name: Append GPU config to container config
-      blockinfile:
+      ansible.builtin.blockinfile:
         insertafter: EOF
         path: "/etc/pve/lxc/{{ resolved_vmid }}.conf"
-        block: "{{ gpu_config_additions }}"
+        block: "{{ gpu_config_additions.node }}"
         marker: "# {mark} GPU config additions"
       when: gpu_access
 

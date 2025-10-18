@@ -7,7 +7,7 @@
 
 # walks group of all VMs and LXCs on a PVE Node
 - name: fix terraformed proxmox containers
-  hosts: bluepnode
+  hosts: faramir
   gather_facts: false
   roles:
     - proxmox-standard-container-config

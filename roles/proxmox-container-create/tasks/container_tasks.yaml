@@ -2,8 +2,8 @@
 - name: "Assemble 'ip_info' for hostname: {{ item }}"
   ansible.builtin.set_fact:
     ip_info: >-
-      {{ (hostvars[item]['ansible_host'] + '/24,gw=' + gateway)
-         if 'ansible_host' in hostvars[item]
+      {{ (hostvars[item]['static_ip'] + '/24,gw=' + gateway)
+         if 'static_ip' in hostvars[item]
          else 'dhcp' }}
 
 - name: Create Proxmox-VE Container with vmid
