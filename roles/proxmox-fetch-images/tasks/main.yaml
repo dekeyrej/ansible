@@ -2,14 +2,14 @@
 - name: Fetch images by type, distro, and release
   ansible.builtin.include_tasks: fetch-image.yaml
   loop: 
-    - {type: kvm, os: ubuntu, release: lts}
-    - {type: kvm, os: ubuntu, release: latest}
-    - {type: kvm, os: debian, release: lts}
-    - {type: kvm, os: debian, release: latest}
-    - {type: lxc, os: ubuntu, release: lts}
-    - {type: lxc, os: ubuntu, release: latest}
-    - {type: lxc, os: debian, release: lts}
-    - {type: lxc, os: debian, release: latest}
+    - {type: kvm, os: ubuntu, release: 24}
+    - {type: kvm, os: ubuntu, release: 25}
+    - {type: kvm, os: debian, release: 12}
+    - {type: kvm, os: debian, release: 13}
+    - {type: kvm, os: centos, release: 9}
+    - {type: kvm, os: centos, release: 10}
+    - {type: kvm, os: amazon, release: 2}
+    - {type: kvm, os: amazon, release: 2023}
   loop_control:
     label: "{{ item.type }} {{ item.os }} {{ item.release }}"
 
@@ -30,6 +30,7 @@
     insertafter: EOF
   become: yes
   when: image_updates is defined
+  delegate_to: localhost
 
 - name: Append image updates to changelog
   ansible.builtin.lineinfile:
@@ -40,4 +41,5 @@
   loop: "{{ image_updates | default([]) }}"
   become: yes
   when: image_updates is defined
+  delegate_to: localhost
 

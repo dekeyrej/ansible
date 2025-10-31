@@ -1,15 +1,6 @@
 - name: Create Proxmox containers or virtual machines
-  hosts: celebrimbor   # executed on Manwë
+  hosts: [celeborn, gil-galad]   # executed on Manwë
   gather_facts: false
-  # vars:
-  #   api_password: "{{ bluep_api_password }}"
-  #   node: bluep
-  #   cores: 32
-  #   memory: 65535
-  #   diskpool: nvme_pool
-  #   rootsize: 1024
-  #   pool: CloudFish
-  #   gpu_access: true
   roles:
     - role: known-hosts-clear
     - role: proxmox-provision

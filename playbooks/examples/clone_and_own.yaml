@@ -1,0 +1,10 @@
+- name: Fetch KVM Images
+  hosts: iluvatar
+  roles:
+    - role: proxmox-fetch-images
+
+# - name: Create Proxmox VM template
+#   hosts: cirdan
+#   gather_facts: false
+#   roles:
+#     - role: proxmox-vm-create-template

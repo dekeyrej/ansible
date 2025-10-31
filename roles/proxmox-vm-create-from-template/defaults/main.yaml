@@ -2,6 +2,6 @@
 bootdiskname: scsi0
 diskpool: nvme_pool
 # gateway: 192.168.86.1
-node: sierra
-templatevmid: 9000
-diskincrement: +146.5G    # base image is ~ 3.5G - this is the amount to ADD to the boot disk
+node: iluvatar
+templatevmid: 300
+diskincrement: +12.5G    # base image is ~ 3.5G - this is the amount to ADD to the boot disk

@@ -1,45 +1,63 @@
 ---
 # invoke role: fetch_vm_image to update the diskimage before cloning
+- name: delegate to manwe
+  block:
+  - name: Create base VM
+    community.general.proxmox_kvm:
+      api_host: "{{ node }}"
+      api_user: "{{ api_user }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
+      node: "{{ node }}"
+      vmid: "{{ vmid }}"
+      name: ubuntu-kvm-base
+      cores: "{{ cores }}"
+      cpu: "cputype={{ cputype }}"
+      balloon: "{{ balloon }}"
+      memory: "{{ memory }}"
+      ide:
+        ide2: "{{ diskpool }}:cloudinit"
+      serial:
+        serial0: socket
+      citype: nocloud
+      ciupgrade: true
+      ciuser: ubuntu
+      sshkeys: |
+        {% for key in sha %}
+        {{ key }}
+        {% endfor %}
+      net:
+        net0: "{{ netinf }}"
+      # ipconfig:
+      #   ipconfig0: "ip=192.168.86.253/24,gw=192.168.86.1"
+      # nameservers: 192.168.86.1
+      # searchdomains: 'local'
+      scsihw: "{{ scsinf }}"
+      boot: "order={{ bootdiskname }}"
+      ostype: "{{ ostype }}"
+      agent: "{{ agent }}"
+      pool: Valinor
+      protection: true
+      state: present
 
-- name: Create base VM
-  community.general.proxmox_kvm:
-    api_user: "{{ api_user }}"
-    api_password: "{{ api_password }}"
-    api_host: "{{ node }}"
-    name: kubetemp
-    node: "{{ node }}"
-    vmid: "{{ vmid }}"
-    balloon: "{{ balloon }}"
-    memory: "{{ memory }}"
-    cores: "{{ cores }}"
-    cpulimit: "{{ cpulimit }}"
-    cpu: "cputype={{ cputype }}"
-    net:
-      net0: "{{ netinf }}"
-    scsihw: "{{ scsinf }}"
-    ide:
-      ide2: "{{ diskpool }}:cloudinit"
-    ostype: "{{ ostype }}"
-    boot: "order={{ bootdiskname }}"
-    agent: "{{ agent }}"
-    pool: Sierra
-    state: present
+  - name: Add boot disk from image
+    community.general.proxmox_disk:
+      api_host: "{{ node }}"
+      api_user: "{{ api_user }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
+      vmid: "{{ vmid }}"
+      disk: "{{ bootdiskname }}"
+      storage: "{{ diskpool }}"
+      import_from: "{{ diskimg }}"
 
-- name: Add boot disk from image
-  community.general.proxmox_disk:
-    api_user: "{{ api_user }}"
-    api_password: "{{ api_password }}"
-    api_host: "{{ node }}"
-    vmid: "{{ vmid }}"
-    disk: "{{ bootdiskname }}"
-    storage: "{{ diskpool }}"
-    import_from: "{{ diskimg }}"
-
-- name: Make base VM template
-  community.general.proxmox_kvm:
-    api_user: "{{ api_user }}"
-    api_password: "{{ api_password }}"
-    api_host: "{{ node }}"
-    node: "{{ node }}"
-    vmid: "{{ vmid }}"
-    state: template
+  - name: Make base VM template
+    community.general.proxmox_kvm:
+      api_host: "{{ node }}"
+      api_user: "{{ api_user }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
+      node: "{{ node }}"
+      vmid: "{{ vmid }}"
+      state: template
+  delegate_to: manwe

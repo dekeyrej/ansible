@@ -6,11 +6,23 @@
     ansible.builtin.set_fact:
       template: "{{ template_base }}{{ images[type][os][release]['target'] }}"
 
+  - name: "Assemble 'ip_info' for hostname: {{ inventory_hostname }}"
+    ansible.builtin.set_fact:
+      ip_info: >-
+        {{
+          (
+            static_ip + '/24,gw=' + gateway
+            if static_ip is defined
+            else 'dhcp'
+          ) | trim
+        }}
+
   - name: Create Proxmox-VE Container with vmid
     community.general.proxmox:
       api_host: "{{ node }}"
       api_user: "{{ api_user }}"
-      api_password: "{{ api_password }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
       node: "{{ node }}"
       vmid: "{{ vmid }}"
       hostname: "{{ inventory_hostname }}"
@@ -21,8 +33,10 @@
       #   storage: "{{ diskpool }}"
       #   size: "{{ rootsize }}"
       netif:
-        net0: "name=eth0,bridge={{ bridge }},type=veth"
-        # net0: "name=eth0,bridge={{ bridge }},ip={{ ip_info }}"
+        # net0: "name=eth0,bridge={{ bridge }},type=veth"
+        net0: "name=eth0,bridge={{ bridge }},type=veth,ip={{ ip_info }}"
+      nameserver: 192.168.86.1
+      searchdomain: local
       unprivileged: "{{ unprivileged }}" 
       onboot: "{{ onboot }}"
       pool: "{{ pool }}"
@@ -37,7 +51,8 @@
     community.general.proxmox:
       api_host: "{{ node }}"
       api_user: "{{ api_user }}"
-      api_password: "{{ api_password }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
       node: "{{ node }}"
       hostname: "{{ inventory_hostname }}"
       ostemplate: "{{ template }}"
@@ -47,8 +62,10 @@
       #   storage: "{{ diskpool }}"
       #   size: "{{ rootsize }}"
       netif:
-        net0: "name=eth0,bridge={{ bridge }},type=veth"
-        # net0: "name=eth0,bridge={{ bridge }},ip={{ ip_info }}"
+        # net0: "name=eth0,bridge={{ bridge }},type=veth"
+        net0: "name=eth0,bridge={{ bridge }},ip={{ ip_info }}"
+      nameserver: 192.168.86.1
+      searchdomain: local      
       unprivileged: "{{ unprivileged }}" 
       onboot: "{{ onboot }}"
       pool: "{{ pool }}"
@@ -64,7 +81,8 @@
     community.general.proxmox_vm_info:
       api_host: "{{ node }}"
       api_user: "{{ api_user }}"
-      api_password: "{{ api_password }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
       node: "{{ node }}"
       type: lxc
       name: "{{ inventory_hostname }}"
@@ -76,85 +94,87 @@
     ansible.builtin.set_fact:
       resolved_vmid: "{{ vmid | default(vminfo.proxmox_vms[0].vmid | int) }}"
 
-  - name: Delegated block of tasks that have to be run on the pvenode
+  # - name: Delegated block of tasks that have to be run on the pvenode
+  #   delegate_to: "{{ node }}"
+  #   block:
+  - name: Append GPU config to container config
+    ansible.builtin.blockinfile:
+      insertafter: EOF
+      path: "/etc/pve/lxc/{{ resolved_vmid }}.conf"
+      block: "{{ gpu_config_additions.iluvatar }}"
+      marker: "# {mark} GPU config additions"
+    when: gpu_access
     delegate_to: "{{ node }}"
-    block:
-    - name: Append GPU config to container config
-      ansible.builtin.blockinfile:
-        insertafter: EOF
-        path: "/etc/pve/lxc/{{ resolved_vmid }}.conf"
-        block: "{{ gpu_config_additions.node }}"
-        marker: "# {mark} GPU config additions"
-      when: gpu_access
 
-    - name: mount the LXC container's rootfs
-      ansible.builtin.shell: pct mount {{ resolved_vmid }}
+    # - name: mount the LXC container's rootfs
+    #   ansible.builtin.shell: pct mount {{ resolved_vmid }}
 
-    - name: Set owner_value based on 'unprivileged'
-      ansible.builtin.set_fact:
-        owner_value: >-
-          {{ 100000 if unprivileged else 0 }}
+    # - name: Set owner_value based on 'unprivileged'
+    #   ansible.builtin.set_fact:
+    #     owner_value: >-
+    #       {{ 100000 if unprivileged else 0 }}
 
-    - name: Set group_value based on 'unprivileged'
-      ansible.builtin.set_fact:
-        group_value: >-
-          {{ 100000 if unprivileged else 0 }}
+    # - name: Set group_value based on 'unprivileged'
+    #   ansible.builtin.set_fact:
+    #     group_value: >-
+    #       {{ 100000 if unprivileged else 0 }}
 
-    - name: create directory for cloud-init seed data
-      ansible.builtin.file:
-        path: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net"
-        state: directory
-        owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
-        group: "{{ group_value }}"
+    # - name: create directory for cloud-init seed data
+    #   ansible.builtin.file:
+    #     path: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net"
+    #     state: directory
+    #     owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
+    #     group: "{{ group_value }}"
 
-    - name: copy meta-data to container's mounted rootfs
-      ansible.builtin.template:
-        src: meta-data.j2
-        dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net/meta-data"
-        owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
-        group: "{{ group_value }}"
+    # - name: copy meta-data to container's mounted rootfs
+    #   ansible.builtin.template:
+    #     src: meta-data.j2
+    #     dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net/meta-data"
+    #     owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
+    #     group: "{{ group_value }}"
 
-    - name: copy 00-eth0.network to container's mounted rootfs
-      ansible.builtin.template:
-        src: 00-eth0.network.j2
-        dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/etc/systemd/network/00-eth0.network"
-        owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
-        group: "{{ group_value }}"
-      when:  static_ip is defined
+    # - name: copy 00-eth0.network to container's mounted rootfs
+    #   ansible.builtin.template:
+    #     src: 00-eth0.network.j2
+    #     dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/etc/systemd/network/00-eth0.network"
+    #     owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
+    #     group: "{{ group_value }}"
+    #   when:  static_ip is defined
 
-    - name: copy network-config to container's mounted rootfs
-      ansible.builtin.template:
-        src: network-config.j2
-        dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net/network-config"
-        owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
-        group: "{{ group_value }}"
+    # - name: copy network-config to container's mounted rootfs
+    #   ansible.builtin.template:
+    #     src: network-config.j2
+    #     dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net/network-config"
+    #     owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
+    #     group: "{{ group_value }}"
 
-    - name: copy user-data to container's mounted rootfs
-      ansible.builtin.template:
-        src: user-data.j2
-        dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net/user-data"
-        owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
-        group: "{{ group_value }}"
+    # - name: copy user-data to container's mounted rootfs
+    #   ansible.builtin.template:
+    #     src: user-data.j2
+    #     dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/var/lib/cloud/seed/nocloud-net/user-data"
+    #     owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
+    #     group: "{{ group_value }}"
 
-    - name: copy 90_nocloud.cfg to container's mounted rootfs
-      ansible.builtin.copy:
-        src: 90_nocloud.cfg
-        dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/etc/cloud/cloud.cfg.d/90_nocloud.cfg"
-        owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
-        group: "{{ group_value }}"
+    # - name: copy 90_nocloud.cfg to container's mounted rootfs
+    #   ansible.builtin.copy:
+    #     src: 90_nocloud.cfg
+    #     dest: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/etc/cloud/cloud.cfg.d/90_nocloud.cfg"
+    #     owner: "{{ owner_value }}"                         # this chown/chgrp is necessary for unpriviledged containers.
+    #     group: "{{ group_value }}"
 
-    - name: delete cloud-init.disabled
-      ansible.builtin.file:
-        path: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/etc/cloud/cloud-init.disabled"
-        state: absent
+    # - name: delete cloud-init.disabled
+    #   ansible.builtin.file:
+    #     path: "/var/lib/lxc/{{ resolved_vmid }}/rootfs/etc/cloud/cloud-init.disabled"
+    #     state: absent
 
-    - name: unmount the LXC container's rootfs
-      ansible.builtin.shell: pct unmount {{ resolved_vmid }}
+    # - name: unmount the LXC container's rootfs
+    #   ansible.builtin.shell: pct unmount {{ resolved_vmid }}
 
   - name: Start Container
     community.general.proxmox:
       api_host: "{{ node }}"
       api_user: "{{ api_user }}"
-      api_password: "{{ api_password }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
       vmid: "{{ resolved_vmid }}"
       state: started

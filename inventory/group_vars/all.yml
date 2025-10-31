@@ -13,22 +13,16 @@ vault_addr: https://moria.local:8200
 node: iluvatar
 # use ansible-vault-keys decrypt/encrypt
 api_user: joe@pve
+api_token_id: default
+api_token_secret: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  61393565363533326237643563333436363535656336386234363862663563303664666536663666
+  3066373835353230616132353839616538326232646663330a343661353438303235346631306463
+  65343132383031313631323333653333366164303363623334653633376633333366666261336366
+  3733396264353230610a303166633864613038306233623665636436363864326233646434303937
+  31626232373736373363313666636637353961373138326535343937636663326631633233636237
+  3138346433336563623563313266616365353938383064303139
 root_api_user: root@pam
-api_token: !vault |
-  $ANSIBLE_VAULT;1.1;AES256
-  34396130336634306666393435383265633864393339623639663133666436323936396237303663
-  3837613164646333323862353739306637383937656337310a303763653362376536373561313137
-  35616330303034653934666238653639343638363336373834373638373862373638626365663662
-  3235303434326264360a643338643462663435643138633033666236636263363537363436646536
-  38356434376437366238633037396332363430323366386661656333646534386663333462653363
-  6239643362343731353233636464303064376162663261643663
-api_password: !vault |
-  $ANSIBLE_VAULT;1.1;AES256
-  66643832303863363736306563386537363166643830366339633530396261616530656134323736
-  6233653565363962663631343633353164393961396331350a656132353835343132633766623162
-  35333865336265393734633436613433333332626665396139353664643339666531366335613032
-  6137323632633161660a353664396262346566313264376634646536396530303962663663363632
-  6463
 bluep_api_password: !vault |
   $ANSIBLE_VAULT;1.1;AES256
   30643736323866323561623237386635373038303639313736663338336636383236666432363061
@@ -36,13 +30,6 @@ bluep_api_password: !vault |
   30643839396632326239663736303862613933383262376262333765333232623837636638353331
   3663663931663663370a626566373931666137633939303866616661366535383561393831323935
   3164
-root_api_password: !vault |
-  $ANSIBLE_VAULT;1.1;AES256
-  64383635323532626139383337353362626332313164373836366439363739343066653430663164
-  6531313437326561363064626338376164323731396465660a613361323666616662333761363132
-  66383265346334353364303134386333353931666537313633393565646661666637666565666632
-  3564396165336236300a303934656334626139633766623435646565313565313937306536333964
-  3364
 bluep_root_api_password: !vault |
   $ANSIBLE_VAULT;1.1;AES256
   30306566316639316637363637396634303665343630633962663365663036666633323065373034
@@ -51,6 +38,8 @@ bluep_root_api_password: !vault |
   3263616662393534340a353833373861313733613561363666373262353738613766346162646166
   3238
 sha:
+- |
+  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC4x2dqrgVnZQvAD41hs2eCacSpPEzX//fbJJvWqxtjJMOn4JWtg3RkWhXgq6smILev+AQkhsul1zv2dYFZ2+bp0+FjMexJnrehjFgZTMeSznKpNf6Z2Erko/slQZI4J8siBJ1RjNy1+63XXqNGSAJF3zuleGCIaA2xVpJy+k/xf0mg055kxgpQgD0P0MR82aqztYdGgy8QlcdMKUyenjLYPoNqvMS6mi1l7jFZ3c0r/z7cy8B6O+GKdqNRk7pin7d94D0RYhD597m+ViSD5OYRzbKzWifnavRHKMUZP8t3N2zDT1vrEBL6SWwxryss/4/ZSqjncqDEdat4tZ2oNHB1 ubuntu@nenya
 - |
   ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDQxLlV9aMavpxLyd++1M7el4iFY3p/g8Qg4GN/0HrHkpaFgXWkl+My0x+hjaPF4lXBAAgZrHkxREn5qVtzEM7EcrYDFhQNfd1NA+Jz+gUOW8W7nP3G9kV7WSriMrspeQfx7VNENAGRkWxXe4Bm8yGlOmk4MYaycD8osZfTPWwkhFyZLY3AFbE6J0AcuntZxJPm0j+JVDOmsUVJhc7/Q5Zp2t2FFla3UzRIlSwaqAF2yayjEl6IbS4K30Zmjo8UOQHO9FOIKuXPFx8Wrlc9kqps0t72kGcj5Y9mgduMjJTA+E0cRsti9TTO3bSmVjdJ85FgKSFw+a4iKwmlonDfNxJ1 ubuntu@Rocket3
 - |
@@ -63,7 +52,7 @@ sha:
 user: ubuntu
 ## distribution
 os: ubuntu
-release: lts
+release: 24
 vmostype: l26
 ## virtual hardware specs
 type: lxc
@@ -103,34 +92,61 @@ vmimport_base: local:import/
 images:
   kvm:
     ubuntu:
-      lts:
+      24:
         baseurl: https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img
-        target: ubuntu-24.04-server-cloudimg-amd64.qcow2
-      latest: 
+        basefile: ubuntu-24.04-server-cloudimg-amd64.img
+        target: ubuntu-24.04-cloudimg-amd64.qcow2
+      25: 
         baseurl: https://cloud-images.ubuntu.com/releases/plucky/release/ubuntu-25.04-server-cloudimg-amd64.img
-        target: ubuntu-25.04-server-cloudimg-amd64.qcow2
+        basefile: ubuntu-25.04-server-cloudimg-amd64.img
+        target: ubuntu-25.04-cloudimg-amd64.qcow2
     debian:
-      lts:
+      12:
         baseurl: https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2
-        target: debian-12-genericcloud-amd64.qcow2
-      latest:
+        basefile: debian-12-genericcloud-amd64.qcow2
+        target: debian-12-generic-amd64.qcow2
+      13:
         baseurl: https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2
-        target: debian-13-genericcloud-amd64.qcow2
+        basefile: debian-13-genericcloud-amd64.qcow2
+        target: debian-13-generic-amd64.qcow2
+    centos:
+      9:
+        baseurl: https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-GenericCloud-9-latest.x86_64.qcow2
+        basefile: CentOS-Stream-GenericCloud-9-latest.x86_64.qcow2
+        target: centos-9-stream-latest-x86_64.qcow2
+      10:
+        baseurl: https://cloud.centos.org/centos/10-stream/x86_64/images/CentOS-Stream-GenericCloud-10-latest.x86_64.qcow2
+        basefile: CentOS-Stream-GenericCloud-10-latest.x86_64.qcow2
+        target: centos-10-stream-latest-x86_64.qcow2
+    amazon:
+      2:
+        baseurl: https://cdn.amazonlinux.com/os-images/latest/kvm/
+        target: amzn2-kvm-x86_64.xfs.gpt.qcow2
+      2023:
+        baseurl: https://cdn.amazonlinux.com/al2023/os-images/latest/kvm/
+        target: al2023-kvm-x86_64.xfs.gpt.qcow2
   lxc:
     ubuntu:
-      lts:
+      24:
         # baseurl: https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud/
-        target: ubuntu-noble-server-latest-custom.tar.xz
-      latest:
+        target: ubuntu-noble-latest-custom.tar.xz
+      25:
         # baseurl: https://images.linuxcontainers.org/images/ubuntu/plucky/amd64/cloud/
-        target: ubuntu-plucky-server-latest-custom.tar.xz
+        target: ubuntu-plucky-latest-custom.tar.xz
     debian:
-      lts:
+      12:
         # baseurl: https://images.linuxcontainers.org/images/debian/bookworm/amd64/cloud/
         target: debian-bookworm-latest-custom.tar.xz
-      latest:
+      13:
         # baseurl: https://images.linuxcontainers.org/images/debian/trixie/amd64/cloud/
         target: debian-trixie-latest-custom.tar.xz
+    centos:
+      9:
+        # baseurl: https://images.linuxcontainers.org/images/debian/bookworm/amd64/cloud/
+        target: centos-9-stream-latest-custom.tar.xz
+      10:  # not currently functional in proxmox-ve 9 via API (does work via PCT with 'hack')
+        # baseurl: https://images.linuxcontainers.org/images/debian/trixie/amd64/cloud/
+        target: centos-10-stream-latest-custom.tar.xz
 ## lxc gpu_access variables
 gpu_access: false  # set to true if you want to enable GPU access - you'll want to check the major numbers, specifically 507.* and 510.*
 gpu_config_additions:

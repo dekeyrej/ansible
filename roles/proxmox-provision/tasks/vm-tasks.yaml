@@ -20,12 +20,13 @@
   - name: "Create VM {{ inventory_hostname }}, VMID: {{ vmid }}"
     community.general.proxmox_kvm:
       api_user: "{{ api_user }}"
-      api_password: "{{ api_password }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
       api_host: "{{ node }}"
       name: "{{ inventory_hostname }}"
       citype: nocloud
       ciupgrade: true
-      ciuser: ubuntu
+      ciuser: ubuntu      # "{{ os }}"
       sshkeys: |
         {% for key in sha %}
         {{ key }}
@@ -57,12 +58,13 @@
   - name: "Create VM {{ inventory_hostname }}"
     community.general.proxmox_kvm:
       api_user: "{{ api_user }}"
-      api_password: "{{ api_password }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
       api_host: "{{ node }}"
       name: "{{ inventory_hostname }}"
       citype: nocloud
       ciupgrade: true
-      ciuser: ubuntu
+      ciuser: ubuntu      # "{{ os }}"
       sshkeys: |
         {% for key in sha %}
         {{ key }}
@@ -105,7 +107,8 @@
   - name: "Add boot disk from image for VM {{ inventory_hostname }}, VMID: {{ resolved_vmid }}"
     community.general.proxmox_disk:
       api_user: "{{ api_user }}"
-      api_password: "{{ api_password }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
       api_host: "{{ node }}"
       vmid: "{{ resolved_vmid }}"
       disk: "{{ bootdiskname }}"
@@ -115,7 +118,8 @@
   - name: "Resize boot disk for VM {{ inventory_hostname }}, VMID: {{ resolved_vmid }}"
     community.general.proxmox_disk:
       api_user: "{{ api_user }}"
-      api_password: "{{ api_password }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
       api_host: "{{ node }}"
       vmid: "{{ resolved_vmid }}"
       disk: "{{ bootdiskname }}"
@@ -125,7 +129,8 @@
   - name: Start the VM(s)
     community.general.proxmox_kvm:
       api_user: "{{ api_user }}"
-      api_password: "{{ api_password }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
       api_host: "{{ node }}"
       node: "{{ node }}"
       vmid: "{{ resolved_vmid }}"
