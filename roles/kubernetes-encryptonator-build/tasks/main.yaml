@@ -2,7 +2,7 @@
 #=== Create directory to perform the build ===#
 - name: create directory if it doesn't exist
   ansible.builtin.file:
-    path: "{{ repo_base_path }}"
+    path: "{{ repo_base_path }}/tools/certs"
     state: directory
 
 #=== Curl in latest encryptonator ===#
@@ -32,7 +32,7 @@
 - name: copy in ca.crt
   ansible.builtin.copy:
     src: /usr/local/share/ca-certificates/ca.crt
-    dest: "{{ repo_base_path }}"
+    dest: "{{ repo_base_path }}/tools/certs"
 
 #=== Edit the files as necessary to make this standalone ===#
 # - name: edit encryptonator.py - remove 'sys.append.path...'
@@ -53,11 +53,11 @@
 #     regexp:  '"ca.crt"'
 #     replace: 'True    '
 
-- name: edit check_and_append_cacert.py - remove 'tools/certs/'
-  ansible.builtin.replace:
-    path: "{{ repo_base_path }}/check_and_append_cacert.py"
-    regexp: 'tools/certs/'
-    replace: ''
+# - name: edit check_and_append_cacert.py - remove 'tools/certs/'
+#   ansible.builtin.replace:
+#     path: "{{ repo_base_path }}/check_and_append_cacert.py"
+#     regexp: 'tools/certs/'
+#     replace: ''
 
 #=== check and setup venv as required ===#
 - name: "check if {{ repo_base_path }}/venv exists"

@@ -97,9 +97,9 @@ images:
         basefile: ubuntu-24.04-server-cloudimg-amd64.img
         target: ubuntu-24.04-cloudimg-amd64.qcow2
       25: 
-        baseurl: https://cloud-images.ubuntu.com/releases/plucky/release/ubuntu-25.04-server-cloudimg-amd64.img
-        basefile: ubuntu-25.04-server-cloudimg-amd64.img
-        target: ubuntu-25.04-cloudimg-amd64.qcow2
+        baseurl: https://cloud-images.ubuntu.com/releases/questing/release/ubuntu-25.10-server-cloudimg-amd64.img
+        basefile: ubuntu-25.10-server-cloudimg-amd64.img
+        target: ubuntu-25.10-cloudimg-amd64.qcow2
     debian:
       12:
         baseurl: https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2
@@ -132,7 +132,7 @@ images:
         target: ubuntu-noble-latest-custom.tar.xz
       25:
         # baseurl: https://images.linuxcontainers.org/images/ubuntu/plucky/amd64/cloud/
-        target: ubuntu-plucky-latest-custom.tar.xz
+        target: ubuntu-questing-latest-custom.tar.xz
     debian:
       12:
         # baseurl: https://images.linuxcontainers.org/images/debian/bookworm/amd64/cloud/
