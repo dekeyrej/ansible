@@ -2,26 +2,26 @@
 # Provisions a Proxmox container and installs MagicMirror² with Node.js and PM2
 # Assumes: Vault and CA are already configured, container image is available
 
-#=== Create Proxmox container for MagicMirror2 ===
-- name: Create Proxmox container
-  hosts: iluvatar   # executed on Manwë
-  vars:
-    host_group: watchers
-  tags: provision
-  roles:
-    - role: known-hosts-clear
-    - role: proxmox-provision
+# #=== Create Proxmox container for MagicMirror2 ===
+# - name: Create Proxmox container
+#   hosts: iluvatar   # executed on Manwë
+#   vars:
+#     host_group: watchers
+#   tags: provision
+#   roles:
+#     - role: known-hosts-clear
+#     - role: proxmox-provision
 
-# wait for the container to settle...
-- name: Wait for Container to become reachable
-  hosts: gandalf
-  gather_facts: no
-  tasks:
-    - name: Wait for SSH to come up
-      ansible.builtin.wait_for_connection:
-        timeout: 300  # Adjust as needed
-        delay: 5     # Initial delay before polling
-        sleep: 5      # Time between retries
+# # wait for the container to settle...
+# - name: Wait for Container to become reachable
+#   hosts: gandalf
+#   gather_facts: no
+#   tasks:
+#     - name: Wait for SSH to come up
+#       ansible.builtin.wait_for_connection:
+#         timeout: 300  # Adjust as needed
+#         delay: 5     # Initial delay before polling
+#         sleep: 5      # Time between retries
       
       
 # performs apt update && apt upgrade; install node.js (LTS); clones and installs MagicMirror2 and defined modules

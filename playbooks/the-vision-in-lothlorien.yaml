@@ -1,28 +1,28 @@
 ---
-- name: Provision Proxmox-VE VM
-  hosts: iluvatar   # executed on Manwë
-  vars:
-    host_group: seers
-  roles:
-    - role: known-hosts-clear
-    - role: proxmox-provision
+# - name: Provision Proxmox-VE VM
+#   hosts: iluvatar   # executed on Manwë
+#   vars:
+#     host_group: seers
+#   roles:
+#     - role: known-hosts-clear
+#     - role: proxmox-provision
 
-# wait for the Galadriel to wake...
-- name: Wait for Container to become reachable
-  hosts: galadriel
-  gather_facts: no
-  tasks:
-    - name: Wait for SSH to come up
-      ansible.builtin.wait_for_connection:
-        timeout: 300  # Adjust as needed
-        delay: 5      # Initial delay before polling
-        sleep: 5      # Time between retries
+# # wait for the Galadriel to wake...
+# - name: Wait for Container to become reachable
+#   hosts: galadriel
+#   gather_facts: no
+#   tasks:
+#     - name: Wait for SSH to come up
+#       ansible.builtin.wait_for_connection:
+#         timeout: 300  # Adjust as needed
+#         delay: 5      # Initial delay before polling
+#         sleep: 5      # Time between retries
 
 - name: setup GPU host
   hosts: galadriel
   become: yes
   roles:
     - role: apt-update-all
-    - role: apt-add-source-nvidia-container-toolkit
+    # - role: apt-add-source-nvidia-container-toolkit
     - role: open-webui-install
     - role: ollama-install

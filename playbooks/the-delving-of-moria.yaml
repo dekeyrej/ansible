@@ -1,26 +1,26 @@
 #=== Provision and Configure Vault Container ===
 
-# Additional role to create an LXC Container on proxmox using the community.general.proxmox module
-- name: create Proxmox Container for Vault
-  hosts: iluvatar
-  tags: vault:provision
-  vars:
-    host_group: vault
-  roles:
-    - role: known-hosts-clear
-    - role: proxmox-provision
+# # Additional role to create an LXC Container on proxmox using the community.general.proxmox module
+# - name: create Proxmox Container for Vault
+#   hosts: iluvatar
+#   tags: vault:provision
+#   vars:
+#     host_group: vault
+#   roles:
+#     - role: known-hosts-clear
+#     - role: proxmox-provision
 
-# wait for the container to settle...
-- name: Wait for Container to become reachable
-  hosts: moria
-  tags: vault:provision
-  gather_facts: false
-  tasks:
-    - name: Wait for SSH to come up
-      ansible.builtin.wait_for_connection:
-        timeout: 300  # Adjust as needed
-        delay: 5     # Initial delay before polling
-        sleep: 5      # Time between retries
+# # wait for the container to settle...
+# - name: Wait for Container to become reachable
+#   hosts: moria
+#   tags: vault:provision
+#   gather_facts: false
+#   tasks:
+#     - name: Wait for SSH to come up
+#       ansible.builtin.wait_for_connection:
+#         timeout: 300  # Adjust as needed
+#         delay: 5     # Initial delay before polling
+#         sleep: 5      # Time between retries
 
 # Adds CA to cert store, 
 #   creates RFC 2818 compliant TLS certificates with _critical_IP SANs (which makes Vault happy)

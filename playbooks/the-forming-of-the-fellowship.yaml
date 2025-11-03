@@ -3,36 +3,39 @@
 # Builds a MicroK8s cluster with MicroCeph, configures Vault for KUBEVAULT secrets, and deploys microservices
 # Assumes: CA is created, Vault is initialized, and Proxmox VMs are provisioned (all in 00_proxmox.yaml)
 #=== Provision VMs to be microceph/microk8s cluster nodes ===#
-- name: Provision Proxmox VM hosts for Kubernetes cluster
-  hosts: iluvatar   # executed on Manwë
-  tags: fellowship:provision
-  vars:
-    host_group: fellowship
-  roles:
-    - role: known-hosts-clear
-    - role: proxmox-provision
+# - name: Provision Proxmox VM hosts for Kubernetes cluster
+#   hosts: iluvatar   # executed on Manwë
+#   tags: fellowship:provision
+#   vars:
+#     host_group: fellowship
+#   roles:
+#     - role: known-hosts-clear
+#     - role: proxmox-provision
 
-# wait for the VMs to settle...
-- name: Wait for Container to become reachable
-  hosts: fellowship
-  tags: fellowship:provision
-  gather_facts: no
-  tasks:
-    - name: Wait for SSH to come up
-      ansible.builtin.wait_for_connection:
-        timeout: 300  # Adjust as needed
-        delay: 5     # Initial delay before polling
-        sleep: 5      # Time between retries
+# # wait for the VMs to settle...
+# - name: Wait for Container to become reachable
+#   hosts: fellowship
+#   tags: fellowship:provision
+#   gather_facts: no
+#   tasks:
+#     - name: Wait for SSH to come up
+#       ansible.builtin.wait_for_connection:
+#         timeout: 300  # Adjust as needed
+#         delay: 5     # Initial delay before polling
+#         sleep: 5      # Time between retries
 
-- name: show Ceph status
-  hosts: strider
-  tasks:
-    - name: Show Ceph status
-      debug:
-        msg: "Ceph is {{ 'enabled' if ceph_enabled else 'disabled' }}"
+# - name: show Ceph status
+#   hosts: strider
+#   tasks:
+#     - name: Show Ceph status
+#       debug:
+#         msg: "Ceph is {{ 'enabled' if ceph_enabled else 'disabled' }}"
 
 - name: Prepare nodes - Part 1 (create microceph cluster and install microk8s)
-  hosts: fellowship
+  hosts: 
+    - aragorn
+    - legolas
+    - gimli
   tags: fellowship:install
   become: yes
   vars_files:
@@ -48,15 +51,22 @@
         new_ca: true       # check for new ca.crt, refresh certs _BEFORE_ making cluster!
                            
 - name: Prepare nodes - Part 2 (create microk8s cluster)
-  hosts: friends
+  hosts: 
+    - legolas
+    - gimli
   tags: fellowship:assemble
   serial: 1
   become: yes
   roles:
     - role: microk8s-assemble-cluster
+      vars:
+        main_node: aragorn
 
 - name: Prepare nodes - Part 3 (configure microk8s cluster)
-  hosts: fellowship
+  hosts: 
+    - aragorn
+    - legolas
+    - gimli
   tags: fellowship:configure
   become: yes
   roles:
@@ -91,7 +101,7 @@
   tags: fellowship:deploy
   become: no
   roles:
-    - role: microservice-build-check
+    # - role: microservice-build-check
     - role: kubernetes-encryptonator-build
     - role: kubernetes-secrets-bootstrap
     - role: kubernetes-manifests-sync

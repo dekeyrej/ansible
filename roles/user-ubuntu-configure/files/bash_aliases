@@ -1,4 +1,6 @@
 alias ap='ansible-playbook'
+alias av='ansible-vault'
+alias avk='ansible-vault-keys'
 alias h='history'
 alias pct='ssh iluvatar pct'
 alias qm='ssh iluvatar qm'

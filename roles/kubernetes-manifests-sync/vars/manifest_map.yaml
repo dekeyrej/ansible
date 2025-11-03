@@ -14,6 +14,8 @@ manifests:
     - https://github.com/dekeyrej/microservicematrix/blob/main/yaml/mycal.yaml
     - https://github.com/dekeyrej/microservicematrix/blob/main/yaml/nfl.yaml
     - https://github.com/dekeyrej/microservicematrix/blob/main/yaml/weather.yaml
+    - https://github.com/dekeyrej/microservicematrix/blob/main/yaml/secretcfg.yaml
+    - https://github.com/dekeyrej/microservicematrix/blob/main/yaml/secretdef.yaml
   webdisplay:
     - https://github.com/dekeyrej/nodewebdisplay/blob/main/webdisplay-deployment.yaml
     - https://github.com/dekeyrej/nodewebdisplay/blob/main/webdisplay-service.yaml
@@ -46,4 +48,4 @@ manifests:
   grafana-step2:
     - https://github.com/dekeyrej/cluster_recipe/blob/main/mqtt-telegraf-influxdb-grafana/grafana/grafana-deployment.yaml
   recryptonator:
-    - https://github.com/dekeyrej/secretmanager/blob/main/examples/recryptonator/recryptonator-cronjob.yaml
+    - https://github.com/dekeyrej/secretmanager/blob/main/tools/recryptonator-cronjob.yaml

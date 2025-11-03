@@ -1,24 +1,24 @@
 ---
-- name: Provision Proxmox VM hosts for Bombadil
-  hosts: iluvatar   # executed on Manwë
-  tags: provision
-  vars:
-    host_group: sidequest
-  roles:
-    - role: known-hosts-clear
-    - role: proxmox-provision
+# - name: Provision Proxmox VM hosts for Bombadil
+#   hosts: iluvatar   # executed on Manwë
+#   tags: provision
+#   vars:
+#     host_group: sidequest
+#   roles:
+#     - role: known-hosts-clear
+#     - role: proxmox-provision
     
-# wait for the VM to settle...
-- name: Wait for VM to become reachable
-  hosts: bombadil
-  tags: provision
-  gather_facts: no
-  tasks:
-    - name: Wait for SSH to come up
-      ansible.builtin.wait_for_connection:
-        timeout: 300  # Adjust as needed
-        delay: 5      # Initial delay before polling
-        sleep: 5      # Time between retries
+# # wait for the VM to settle...
+# - name: Wait for VM to become reachable
+#   hosts: bombadil
+#   tags: provision
+#   gather_facts: no
+#   tasks:
+#     - name: Wait for SSH to come up
+#       ansible.builtin.wait_for_connection:
+#         timeout: 300  # Adjust as needed
+#         delay: 5      # Initial delay before polling
+#         sleep: 5      # Time between retries
 
 - name: Setup Bombadil - Part 1 (root stuff)
   hosts: sidequest

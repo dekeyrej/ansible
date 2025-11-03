@@ -26,7 +26,7 @@
   become: yes
   roles:
     - role: certificate-authority-copy-to-host
-    - role: apt-add-source-vault
+    # - role: apt-add-source-vault
     - role: apt-update-all
     - role: apt-add-packages
       vars:
@@ -38,7 +38,7 @@
       vars:
         repositories:
         - { name: distrobuilder, repo: 'https://github.com/lxc/distrobuilder.git'}
-        - { name: images,        repo: 'git@github.com:dekeyrej/custom-container-images.git'}
+        - { name: images,        repo: 'https://github.com/dekeyrej/custom-container-images.git'}
     - role: kubernetes-kubectl-install
   tasks:
     - name: inject github token into ubuntu's .bashrc

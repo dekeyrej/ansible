@@ -2,26 +2,26 @@
 # Provisions a Proxmox container and installs VS Code Server dependencies, CLI tools, and Git config,
 # and fetches GitHub repositories
 
-- name: create Proxmox Container (Manwë)
-  hosts: iluvatar   # executed on Ilúvatar
-  connection: local
-  vars:
-    host_group: valar
-  roles:
-    - role: known-hosts-clear
-    - role: proxmox-provision
+# - name: create Proxmox Container (Manwë)
+#   hosts: iluvatar   # executed on Ilúvatar
+#   connection: local
+#   vars:
+#     host_group: valar
+#   roles:
+#     - role: known-hosts-clear
+#     - role: proxmox-provision
 
-# wait for the container to settle...
-- name: Wait for Container to become reachable
-  hosts: manwe
-  tags: manwe:provision
-  gather_facts: false
-  tasks:
-    - name: Wait for SSH to come up
-      ansible.builtin.wait_for_connection:
-        timeout: 300  # Adjust as needed
-        delay: 5      # Initial delay before polling
-        sleep: 5      # Time between retries
+# # wait for the container to settle...
+# - name: Wait for Container to become reachable
+#   hosts: manwe
+#   tags: manwe:provision
+#   gather_facts: false
+#   tasks:
+#     - name: Wait for SSH to come up
+#       ansible.builtin.wait_for_connection:
+#         timeout: 300  # Adjust as needed
+#         delay: 5      # Initial delay before polling
+#         sleep: 5      # Time between retries
       
 - name: Setup Manwë - Part 1 - Update and Install
   hosts: manwe
