@@ -19,7 +19,7 @@
 - name: Find matching files
   ansible.builtin.find:
     paths: /home/ubuntu
-    patterns: "vault_init_output-*.txt"
+    patterns: "vault_init_output-{{ vault_host }}-*.txt"
     file_type: file
   delegate_to: localhost
   register: vault_files

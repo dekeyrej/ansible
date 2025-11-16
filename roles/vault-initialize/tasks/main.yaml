@@ -14,8 +14,7 @@
   when: result.rc == 0
   ansible.builtin.fetch:
     src: /root/vault_init_output.txt
-    # dest: /home/ubuntu/vault_init_output.txt
-    dest: "/home/ubuntu/vault_init_output-{{ ansible_date_time.iso8601_basic_short }}.txt"
+    dest: "/home/ubuntu/vault_init_output-{{ inventory_hostname }}-{{ ansible_date_time.iso8601_basic_short }}.txt"
     flat: true
 
 # let's clean this up after we have configured for KUBEVAULT...

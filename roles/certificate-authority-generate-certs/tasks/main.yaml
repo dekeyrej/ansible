@@ -17,7 +17,7 @@
 
 - name: set server_ip
   ansible.builtin.set_fact:
-    server_ip: "{{ hostvars[inventory_hostname]['static_ip'] }}"
+    server_ip: "{{ hostvars[inventory_hostname].static_ip }}"
 
 # Need the AKI (equal to the CA's SKI) for the CSR
 - name:  Get info for CA Certificate
@@ -82,9 +82,9 @@
     provider: ownca
     ownca_path: "{{ ca_base_path }}/{{ ca_cert_name }}"
     ownca_privatekey_path: "{{ ca_base_path }}/{{ ca_key_name }}"
-    ownca_not_after: +365d  # valid for one year
-    ownca_not_before: "-1d"  # valid since yesterday
-  delegate_to: localhost          # or whatever host holds the certificate_authority
+    ownca_not_after: +365d      # valid for one year
+    ownca_not_before: "-1d"     # valid since yesterday
+  delegate_to: "{{ ca_host }}"  # or whatever host holds the certificate_authority
   run_once: true
   register: certificate
 

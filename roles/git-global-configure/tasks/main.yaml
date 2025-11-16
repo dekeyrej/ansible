@@ -17,5 +17,12 @@
     value: "{{ git_user_email }}"
   when: result.config_values['user.email'] is not defined or result.config_values['user.email'] | length == 0
 
+- name: configure git default branch if it doesn't exist
+  community.general.git_config:
+    name: init.defaultbranch
+    scope: global
+    value: "{{ git_default_branch }}"
+  when: result.config_values['init.defaultbranch'] is not defined or result.config_values['init.defaultbranch'] | length == 0
+
 - name: Add GitHub to known_hosts
   ansible.builtin.shell: ssh-keyscan github.com >> ~/.ssh/known_hosts

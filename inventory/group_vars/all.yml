@@ -2,13 +2,17 @@
 ansible_user: ubuntu
 ansible_python_interpreter: /usr/bin/python3
 # Certificate Authority
+ca_host: manwe
 ca_base_path: /home/ubuntu/certificate_authority
 ca_key_name: ca-certificate.key
 ca_cert_name: ca-certificate.pem
 # enable ceph for kubernetes
 ceph_enabled: false
 # HashiCorp Vault
-vault_addr: https://moria.local:8200
+vault_host: moria
+vault_address: https://moria.local:8200
+# Kubernetes API address
+kubeapiaddress: https://aragorn.local:16443
 # Proxmox-VE node
 node: iluvatar
 # use ansible-vault-keys decrypt/encrypt

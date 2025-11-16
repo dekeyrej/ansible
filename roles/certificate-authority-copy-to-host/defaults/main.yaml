@@ -1,0 +1,5 @@
+# Certificate Authority
+ca_host: manwe
+ca_base_path: /home/ubuntu/certificate_authority
+ca_key_name: ca-certificate.key
+ca_cert_name: ca-certificate.pem

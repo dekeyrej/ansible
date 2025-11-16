@@ -64,8 +64,6 @@
     # Configure Vault for KubeVault
     - role: vault-configure-for-kubevault
       vars:
-        kubeapiaddress: https://192.168.86.7:16443
-        vault_address: https://127.0.0.1:8200
         role: demo
         policy: my-app-policy
         transit_key: aes256-key

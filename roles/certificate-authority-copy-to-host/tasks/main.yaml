@@ -1,13 +1,16 @@
 ---
+# probably need to slurp, then copy...
 # copies ca.crt from Certificate_Authority host to server
 # and updates host certificate store
 - name: Copy CA cert to correct location on Host
+  become: yes
   ansible.builtin.copy:
     src:  /usr/local/share/ca-certificates/ca.crt
     dest: /usr/local/share/ca-certificates/ca.crt
     owner: root
     group: root
     mode: '0644'
+  # delegate_to: "{{ ca_host }}"
 
 - name: Update the server 'trust store'
   become: yes

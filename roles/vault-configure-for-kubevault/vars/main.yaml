@@ -1,5 +1,5 @@
-kubeapiaddress: https://192.168.86.3:16443
-vault_address: https://192.168.86.9:8200
+# kubeapiaddress: https://192.168.86.3:16443
+# vault_address: https://192.168.86.9:8200
 role: demo
 policy: my-app-policy
 transit_key: aes256-key
