@@ -1,0 +1,5 @@
+- name: Wait for SSH to come up
+  ansible.builtin.wait_for_connection:
+    timeout: 300  # Adjust as needed
+    delay: 1     # Initial delay before polling
+    sleep: 5      # Time between retries

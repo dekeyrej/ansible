@@ -1,0 +1,47 @@
+- name: Wait for the GPU container to become reachable
+  hosts: galadriel
+  gather_facts: no
+  tasks:
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 1     # Initial delay before polling
+        sleep: 5      # Time between retries
+
+    - name: Append GPU Configuration to giladriel
+      ansible.builtin.include_role:
+        name: proxmox-lxc-gpu
+
+# wait for the container(s), and VMs to settle...
+- name: Wait for everyone to become reachable after GPU config change
+  hosts:
+    - manwe
+    - moria
+    - gandalf
+    - galadriel
+    - aragorn
+    - legolas
+    - gimli
+    - celebrimbor
+    - bombadil
+  gather_facts: no
+  tasks:
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 1     # Initial delay before polling
+        sleep: 5      # Time between retries
+
+    - name: "Show OS for {{ inventory_hostname }}"
+      ansible.builtin.shell:
+        cmd: cat /etc/os-release
+      register: os_release
+
+    - name: OS release
+      debug:
+        msg: "{{ inventory_hostname }} - {{ os_release.stdout_lines[0] }}"
+
+    - name: Loop through keys, appending any missing ones on KVMs
+      ansible.builtin.import_role:
+        name: append-ssh-authorized-keys
+      when: type == "kvm"

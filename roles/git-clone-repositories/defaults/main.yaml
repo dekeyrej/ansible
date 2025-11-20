@@ -1,12 +1,16 @@
 local_repo_base_path: /home/ubuntu/repos
 local_repo_owner: ubuntu
 repositories:
-  - { name: ansible ,            repo: 'git@github.com:dekeyrej/ansible.git'}
-  - { name: matrixclient ,       repo: 'git@github.com:dekeyrej/matrixclient.git'}
-  - { name: microservicematrix , repo: 'git@github.com:dekeyrej/microservicematrix.git'}
-  - { name: secretmanager ,      repo: 'git@github.com:dekeyrej/secretmanager.git'}
-  - { name: ecosystem-map ,      repo: 'git@github.com:dekeyrej/ecosystem-map.git'}
-  - { name: ecosystem-map.wiki , repo: 'https://github.com/dekeyrej/ecosystem-map.wiki.git'}
-  - { name: kv-updater ,         repo: 'git@github.com:dekeyrej/kv-updater.git'}
-  - { name: apiserver ,          repo: 'git@github.com:dekeyrej/apiserver.git'}
-  - { name: nodewebdisplay ,     repo: 'git@github.com:dekeyrej/nodewebdisplay.git'}
+  - { name: ansible ,                 repo: 'git@github.com:dekeyrej/ansible.git'}
+  - { name: ansible-vault-keys ,      repo: 'git@github.com:dekeyrej/ansible-vault-keys.git'}
+  - { name: apiserver ,               repo: 'git@github.com:dekeyrej/apiserver.git'}
+  - { name: custom-container-images , repo: 'git@github.com:dekeyrej/custom-container-images.git'}
+  - { name: ecosystem-map ,           repo: 'git@github.com:dekeyrej/ecosystem-map.git'}
+  - { name: ecosystem-map.wiki ,      repo: 'https://github.com/dekeyrej/ecosystem-map.wiki.git'}
+  - { name: kv-updater ,              repo: 'git@github.com:dekeyrej/kv-updater.git'}
+  - { name: matrixclient ,            repo: 'git@github.com:dekeyrej/matrixclient.git'}
+  - { name: microservicematrix ,      repo: 'git@github.com:dekeyrej/microservicematrix.git'}
+  - { name: nodewebdisplay ,          repo: 'git@github.com:dekeyrej/nodewebdisplay.git'}
+  - { name: proxmox ,                 repo: 'git@github.com:dekeyrej/proxmox.git'}
+  - { name: secretmanager ,           repo: 'git@github.com:dekeyrej/secretmanager.git'}
+  - { name: terraform-forward ,       repo: 'git@github.com:dekeyrej/terraform-forward.git'}

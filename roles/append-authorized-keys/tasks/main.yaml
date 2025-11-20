@@ -1,0 +1,8 @@
+- name: loop through keys
+  ansible.builtin.lineinfile:
+    path: "/home/{{ os }}/.ssh/authorized_keys"
+    line: "{{ item | regex_replace('\n$', '') }}"
+    state: present
+    insertafter: EOF
+    create: false
+  loop: "{{ sha }}"

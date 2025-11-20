@@ -1,0 +1,42 @@
+- name: Append GPU config to container config
+  ansible.builtin.blockinfile:
+    insertafter: EOF
+    path: "/etc/pve/lxc/{{ vmid }}.conf"
+    block: "{{ gpu_config_additions.iluvatar }}"
+    marker: "# {mark} GPU config additions"
+    state: present
+  check_mode: yes
+  register: block_check_result
+  delegate_to: "{{ node }}"
+
+- name: append the GPU config
+  block:
+  - name: Stop Container
+    community.proxmox.proxmox:
+      api_host: "{{ node }}"
+      api_user: "{{ api_user }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
+      vmid: "{{ vmid }}"
+      state: stopped
+    delegate_to: localhost
+
+  - name: Append GPU config to container config
+    ansible.builtin.blockinfile:
+      insertafter: EOF
+      path: "/etc/pve/lxc/{{ vmid }}.conf"
+      block: "{{ gpu_config_additions.[{{ node }}] }}"
+      # block: "{{ gpu_config_additions.iluvatar }}"
+      marker: "# {mark} GPU config additions"
+    delegate_to: "{{ node }}"
+
+  - name: Start Container
+    community.proxmox.proxmox:
+      api_host: "{{ node }}"
+      api_user: "{{ api_user }}"
+      api_token_id: "{{ api_token_id }}"
+      api_token_secret: "{{ api_token_secret }}"
+      vmid: "{{ vmid }}"
+      state: started
+    delegate_to: localhost
+  when: block_check_result.changed

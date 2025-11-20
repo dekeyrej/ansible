@@ -17,7 +17,8 @@
   - ansible.builtin.pause: seconds=10
     when: not ceph_enabled
 
-  - block:
+  - name: sub-block for ceph
+    block:
     - name: enable rook-ceph
       ansible.builtin.shell: microk8s enable rook-ceph
     - ansible.builtin.pause: seconds=5
@@ -26,8 +27,7 @@
       ansible.builtin.shell: sudo -E microk8s connect-external-ceph
     - ansible.builtin.pause: seconds=10
 
-
-  # kubectl patch storageClass ceph-rbd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+    # kubectl patch storageClass ceph-rbd -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
     - name: make ceph-rbd the default storage class
       ansible.builtin.command: 
         argv:
@@ -55,6 +55,7 @@
           - '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
 
     when: ceph_enabled
+  # end ceph block
 
   - name: enable ingress
     ansible.builtin.shell: microk8s enable ingress
