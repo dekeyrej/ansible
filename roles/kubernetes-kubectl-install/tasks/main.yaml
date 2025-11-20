@@ -1,3 +1,10 @@
+- name: Install Vault installation prequisites 
+  ansible.builtin.apt:
+      pkg:
+      - curl
+      state: present
+      update_cache: yes
+
 - name: check if kubectl exists
   ansible.builtin.stat:
     path: /usr/local/bin/kubectl

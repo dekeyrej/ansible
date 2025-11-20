@@ -1,48 +1,16 @@
 ---
-- name: add python3 required packages
-  ansible.builtin.apt:
-    update_cache: yes
-    pkg:
-    - python3-kubernetes
-    - python3-hvac
-  become: yes
-  
-
 - name: Load Kubernetes CA cert from file
-  set_fact:
+  ansible.builtin.set_fact:
     kube_ca_cert: "{{ lookup('file', '/usr/local/share/ca-certificates/ca.crt') }}"
 
-# - name: dump '/usr/local/share/ca-certificates/ca.crt'
-#   debug:
-#     msg: "{{ kube_ca_cert }}"
-
-- name: Find matching files
-  ansible.builtin.find:
-    paths: /home/ubuntu
-    patterns: "vault_init_output-{{ vault_host }}-*.txt"
-    file_type: file
-  delegate_to: localhost
-  register: vault_files
-
-
-- name: Set fact for newest file
-  set_fact:
-    newest_vault_file: "{{ (vault_files.files | sort(attribute='mtime', reverse=true))[0].path }}"
-  delegate_to: localhost
-  when: vault_files.files | length > 0
-
-- name: Show newest file
-  debug:
-    msg: "Newest vault init file is: {{ newest_vault_file }}"
-
 - name: Read the output file from the vault container
-  slurp:
-    src: "{{ newest_vault_file }}"
-  delegate_to: localhost
+  become: yes
+  ansible.builtin.slurp:
+    src: /root/vault_init_output.txt
   register: vault_output_raw
 
 - name: Decode file and extract root token
-  set_fact:
+  ansible.builtin.set_fact:
     initial_root_token: >-
       {{
         (vault_output_raw.content | b64decode).splitlines()

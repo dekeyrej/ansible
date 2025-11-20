@@ -6,7 +6,7 @@
 
 - name: create directory for synced_manifests
   ansible.builtin.file:
-    path: "{{ playbook_dir | dirname }}/synced_manifests"
+    path: /home/ubuntu/repos/ansible/synced_manifests
     state: directory
   # delegate_to: localhost
 
@@ -38,7 +38,7 @@
 - name: Download selected manifests
   get_url:
     url: "{{ item }}"
-    dest: "{{ playbook_dir | dirname }}/synced_manifests/{{ item | basename }}"
+    dest: "/home/ubuntu/repos/ansible/synced_manifests/{{ item | basename }}"
     headers:
       Authorization: "token {{ github_token }}"
   loop: "{{ raw_urls }}"

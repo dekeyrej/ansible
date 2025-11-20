@@ -12,30 +12,27 @@
 #     - role: known-hosts-clear
 #     - role: proxmox-provision
 
-# # wait for the VMs to settle...
-# - name: Wait for Container to become reachable
-#   hosts: fellowship
-#   tags: fellowship:provision
-#   gather_facts: no
-#   tasks:
-#     - name: Wait for SSH to come up
-#       ansible.builtin.wait_for_connection:
-#         timeout: 300  # Adjust as needed
-#         delay: 5     # Initial delay before polling
-#         sleep: 5      # Time between retries
+# wait for the VMs to settle...
+- name: Wait for Container to become reachable
+  hosts: kubernetes
+  tags: fellowship:install
+  gather_facts: no
+  tasks:
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 5     # Initial delay before polling
+        sleep: 5      # Time between retries
 
 # - name: show Ceph status
-#   hosts: strider
+#   hosts: main
 #   tasks:
 #     - name: Show Ceph status
 #       debug:
 #         msg: "Ceph is {{ 'enabled' if ceph_enabled else 'disabled' }}"
 
 - name: Prepare nodes - Part 1 (create microceph cluster and install microk8s)
-  hosts: 
-    - aragorn
-    - legolas
-    - gimli
+  hosts: kubernetes
   tags: fellowship:install
   become: yes
   vars_files:
@@ -51,9 +48,7 @@
         new_ca: true       # check for new ca.crt, refresh certs _BEFORE_ making cluster!
                            
 - name: Prepare nodes - Part 2 (create microk8s cluster)
-  hosts: 
-    - legolas
-    - gimli
+  hosts: nodes
   tags: fellowship:assemble
   serial: 1
   become: yes
@@ -63,17 +58,27 @@
         main_node: aragorn
 
 - name: Prepare nodes - Part 3 (configure microk8s cluster)
-  hosts: 
-    - aragorn
-    - legolas
-    - gimli
+  hosts: kubernetes
   tags: fellowship:configure
   become: yes
   roles:
     - role: microk8s-configure   # add task to add IP SANs for kubeapi.local, 192.168.86.90 to the server.crt on each node!
 
+# wait for the VMs to settle...
+- name: Wait for Container to become reachable
+  hosts: kubernetes
+  tags: fellowship:services
+  gather_facts: no
+  tasks:
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 5     # Initial delay before polling
+        sleep: 5      # Time between retries
+
+
 - name: Deploy cluster services (add-ons, pull kubeconfig, redis)
-  hosts: aragorn
+  hosts: main
   tags: fellowship:services
   become: no
   roles:
@@ -83,10 +88,15 @@
     - role: ghcr-secret-create
     
 - name: Configure vault support kubernetes authentication and transit secrets
-  hosts: localhost
+  hosts: vaults
   tags: fellowship:kubevault
   become: no
   roles:
+    - role: user-ubuntu-configure           
+    - role: kubernetes-fetch-config-nolocal
+      vars:
+        source_host: aragorn
+        dest_host: moria
     - role: vault-configure-for-kubevault
 
 # - name: Build recryptonator image
@@ -97,7 +107,7 @@
 #     - role: kubernetes-recryptonator-build
 
 - name: Deploy application microservices, API and webdisplay
-  hosts: aragorn
+  hosts: main
   tags: fellowship:deploy
   become: no
   roles:

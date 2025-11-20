@@ -6,7 +6,7 @@
 - name: Run binary encryptonator
   ansible.builtin.shell:
     cmd: |
-      ./encryptonator --json '{{ secret_json_text | to_json }}'
+      VAULT_URL={{ vault_address }} ./encryptonator --json '{{ secret_json_text | to_json }}'
     chdir: /home/ubuntu/repos/encryptonator/dist
   no_log: true
   register: encryptonator_output

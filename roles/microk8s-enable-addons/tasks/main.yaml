@@ -6,7 +6,7 @@
 
   - name: enable dashboard
     ansible.builtin.shell: microk8s enable dashboard
-  - ansible.builtin.pause: seconds=10
+  - ansible.builtin.pause: seconds=20
 
   - name: save dashboard token
     ansible.builtin.shell: kubectl describe secret -n kube-system microk8s-dashboard-token | grep token > /home/ubuntu/dashboard.token
