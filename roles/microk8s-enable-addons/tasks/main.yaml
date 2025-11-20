@@ -58,7 +58,7 @@
 
   - name: enable ingress
     ansible.builtin.shell: microk8s enable ingress
-  - ansible.builtin.pause: seconds=10
+  - ansible.builtin.pause: seconds=15
 
   - name: create dashboard ingress
     kubernetes.core.k8s:
