@@ -29,8 +29,8 @@
 #   enables/starts the vault service, and initializes the vault 
 #       - writing the root token and unseal keys back to the ansible host
 - name: Setup Vault
-  hosts: moria
-  tags: vault:setup
+  hosts: vaults
+  tags: vault:install
   become: true
   roles:
     - role: certificate-authority-copy-to-host
@@ -38,7 +38,8 @@
     - role: apt-update-all
     - role: apt-add-packages
       vars:
-        packages: vault
+        packages: [ vault, python3-kubernetes, python3-hvac ]
+    - role: kubernetes-kubectl-install
     - role: certificate-authority-generate-certs
       vars:
         server_key_path: /opt/vault/tls/vault.key
@@ -48,3 +49,15 @@
         mode: '0600'
     - role: vault-configure
     - role: vault-initialize
+
+- name: Configure vault support kubernetes authentication and transit secrets
+  hosts: vaults
+  tags: vault:kubevault
+  become: no
+  roles:
+    - role: user-ubuntu-configure           
+    - role: kubernetes-fetch-config-nolocal
+      vars:
+        source_host: aragorn
+        dest_host: moria
+    - role: vault-configure-for-kubevault

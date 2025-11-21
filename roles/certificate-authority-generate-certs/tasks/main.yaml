@@ -17,7 +17,8 @@
 
 - name: set server_ip
   ansible.builtin.set_fact:
-    server_ip: "{{ hostvars[inventory_hostname].static_ip }}"
+    server_ip: "{{ static_ip }}"
+    # server_ip: "{{ hostvars[inventory_hostname].static_ip }}"
 
 # Need the AKI (equal to the CA's SKI) for the CSR
 - name:  Get info for CA Certificate

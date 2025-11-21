@@ -28,7 +28,7 @@
 - name: Setup MagicMirror2
   hosts: gandalf
   become: yes
-  tags: install
+  tags: mm2:install
   roles:
     - role: apt-add-source-nodejs
     - role: apt-update-all
@@ -41,7 +41,7 @@
 # # performs apt update && apt upgrade; pulls and updates MagicMirror2 and defined modules
 # - name: Update MagicMirror2
 #   hosts: gandalf
-#   tags: update
+#   tags: mm2:update
 #   roles:
 #     # - role: apt-update-all
 #     - role: magic-mirror-update

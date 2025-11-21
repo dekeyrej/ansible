@@ -2,8 +2,8 @@ ui = true
 
 disable_mlock = true
 
-api_addr     = "https://{{ hostvars[inventory_hostname]['static_ip'] }}:8200"
-cluster_addr = "https://{{ hostvars[inventory_hostname]['static_ip'] }}:8201"
+api_addr     = "https://{{ static_ip }}:8200"
+cluster_addr = "https://{{ static_ip }}:8201"
 
 storage "raft" {
   path = "/opt/vault/data"

@@ -49,4 +49,4 @@
     - role: git-global-configure
     - role: git-clone-repositories          # Receives the Song of Creation from Ilúvatar
     - role: book-of-creation-delivery
-    - role: microservice-build-trigger-all
+    # - role: microservice-build-trigger-all
