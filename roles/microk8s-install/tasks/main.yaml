@@ -57,8 +57,8 @@
 
 - name: tell microk8s to refresh-certs
   ansible.builtin.shell: 
-    cmd: microk8s.refresh-certs cadir
-    chdir: /var/snap/microk8s/current/certs/
+    cmd: microk8s.refresh-certs /var/snap/microk8s/current/certs/cadir
+    # chdir: /var/snap/microk8s/current/certs/
   when: new_ca == true
 
 - name: restart microk8s
@@ -66,3 +66,21 @@
     microk8s stop
     microk8s start
   when: new_ca == true
+
+- name: patch csr.conf.template for hostname
+  ansible.builtin.lineinfile:
+    path: /var/snap/microk8s/current/certs/csr.conf.template
+    search_string: 'DNS.6 = '
+    insert_before: 'IP.1 = 127.0.0.1'
+    line: 'DNS.6 = {{ inventory_hostname }}'
+
+- name: patch csr.conf.template for hostname.local
+  ansible.builtin.lineinfile:
+    path: /var/snap/microk8s/current/certs/csr.conf.template
+    search_string: 'DNS.7 = '
+    insert_before: 'IP.1 = 127.0.0.1'
+    line: 'DNS.7 = {{ inventory_hostname }}.local'
+
+- name: microk8s refresh-certs --cert server.crt
+  ansible.builtin.shell:
+    cmd: microk8s refresh-certs --cert server.crt

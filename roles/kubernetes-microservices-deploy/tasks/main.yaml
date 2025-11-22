@@ -15,6 +15,12 @@
     src: "{{ manifest_directory }}/{{ item }}"
   loop: "{{ apiserver }}"
 
+- name: correct vault address in secretcfg
+  ansible.builtin.lineinfile:
+    path: /home/ubuntu/repos/ansible/synced_manifests/secretcfg
+    search_string: '"vault_url": "https://192.168.86.9:8200",'
+    line:          '      "vault_url": "{{ vault_address }}",'
+
 - name: create microservices apps 
   kubernetes.core.k8s:
     state: present

@@ -15,3 +15,9 @@
     content: "{{ slurped_kubeconfig.content | b64decode }}"
     dest: /home/ubuntu/.kube/config
   delegate_to: "{{ dest_host }}"
+
+- name: correct api address
+  ansible.builtin.lineinfile:
+    path: /home/ubuntu/.kube/config
+    search_string: 'server: https://127.0.0.1:16443'
+    line:          '    server: {{ kubeapiaddress }}'
