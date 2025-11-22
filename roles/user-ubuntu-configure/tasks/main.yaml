@@ -36,6 +36,6 @@
       fi
 
 - name: copy .pypirc to /home/ubuntu
-  ansible.buitin.copy:
+  ansible.builtin.copy:
     src: .pypirc
     dest: /home/ubuntu/.pypirc 

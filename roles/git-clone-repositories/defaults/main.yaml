@@ -5,6 +5,7 @@ repositories:
   - { name: ansible-vault-keys ,      repo: 'git@github.com:dekeyrej/ansible-vault-keys.git'}
   - { name: apiserver ,               repo: 'git@github.com:dekeyrej/apiserver.git'}
   - { name: custom-container-images , repo: 'git@github.com:dekeyrej/custom-container-images.git'}
+  - { name: distrobuilder,            repo: 'https://github.com/lxc/distrobuilder.git'}
   - { name: ecosystem-map ,           repo: 'git@github.com:dekeyrej/ecosystem-map.git'}
   - { name: ecosystem-map.wiki ,      repo: 'https://github.com/dekeyrej/ecosystem-map.wiki.git'}
   - { name: kv-updater ,              repo: 'git@github.com:dekeyrej/kv-updater.git'}
