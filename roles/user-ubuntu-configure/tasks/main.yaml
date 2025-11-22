@@ -34,3 +34,8 @@
       if [ -f ~/.bash_arda ]; then
           . ~/.bash_arda
       fi
+
+- name: copy .pypirc to /home/ubuntu
+  ansible.buitin.copy:
+    src: .pypirc
+    dest: /home/ubuntu/.pypirc 

@@ -1,0 +1,10 @@
+- name: install ansible
+
+- name: clone repositories (ansible, ansible-vault-keys)
+- name: copy vault.password into repos/ansible
+- name: install ansible-vault-keys
+
+- name: link repos/ansible/ansible.cfg ~.ansible.cfg
+- name: link repos/ansible/vault.password to ~/.amsible/vault.password
+- name: link repos/ansible/inventory to ~/.amsible/inventory
+- name: link repos/ansible/roles to ~/.amsible/inventory/roles
