@@ -11,17 +11,17 @@
 #     - role: known-hosts-clear
 #     - role: proxmox-provision
 
-# # wait for the container to settle...
-# - name: Wait for Container to become reachable
-#   hosts: manwe
-#   tags: manwe:provision
-#   gather_facts: false
-#   tasks:
-#     - name: Wait for SSH to come up
-#       ansible.builtin.wait_for_connection:
-#         timeout: 300  # Adjust as needed
-#         delay: 5      # Initial delay before polling
-#         sleep: 5      # Time between retries
+# wait for the container to settle...
+- name: Wait for Container to become reachable
+  hosts: manwe
+  tags: manwe:provision
+  gather_facts: false
+  tasks:
+    - name: Wait for SSH to come up
+      ansible.builtin.wait_for_connection:
+        timeout: 300  # Adjust as needed
+        delay: 5      # Initial delay before polling
+        sleep: 5      # Time between retries
       
 - name: Setup Manwë - Part 1 - Update and Install
   hosts: manwe
@@ -30,12 +30,13 @@
   roles:
     - role: apt-update-all
     - role: apt-add-source-nodejs
+    - role: apt-add-source-tofu
     - role: apt-add-source-vault
     - role: apt-add-packages
       vars:
-        packages: [ansible, build-essential, curl, git, git-filter-repo, gpg, tree, unzip, wget, 
-                  python3-proxmoxer, python3-kubernetes, python3-hvac, python3-pip, python3-venv,
-                  nodejs, vault]
+        packages: [ansible, build-essential, curl, git, git-filter-repo, gpg, qemu-guest-agent, tree, unzip, wget, 
+                  python3-hvac, python3-kubernetes, python3-pip, python3-proxmoxer, python3-venv,
+                  nodejs, tofu, vault]
     - role: kubernetes-kubectl-install
     - role: certificate-authority-create
 
@@ -49,4 +50,5 @@
     - role: git-global-configure
     - role: git-clone-repositories          # Receives the Song of Creation from Ilúvatar
     - role: book-of-creation-delivery
-    # - role: microservice-build-trigger-all
+    - role: ansible-host-integration
+  

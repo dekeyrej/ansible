@@ -1,0 +1,40 @@
+- name: enable {{ item.name }}
+  ansible.builtin.shell: >
+    microk8s enable {{ item.name }}{{ ':' + item.extra if item.extra is defined else '' }}
+  become: true
+  register: enable_out
+  changed_when: "'already enabled' not in enable_out.stdout"
+
+- name: parse resource kind and name
+  ansible.builtin.set_fact:
+    addon_kind: "{{ (item.resource.split('/')[0]) | lower }}"
+    addon_name: "{{ (item.resource.split('/')[1]) | default(item.resource) }}"
+  vars:
+    item: "{{ item }}"
+
+- name: wait for rollout for deployment/daemonset/statefulset
+  ansible.builtin.command: >
+    microk8s kubectl -n {{ item.namespace }} rollout status {{ item.resource }} --timeout=300s
+  register: rollout
+  when: addon_kind in ['deployment','daemonset','statefulset']
+  retries: 6
+  delay: 10
+  until: rollout.rc == 0
+  become: true
+
+- name: wait for cluster-scoped resource (storageclass, crd, etc.)
+  ansible.builtin.command: >
+    microk8s kubectl get {{ item.resource }} -o jsonpath='{.metadata.name}'
+  register: got
+  when: addon_kind in ['storageclass','crd','clusterrole','clusterrolebinding']
+  retries: 12
+  delay: 10
+  until: got.rc == 0 and got.stdout | trim == addon_name
+  become: true
+
+- name: final quick status check (optional)
+  ansible.builtin.command: microk8s status --format yaml --addon {{ item.name }}
+  register: mk_status
+  changed_when: false
+  failed_when: false
+  become: true

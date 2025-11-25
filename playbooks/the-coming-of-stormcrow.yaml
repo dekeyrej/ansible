@@ -34,7 +34,7 @@
     - role: apt-update-all
     - role: apt-add-packages
       vars:
-        packages: nodejs
+        packages: [curl, nodejs]
     - role: nodejs-pm2-install
     - role: magic-mirror-install
 

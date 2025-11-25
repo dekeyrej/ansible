@@ -1,0 +1,5 @@
+tranche: test
+main_node: theoden
+kubeapiaddress: https://theoden.local:16443
+vault_host: faramir
+vault_address: https://faramir.local:8200

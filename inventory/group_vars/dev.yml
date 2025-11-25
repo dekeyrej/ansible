@@ -1,0 +1,5 @@
+tranche: dev
+main_node: samwise
+kubeapiaddress: https://samwise.local:16443
+vault_host: rose
+vault_address: https://rose.local:8200

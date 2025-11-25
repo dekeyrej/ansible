@@ -1,1 +1,28 @@
 microceph: true
+addons:
+  - name: metrics-server
+    namespace: kube-system
+    resource: deployment/metrics-server
+  - name: dashboard
+    namespace: kube-system
+    resource: deployment/kubernetes-dashboard
+  - name: ingress
+    namespace: ingress
+    resource: daemonset/nginx-ingress-microk8s-controller
+  - name: dns
+    namespace: kube-system
+    resource: deployment/coredns
+  - name: metallb
+    namespace: metallb-system
+    resource: deployment/controller
+    extra: 192.168.86.49-192.168.86.49,192.168.86.95-192.168.86.98
+    when: tranche == "prod"
+  - name: hostpath-storage
+    namespace: kube-system
+    resource: deployment/hostpath-provisioner
+  # - name: rook-ceph
+  #   namespace: rook-ceph
+  #   resource: deployment/rook-ceph-operator
+  #   when: ceph_enabled
+  # - name: minio
+  #   when: microceph

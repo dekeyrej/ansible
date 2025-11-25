@@ -1,0 +1,7 @@
+- name: Install Terraform.tfvars file
+  ansible.builtin.copy:
+    src: "files/terraform.tfvars"
+    dest: "/opt/terraform/terraform.tfvars"
+    owner: root
+    group: root
+    mode: '0644'

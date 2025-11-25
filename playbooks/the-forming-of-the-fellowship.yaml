@@ -41,7 +41,8 @@
     - role: certificate-authority-copy-to-host
     - role: apt-add-packages
       vars:
-        packages: [ qemu-guest-agent, python3-kubernetes, python3-pip, python3-venv ]
+        packages: [ curl, qemu-guest-agent, 
+                    python3-kubernetes, python3-pip, python3-venv ]
     - role: microceph-all                 # only if group_vars-all-ceph_enabled == true
     - role: microk8s-install
       vars:

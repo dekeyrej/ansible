@@ -1,0 +1,25 @@
+- name: Check if NVIDIA package is already installed
+  ansible.builtin.stat:
+    path: /usr/bin/nvidia-smi
+  register: nvidia_package_stat
+
+- name: Check NVIDIA package installation status
+  ansible.builtin.cmd:
+    cmd: nvidia-smi
+  register: nvidia_check
+  when: nvidia_package_stat.stat.exists
+
+- name: Skip NVIDIA package installation if already installed
+  ansible.builtin.meta: end_play
+  when: nvidia_check is defined and nvidia_check.rc == 0
+
+- name: Download NVIDIA package
+  ansible.builtin.get_url:
+    url: "https://us.download.nvidia.com/XFree86/Linux-x86_64/{{ version }}/NVIDIA-Linux-x86_64-{{ version }}.run"
+    dest: /tmp/NVIDIA-Linux-x86_64-{{ version }}.run
+    mode: '0755'
+
+- name: Install NVIDIA package
+  ansible.builtin.shell:
+    cmd: sh /tmp/NVIDIA-Linux-x86_64-{{ version }}.run --no-kernel-modules --kernel-module-type=proprietary --silent
+    creates: /usr/bin/nvidia-smi

@@ -1,0 +1,25 @@
+---
+- name: Install OpenTofu prequisites 
+  ansible.builtin.apt:
+      pkg:
+      - curl
+      - ca-certificates
+      state: present
+      update_cache: yes
+
+- name: Add OpenTofu apt keys
+  ansible.builtin.shell: |
+    install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://get.opentofu.org/opentofu.gpg | tee /etc/apt/keyrings/opentofu.gpg >/dev/null
+    curl -fsSL https://packages.opentofu.org/opentofu/tofu/gpgkey | gpg --no-tty --batch --dearmor -o /etc/apt/keyrings/opentofu-repo.gpg >/dev/null
+    chmod a+r /etc/apt/keyrings/opentofu.gpg /etc/apt/keyrings/opentofu-repo.gpg
+
+- name: Add OpenTofu apt binary source
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/etc/apt/keyrings/opentofu.gpg,/etc/apt/keyrings/opentofu-repo.gpg] https://packages.opentofu.org/opentofu/tofu/any/ any main
+    state: present
+
+- name: Add OpenTofu apt source source
+  ansible.builtin.apt_repository:
+    repo: deb-src [signed-by=/etc/apt/keyrings/opentofu.gpg,/etc/apt/keyrings/opentofu-repo.gpg] https://packages.opentofu.org/opentofu/tofu/any/ any main
+    state: present

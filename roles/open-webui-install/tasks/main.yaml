@@ -1,4 +1,4 @@
-- name: install required packages for  Open WebUI
+- name: install required packages for Open WebUI
   ansible.builtin.apt:
     pkg:
       - python3-pip

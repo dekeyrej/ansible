@@ -1,10 +1,31 @@
-- name: install ansible
-
-- name: clone repositories (ansible, ansible-vault-keys)
-- name: copy vault.password into repos/ansible
 - name: install ansible-vault-keys
+  ansible.builtin.pip:
+    name: ansible-vault-keys
+    virtualenv: /home/ubuntu/.local
+    virtualenv_command: python3 -m venv
+    virtualenv_site_packages: no
+    state: present
 
-- name: link repos/ansible/ansible.cfg ~.ansible.cfg
-- name: link repos/ansible/vault.password to ~/.amsible/vault.password
-- name: link repos/ansible/inventory to ~/.amsible/inventory
-- name: link repos/ansible/roles to ~/.amsible/inventory/roles
+- name: link /home/ubuntu/repos/ansible/ansible.cfg ~.ansible.cfg
+  ansible.builtin.file:
+    src: /home/ubuntu/repos/ansible/ansible.cfg
+    dest: /home/ubuntu/.ansible.cfg
+    state: link
+
+- name: link /home/ubuntu/repos/ansible/vault.password to ~/.amsible/vault.password
+  ansible.builtin.file:
+    src: /home/ubuntu/repos/ansible/vault.password
+    dest: /home/ubuntu/.ansible/vault.password
+    state: link
+
+- name: link /home/ubuntu/repos/ansible/inventory to ~/.amsible/inventory
+  ansible.builtin.file:
+    src: /home/ubuntu/repos/ansible/inventory
+    dest: /home/ubuntu/.ansible/inventory
+    state: link
+
+- name: link /home/ubuntu/repos/ansible/roles to ~/.amsible/inventory/roles
+  ansible.builtin.file:
+    src: /home/ubuntu/repos/ansible/roles
+    dest: /home/ubuntu/.ansible/roles
+    state: link
