@@ -23,22 +23,24 @@
 #         delay: 5     # Initial delay before polling
 #         sleep: 5      # Time between retries
 
-# - name: Prep host for ansible-pull
-#   hosts: gandalf
-#   become: yes
-#   tags: mm2:pull
-#   roles:
-#     - role: git-global-configured
-#     - role: git-clone-repositories
-#       vars:
-#         repositories:
-#         - { name: ansible, repo: 'https://github.com/dekeyrej/ansible.git'}
-#     - role: book-of-creation-delivery
-#     - role: ansible-host-integration
+- name: Prep host for ansible-pull
+  hosts: localhost
+  become: yes
+  tags: mm2:pull
+  roles:
+    - role: git-global-configured
+    - role: git-clone-repositories
+      vars:
+        repositories:
+        - { name: ansible, repo: 'https://github.com/dekeyrej/ansible.git'}
+    - role: book-of-creation-delivery
+    - role: ansible-host-integration
+
+      
       
 # performs apt update && apt upgrade; install node.js (LTS); clones and installs MagicMirror2 and defined modules
 - name: Setup MagicMirror2
-  hosts: gandalf
+  hosts: localhost
   become: yes
   tags: mm2:install
   roles:
@@ -52,7 +54,7 @@
 
 # # performs apt update && apt upgrade; pulls and updates MagicMirror2 and defined modules
 # - name: Update MagicMirror2
-#   hosts: gandalf
+#   hosts: bellman
 #   tags: mm2:update
 #   roles:
 #     # - role: apt-update-all
