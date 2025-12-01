@@ -24,10 +24,12 @@
 #         sleep: 5      # Time between retries
 
 - name: Prep host for ansible-pull
-  hosts: localhost
+  hosts: gandalf
+  connection: local
   become: yes
   tags: mm2:pull
   roles:
+    # - role: append-authorized-keys
     - role: git-global-configured
     - role: git-clone-repositories
       vars:
@@ -40,7 +42,8 @@
       
 # performs apt update && apt upgrade; install node.js (LTS); clones and installs MagicMirror2 and defined modules
 - name: Setup MagicMirror2
-  hosts: localhost
+  hosts: gandalf
+  connection: local
   become: yes
   tags: mm2:install
   roles:
