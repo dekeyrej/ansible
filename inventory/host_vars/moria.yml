@@ -1,6 +1,8 @@
+cores: 1
+memory: 512
 ## root disk
 diskpool: ssd_pool
-rootsize: 10
+rootsize: 5
 ## options (not sure why there is not one for 'protection'?)
 unprivileged: true
 onboot: true

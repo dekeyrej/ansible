@@ -1,7 +1,6 @@
 ## virtual hardware specs
 cores: 4
-cpulimit: 4
-lxcmemory: 16384
+memory: 16384
 ## root disk
 diskpool: nvme_pool
 rootsize: 100

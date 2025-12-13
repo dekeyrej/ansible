@@ -2,8 +2,8 @@
 cores: 4
 cpulimit: 4
 cputype: host
-vmballoon: 4096
-vmmemory: 16384
+maxmemory: 4096
+memory: 16384
 ## root disk
 diskpool: nvme_pool
 rootsize: 50
