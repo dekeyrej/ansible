@@ -9,9 +9,21 @@
   register: nvidia_check
   when: nvidia_package_stat.stat.exists
 
-- name: Skip NVIDIA package installation if already installed
+- name: Skip NVIDIA package installation if already installed and working
   ansible.builtin.meta: end_play
   when: nvidia_check is defined and nvidia_check.rc == 0
+
+- name: Check driver version on host system (the PVE node)
+  ansible.builtin.shell:
+    cmd: cat /proc/driver/nvidia/version | grep "NVIDIA UNIX x86_64 Kernel Module" | awk '{print $8}'
+  register: driver_version
+  failed_when: false
+  changed_when: false
+  delegate_to: "{{ node }}"
+
+- name: Set NVIDIA package version
+  ansible.builtin.set_fact:
+    version: "{{ driver_version.stdout if driver_version.stdout != '' else default_version }}"
 
 - name: Download NVIDIA package
   ansible.builtin.get_url:
