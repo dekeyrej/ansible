@@ -1,0 +1,14 @@
+- name: Append authorized_keys for ubuntu
+  hosts: aragorn, legolas, gimli, manwe, nenya
+  gather_facts: false
+  roles:
+    - append-authorized-keys
+
+- name: Append authorized_keys for root
+  hosts: gandalf, moria, galadriel
+  gather_facts: false
+  become: true
+  roles:
+    - role: append-authorized-keys
+      vars:
+        os: root

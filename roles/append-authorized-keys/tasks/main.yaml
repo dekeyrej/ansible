@@ -1,6 +1,32 @@
+- name: set home directory based on os variable
+  ansible.builtin.set_fact:
+    home_dir: "/home/{{ os | default('ubuntu') }}"
+  when: os is defined and os != 'root'
+
+- name: set home directory based on os variable
+  ansible.builtin.set_fact:
+    home_dir: "/root"
+  when: os is defined and os == 'root'
+
+- name: Make sure .ssh directory exists
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.ssh"
+    state: directory
+    mode: '0700'
+    owner: "{{ os | default('ubuntu') }}"
+    group: "{{ os | default('ubuntu') }}"
+
+- name: set authorized_keys file ownership
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.ssh/authorized_keys"
+    owner: "{{ os | default('ubuntu') }}"
+    group: "{{ os | default('ubuntu') }}"
+    mode: '0600'
+    state: touch
+
 - name: loop through keys
   ansible.builtin.lineinfile:
-    path: "/home/{{ os }}/.ssh/authorized_keys"
+    path: "{{ home_dir }}/.ssh/authorized_keys"
     line: "{{ item | regex_replace('\n$', '') }}"
     state: present
     insertafter: EOF
