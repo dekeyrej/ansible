@@ -1,4 +1,9 @@
 ---
+- name: remove package-lock.json if it exists
+  ansible.builtin.file:
+    path: /root/MagicMirror/package-lock.json
+    state: absent
+
 - name: pull updates to MagicMirror base
   ansible.builtin.shell:
     cmd: git pull

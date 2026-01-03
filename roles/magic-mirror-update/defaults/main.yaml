@@ -3,9 +3,13 @@
 mmmodules:
   - git_path: https://github.com/ulrichwisser/MMM-Worldclock.git
     mod_name: MMM-Worldclock
+    npm_flags: "--omit=dev"
   - git_path: https://github.com/Blastitt/DailyXKCD
     mod_name: DailyXKCD
+    npm_flags: "--omit=dev"
   - git_path: https://github.com/MMM-CalendarExt2/MMM-CalendarExt2.git
     mod_name: MMM-CalendarExt2
+    npm_flags: ""
   - git_path: https://github.com/ottopaulsen/MMM-MQTT.git
     mod_name: MMM-MQTT
+    npm_flags: ""

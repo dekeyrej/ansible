@@ -51,9 +51,10 @@
     - role: magic-mirror-install
 
 # # performs apt update && apt upgrade; pulls and updates MagicMirror2 and defined modules
-# - name: Update MagicMirror2
-#   hosts: gandalf
-#   tags: mm2:update
-#   roles:
-#     # - role: apt-update-all
-#     - role: magic-mirror-update
+- name: Update MagicMirror2
+  hosts: gandalf
+  tags: mm2:update
+  become: yes
+  roles:
+    # - role: apt-update-all
+    - role: magic-mirror-update

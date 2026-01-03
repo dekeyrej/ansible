@@ -1,10 +1,15 @@
 ---
-- name: pull updates for module from github
+- name: "Pull updates for {{ item.mod_name }} from github"
   ansible.builtin.shell:
     cmd: git pull
     chdir: /root/MagicMirror/modules/{{ item.mod_name }}
 
-- name: npm install updates for modules
+# - name: remove package-lock.json if it exists
+#   ansible.builtin.file:
+#     path: /root/MagicMirror/modules/{{ item.mod_name }}/package-lock.json
+#     state: absent
+
+- name: "npm install updates for {{ item.mod_name }}"
   ansible.builtin.shell:
-    cmd: npm install --omit=dev || true
+    cmd: npm install {{ item.npm_flags }} || true
     chdir: /root/MagicMirror/modules/{{ item.mod_name }}
