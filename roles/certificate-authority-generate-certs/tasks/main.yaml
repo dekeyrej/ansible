@@ -55,7 +55,7 @@
     key_usage_critical: true
     subject_alt_name:
       - "DNS:{{ server_name }}"
-      - "DNS:{{ server_name }}.local"
+      - "DNS:{{ server_name }}.{{ domain }}"
       - "IP:{{ server_ip }}"          ## Vault requirement
       - "IP:127.0.0.1"
     subject_alt_name_critical: true   ## Vault requirement

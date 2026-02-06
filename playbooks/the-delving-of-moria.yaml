@@ -29,7 +29,7 @@
 #   enables/starts the vault service, and initializes the vault 
 #       - writing the root token and unseal keys back to the ansible host
 - name: Setup Vault
-  hosts: vaults
+  hosts: rose
   tags: vault:install
   become: true
   roles:

@@ -13,21 +13,18 @@
           ansible.builtin.shell:
             cmd: |
               wget -nd -N {{ image.baseurl }}
-            chdir: /root/vmimages
+            chdir: "{{ vmimage_path }}"
           register: wget_result
-
-        # - name: debug
-        #   ansible.builtin.debug:
-        #     var: wget_result
 
         - name: "Copy image to imports"
           ansible.builtin.shell:
             cmd: |
               cp -p {{ image.basefile }} {{ diskimg }}
-            chdir: /root/vmimages
+            chdir: "{{ vmimage_path }}"
           when:
             - wget_result.rc == 0
             - "'Omitting download' not in wget_result.stderr"
+            - item.os == 'ubuntu'  # of the non-Amazon images, only ubuntu *.img needs to be copied to *.qcow2
 
         - name: Record image update event
           ansible.builtin.set_fact:
@@ -36,7 +33,7 @@
               'os': item.os,
               'release': item.release,
               'status': 'updated',
-              'timestamp': ansible_date_time.iso8601
+              'timestamp': ansible_facts.date_time.iso8601
             } ] }}"
           when: 
             - wget_result.rc == 0
@@ -51,12 +48,12 @@
           ansible.builtin.shell:
             cmd: |
               wget -nd -N -r -l1 -A '*.qcow2' {{ image.baseurl }}
-            chdir: /root/vmimages
+            chdir: "{{ vmimage_path }}"
           register: wget_result
         
         - name: Find latest downloaded Amazon image
           ansible.builtin.shell: |
-            ls -1t /root/vmimages/{{ 'amzn2-kvm-' if item.release == 2 else 'al2023-kvm-' }}*.qcow2 | head -n 1
+            ls -1t {{ vmimage_path }}/{{ 'amzn2-kvm-' if item.release == 2 else 'al2023-kvm-' }}*.qcow2 | head -n 1
           register: amazon_image_file
 
         - name: "Copy image to imports"
@@ -73,7 +70,7 @@
               'os': item.os,
               'release': item.release,
               'status': 'updated',
-              'timestamp': ansible_date_time.iso8601
+              'timestamp': ansible_facts.date_time.iso8601
             } ] }}"
           when: 
             - wget_result.rc == 0

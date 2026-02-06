@@ -13,7 +13,8 @@
 - name: download kubectl binary
   ansible.builtin.shell:
     cmd: |
-      curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      curl -LO "https://dl.k8s.io/release/1.32.9/bin/linux/amd64/kubectl"
+      # curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"  # not sure why this is broken
       chmod +x kubectl
       mv kubectl /usr/local/bin/
   when: not results.stat.exists

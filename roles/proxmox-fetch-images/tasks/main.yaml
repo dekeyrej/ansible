@@ -2,10 +2,13 @@
 - name: Fetch images by type, distro, and release
   ansible.builtin.include_tasks: fetch-image.yaml
   loop: 
+    - {type: kvm, os: ubuntu, release: 22}
     - {type: kvm, os: ubuntu, release: 24}
     - {type: kvm, os: ubuntu, release: 25}
     - {type: kvm, os: debian, release: 12}
     - {type: kvm, os: debian, release: 13}
+    - {type: kvm, os: rocky,  release: 9}
+    - {type: kvm, os: rocky,  release: 10}
     - {type: kvm, os: centos, release: 9}
     - {type: kvm, os: centos, release: 10}
     - {type: kvm, os: amazon, release: 2}
@@ -25,7 +28,7 @@
 - name: Add changelog header
   ansible.builtin.lineinfile:
     path: /var/log/image-changelog.md
-    line: "## {{ ansible_date_time.date }} Image Updates"
+    line: "## {{ ansible_facts.date_time.date }} Image Updates"
     create: yes
     insertafter: EOF
   become: yes
