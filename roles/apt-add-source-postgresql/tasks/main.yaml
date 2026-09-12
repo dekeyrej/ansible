@@ -12,7 +12,11 @@
     install -d /usr/share/postgresql-common/pgdg
     curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
 
+- name: Get release
+  ansible.builtin.command: lsb_release -cs
+  register: release
+
 - name: Add PostgreSQL apt source
   ansible.builtin.apt_repository:
-    repo: deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main
+    repo: deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt {{ release.stdout }}-pgdg main
     state: present

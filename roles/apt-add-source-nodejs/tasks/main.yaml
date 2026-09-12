@@ -12,7 +12,7 @@
 - name: add node repository to apt
   ansible.builtin.shell: bash nodesource_setup.sh
 
-- name: add node repository to apt
+- name: remove nodesource setup script
   ansible.builtin.file:
     path:  nodesource_setup.sh
     state: absent

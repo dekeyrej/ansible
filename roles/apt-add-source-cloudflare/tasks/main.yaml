@@ -1,0 +1,18 @@
+- name: apt install curl package
+  ansible.builtin.apt:
+    pkg: curl
+    state: present
+    update_cache: yes
+
+- name: Add cloudflare apt key
+  ansible.builtin.shell: |
+    curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg >> /usr/share/keyrings/cloudflare-main.gpg
+
+- name: Get release
+  ansible.builtin.command: lsb_release -cs
+  register: release
+
+- name: Add Cloudflare apt source
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared {{ release.stdout }} main
+    state: present
