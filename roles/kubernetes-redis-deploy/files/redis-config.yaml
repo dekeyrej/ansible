@@ -767,6 +767,15 @@ data:
     # For more information about ACL configuration please refer to
     # the Redis web site at https://redis.io/topics/acl
 
+    user default   on nopass     +@all                       ~*                  +@pubsub &*
+    user fetch     on >fetch     +info +ping         +@read  ~period:*           +publish &raw
+    user repeat    on >repeat          +ping                                                      +subscribe +unsubscribe &raw
+    user transf    on >transf    +info +ping         +@read            ~raw:*    +publish &update +subscribe +unsubscribe &raw
+    user dtransf   on >dtransf   +info +ping +@write +@read  ~period:* ~raw:*    +publish &update +subscribe +unsubscribe &raw
+    user kvraw     on >kvraw     +info +ping +@write                   ~raw:*                     +subscribe +unsubscribe &raw
+    user kvupdate  on >kvupdate  +info +ping +@write                   ~update:*                  +subscribe +unsubscribe &update
+    user apiserver on >apiserver +info +ping         +@read            ~update:*                  +subscribe +unsubscribe &update
+
     # ACL LOG
     #
     # The ACL Log tracks failed commands and authentication events associated
