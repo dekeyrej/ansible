@@ -1,6 +1,6 @@
 tranche: prod
 main_node: aragorn
-kubeapiaddress: https://aragorn.local:16443
+kubeapiaddress: https://aragorn.pjis.net:16443
 vault_host: moria
-vault_address: https://moria.local:8200
+vault_address: https://moria.pjis.net:8200
 

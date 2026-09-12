@@ -11,9 +11,9 @@ ca_cert_name: ca-certificate.pem
 ceph_enabled: false
 # HashiCorp Vault
 vault_host: moria
-vault_address: https://moria.local:8200
+vault_address: https://moria.pjis.net:8200
 # Kubernetes API address
-kubeapiaddress: https://aragorn.local:16443
+kubeapiaddress: https://aragorn.pjis.net:16443
 # Proxmox-VE node
 node: iluvatar
 # use ansible-vault-keys decrypt/encrypt
@@ -94,6 +94,7 @@ agent: enabled=0
 protection: false
 ## lxc options (not sure why there is not one for 'protection'?)
 unprivileged: true
+nesting: true
 onboot: false
 ## resource pool
 pool: Mirkwood
@@ -107,32 +108,42 @@ vmimport_base: ssd_backup:import/
 images:
   kvm:
     ubuntu:  # 
-      22:
+      jammy:
         baseurl: 
           https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img
         basefile: ubuntu-22.04-server-cloudimg-amd64.img
         target: ubuntu-22.04-server-cloudimg-amd64.qcow2
-      24:
+      noble:
         baseurl: 
           https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img
         basefile: ubuntu-24.04-server-cloudimg-amd64.img
         target: ubuntu-24.04-server-cloudimg-amd64.qcow2
-      25:
+      questing:
         baseurl: 
           https://cloud-images.ubuntu.com/releases/questing/release/ubuntu-25.10-server-cloudimg-amd64.img
         basefile: ubuntu-25.10-server-cloudimg-amd64.img
         target: ubuntu-25.10-server-cloudimg-amd64.qcow2
+      resolute:
+        baseurl: 
+          https://cloud-images.ubuntu.com/releases/resolute/release/ubuntu-26.04-server-cloudimg-amd64v3.img
+        basefile: ubuntu-26.04-server-cloudimg-amd64v3.img
+        target: ubuntu-26.04-server-cloudimg-amd64v3.qcow2
     debian:
-      12:
+      bookworm:
         baseurl: 
           https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2
         basefile: debian-12-genericcloud-amd64.qcow2
         target: debian-12-genericcloud-amd64.qcow2
-      13:
+      trixie:
         baseurl: 
           https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2
         basefile: debian-13-genericcloud-amd64.qcow2
         target: debian-13-genericcloud-amd64.qcow2
+      forky:
+        baseurl: 
+          https://cloud.debian.org/images/cloud/forky/daily/latest/debian-14-genericcloud-amd64-daily.qcow2
+        basefile: debian-14-genericcloud-amd64-daily.qcow2
+        target: debian-14-genericcloud-amd64-daily.qcow2
     rocky:
       9:
         baseurl: 
@@ -164,19 +175,22 @@ images:
         target: al2023-kvm-x86_64.xfs.gpt.qcow2
   lxc:
     ubuntu:
-      24:
+      noble:
         # baseurl: https://images.linuxcontainers.org/images/ubuntu/noble/amd64/cloud/
         target: ubuntu-noble-latest-custom.tar.xz
-      25:
-        # baseurl: https://images.linuxcontainers.org/images/ubuntu/plucky/amd64/cloud/
-        target: ubuntu-questing-latest-custom.tar.xz
+      resolute:
+        # baseurl: https://images.linuxcontainers.org/images/ubuntu/resolute/amd64/cloud/
+        target: ubuntu-resolute-latest-custom.tar.xz
     debian:
-      12:
+      bookworm:
         # baseurl: https://images.linuxcontainers.org/images/debian/bookworm/amd64/cloud/
         target: debian-bookworm-latest-custom.tar.xz
-      13:
+      trixie:
         # baseurl: https://images.linuxcontainers.org/images/debian/trixie/amd64/cloud/
         target: debian-trixie-latest-custom.tar.xz
+      forky:
+        # baseurl: https://images.linuxcontainers.org/images/debian/forky/amd64/cloud/
+        target: debian-forky-latest-custom.tar.xz
     centos:
       9:
         # baseurl: https://images.linuxcontainers.org/images/debian/bookworm/amd64/cloud/
@@ -201,11 +215,12 @@ gpu_config_additions:
     lxc.mount.entry: /dev/nvidia-caps/nvidia-cap2 dev/nvidia-caps/nvidia-cap2 none bind,optional,create=file
   iluvatar: |
     lxc.cgroup2.devices.allow: c 195:* rwm
-    lxc.cgroup2.devices.allow: c 505:* rwm
-    lxc.cgroup2.devices.allow: c 508:* rwm
+    lxc.cgroup2.devices.allow: c 507:* rwm
+    lxc.cgroup2.devices.allow: c 511:* rwm
 
     lxc.mount.entry: /dev/nvidia0 dev/nvidia0 none bind,optional,create=file
     lxc.mount.entry: /dev/nvidiactl dev/nvidiactl none bind,optional,create=file
+    lxc.mount.entry: /dev/nvidia-modeset dev/nvidia-modeset none bind,optional,create=file
     lxc.mount.entry: /dev/nvidia-uvm dev/nvidia-uvm none bind,optional,create=file
     lxc.mount.entry: /dev/nvidia-uvm-tools dev/nvidia-uvm-tools none bind,optional,create=file
     lxc.mount.entry: /dev/nvidia-caps dev/nvidia-caps none bind,optional,create=dir
