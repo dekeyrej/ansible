@@ -1,0 +1,11 @@
+- name: Setup cloudflared tunnel
+  hosts: erech
+  become: true
+  tags: cloudflared:tunnel
+  roles:
+    - role: apt-update-all
+    - role: apt-add-source-cloudflare
+    - role: apt-add-packages
+      vars:
+        packages: cloudflared
+    - role: cloudflared-tunnel-configure
